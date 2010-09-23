@@ -1,0 +1,14 @@
+This package constitutes the basic setup for the translator.
+
+What you need to know:
+	1) There is a file called "config.sh.tmpl" -- copy it and rename it to "config.sh".
+	2) Edit your new config.sh file and change the directory location to point to the ROOT directory of your xtc install (ie. the directory containing the xtc source).
+	3) Use the build script to test it out (ie. run: ./make)
+	4) You should see a message saying "All compiled!".  If you don't, you did something wrong.
+	5) Run: ./make run
+	6) You should see "Happy happy, joy joy!"
+	7) Congratulations, it's running with ecstasy...err, xtc.
+
+Notes:
+	* The "make" script is pretty much an alias for "make".  I made a script so that you don't have to source your config file every time you run make...it would make things too difficult.
+	* Remember, it's executed as "./make", not "make" -- one is the local script, the other is the system executable. 
