@@ -12,3 +12,6 @@ What you need to know:
 Notes:
 	* The "make" script is pretty much an alias for "make".  I made a script so that you don't have to source your config file every time you run make...it would make things too difficult.
 	* Remember, it's executed as "./make", not "make" -- one is the local script, the other is the system executable. 
+	
+Coding Conventions:
+	* Everything should use tabs (no spaces)

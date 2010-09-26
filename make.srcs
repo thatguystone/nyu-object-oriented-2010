@@ -1,0 +1,5 @@
+#!/bin/bash
+# Used for finding the java files that need to be "compiled"
+# arg1: the relative path to the folder to build (recursively)
+
+find $1 -name "*.java" | awk '{sub("java", "class"); print}'
