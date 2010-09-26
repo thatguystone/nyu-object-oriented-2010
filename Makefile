@@ -1,5 +1,5 @@
 #the name of the file to run
-FILE="add"
+FILE=add
 
 default: translator
 
