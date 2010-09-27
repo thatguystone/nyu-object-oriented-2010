@@ -17,4 +17,7 @@ run: translator test/$(FILE).class
 clean-src:
 	find src -name "*.class" -exec rm {} \;
 
-clean: clean-src
+clean-test:
+	find test -name "*.class" -exec rm {} \;
+
+clean: clean-src clean-test
