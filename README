@@ -9,6 +9,11 @@ What you need to know:
 	6) You should see "Happy happy, joy joy!"
 	7) Congratulations, it's running with ecstasy...err, xtc.
 
+A good start:
+	Command: ./make run args="-printJavaAST" file=add
+	Produces: java -classpath /home/andi/Dev/NYU/OO/xtc/classes:. src.Translator  test/add.java
+	
+
 Notes:
 	* The "make" script is pretty much an alias for "make".  I made a script so that you don't have to source your config file every time you run make...it would make things too difficult.
 	* Remember, it's executed as "./make", not "make" -- one is the local script, the other is the system executable. 
