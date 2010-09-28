@@ -18,12 +18,11 @@ default: translator
 	javac -source 1.5 -classpath $(CLASSPATH) $<
 	
 translator:
-	echo $(FILE)
 	@cd $(XTCROOT); . ./setup.sh; make > /dev/null #make sure we have xtc all running and setup
 	make `./make.srcs src`
 
 run: translator $(FILE)
-	@echo "\n\n\n" #make some room from the compilation messages to the program output
+	@echo "\n" #make some room from the compilation messages to the program output
 	java -classpath $(CLASSPATH) src.Translator $(ARGS) $(FILE)
 
 clean-src:
