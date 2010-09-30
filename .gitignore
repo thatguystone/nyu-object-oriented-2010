@@ -3,3 +3,4 @@ config.sh
 a.out
 *.gch
 *.o
+out.cpp
