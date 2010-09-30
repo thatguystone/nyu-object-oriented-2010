@@ -4,20 +4,22 @@ include ../Makebase
 
 default: translator java
 
-%.class: %.java
-	javac -source 1.5 -classpath $(CLASSPATH) $<
-	
 translator:
-	@cd $(XTCROOT); . ./setup.sh; make > /dev/null #make sure we have xtc all running and setup
-	make `../make.srcs translator`
+	make -C translator
+
+clean-translator:
+	make -C translator clean
+
+clean-java:
+	make -C java clean
+
+clean: clean-translator clean-java
+
+#java has to be made from the parent directory, otherwise it fails (packages break)
+#  * cd-ing from the child directory (java) to here in the makefile causes an error because none of java's rules are in this file
+#  * the simplest solution was to move everything here
+%.class: %.java
+	javac -source 1.5 -sourcepath java $<
 
 java:
 	make `../make.srcs java`
-
-clean-translator:
-	find translator -name "*.class" -exec rm {} \;
-
-clean-java:
-	find java -name "*.class" -exec rm {} \;
-
-clean: clean-translator clean-java
