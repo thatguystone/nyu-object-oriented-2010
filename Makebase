@@ -1,0 +1,2 @@
+CLASSPATH=$(XTCROOT)/classes/:$(TRANSROOT)/src/
+SOURCEPATH=$(TRANSROOT)/test/

@@ -1,4 +1,4 @@
-package src;
+package translator;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class Translator extends Tool {
 	}
 
 	public String getCopy() {
-		return "(C) 2010 <Group Name>";
+		return "(C) 2010 5-Leaf Clover";
 	}
 
 	public String getName() {

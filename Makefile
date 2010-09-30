@@ -1,35 +1,19 @@
-#the classpath
-CLASSPATH=$(XTCROOT)/classes:.
+include Makebase
 
-#the name of the file to run
-ifdef file
-	FILE=test/$(file).java
-	CFILE=test/$(file).class #the name of the class file for the run dependency
-endif
+.PHONY: src test
 
-#args to be passed to the run command
-ARGS=
-ifdef args
-	ARGS=$(args)
-endif
+default: run
 
-default: translator
-
-%.class: %.java
-	javac -source 1.5 -classpath $(CLASSPATH) $<
+src:
+	make -C src
 	
-translator:
-	@cd $(XTCROOT); . ./setup.sh; make > /dev/null #make sure we have xtc all running and setup
-	make `./make.srcs src`
+test:
+	make -C test
 
-run: translator $(CFILE)
+run: src
 	@echo "\n" #make some room from the compilation messages to the program output
-	java -classpath $(CLASSPATH) src.Translator $(ARGS) $(FILE)
-
-clean-src:
-	find src -name "*.class" -exec rm {} \;
-
-clean-test:
-	find test -name "*.class" -exec rm {} \;
-
-clean: clean-src clean-test
+	@make -s -C test run #supress the annoying "leaving directory" message after the run completes
+	
+clean:
+	make -C src clean
+	make -C test clean
