@@ -11,7 +11,7 @@ test:
 	make -C test
 
 run: src
-	@make -C test run #supress the annoying "leaving directory" message after the run completes
+	make -C test run
 	
 clean:
 	make -C src clean
