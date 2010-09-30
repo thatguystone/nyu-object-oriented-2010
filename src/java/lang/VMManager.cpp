@@ -1,12 +1,15 @@
 #include <stdint.h>
+#include "java_lang.h"
+#include "VMManager.h"
 
-class VMManager {
-	public:
-		static Class getClass(Object o) {
+namespace java {
+	namespace lang {
+		Class VMManager::getClass(Object o) {
 			return o->__vptr->__isa;
 		}
-		
-		static int32_t getHashCode(Object o) {
+				
+		int32_t VMManager::getHashCode(Object o) {
 			return (int32_t)(intptr_t)o;
 		}
+	}
 }
