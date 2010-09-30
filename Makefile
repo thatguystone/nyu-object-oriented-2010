@@ -5,14 +5,14 @@ include Makebase
 default: run
 
 src:
-	make -C src
+	$(MAKE) -C src
 	
 test:
-	make -C test
+	$(MAKE) -C test
 
 run: src
-	make -C test run
+	$(MAKE) -C test run
 	
 clean:
-	make -C src clean
-	make -C test clean
+	$(MAKE) -C src clean
+	$(MAKE) -C test clean

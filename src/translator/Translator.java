@@ -37,9 +37,10 @@ public class Translator extends Tool {
 		super.init();
 
 		// Declare command line arguments.
-		runtime.
-			bool("printJavaAST", "printJavaAST", false, "Print the Java AST.").
-			bool("countMethods", "optionCountMethods", false, "Print the number of method declarations.")
+		runtime
+			.bool("printJavaAST", "printJavaAST", false, "Print the Java AST.")
+			.bool("countMethods", "optionCountMethods", false, "Print the number of method declarations.")
+			.word("outputFile", "outputFile", false, "The file to which to output the translated code (defaults to stdout; when the file cannot be written, goes to stdout)")
 		;
 	}
 
@@ -68,38 +69,16 @@ public class Translator extends Tool {
 		if (runtime.test("printJavaAST"))
 			runtime.console().format(node).pln().flush();
 
-		if (runtime.test("optionCountMethods")) {
-			new Visitor() {
-				int count = 0;
-
-				public void visitCompilationUnit(GNode n) {
-					visit(n);
-					runtime.console().p("Number of methods: ").p(count).pln().flush();
-				}
-
-				public void visitMethodDeclaration(GNode n) {
-					count++;
-					visit(n);
-				}
-
-				public void visit(Node n) {
-					for (Object o : n) {
-						if (o instanceof Node)
-							dispatch((Node)o);
-					}
-				}
-			}.dispatch(node);
-		}
+		if (runtime.test("optionCountMethods"))
+			new MethodCounter(runtime).dispatch(node);
+		
+		CppWriter.nukeFile(runtime.getString("outputFile"));
+		CppWriter writer = new CppWriter(runtime.getString("outputFile"));
+		writer.writeln("Test");
+		writer.close();
 	}
 
-	public static void main(String args []) {
-		System.out.println(args.length);
-		for (int i = 0; i < args.length; i++) {
-			System.out.println(args[i]);
-		}
-		
-		System.out.println("Happy happy, joy joy!!");
-		
+	public static void main(String args[]) {
 		new Translator().run(args);
 	}
 }

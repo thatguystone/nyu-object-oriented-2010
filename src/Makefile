@@ -4,14 +4,11 @@ include ../Makebase
 
 default: translator java
 
-translator:
-	make -C translator
-
 clean-translator:
-	make -C translator clean
+	$(MAKE) -C translator clean
 
 clean-java:
-	make -C java clean
+	$(MAKE) -C java clean
 
 clean: clean-translator clean-java
 
@@ -19,7 +16,11 @@ clean: clean-translator clean-java
 #  * cd-ing from the child directory (java) to here in the makefile causes an error because none of java's rules are in this file
 #  * the simplest solution was to move everything here
 %.class: %.java
-	javac -source 1.5 -sourcepath java $<
+	javac -source 1.5 -classpath $(CLASSPATH) -sourcepath $(DIRECTORY) $<
 
 java:
-	make `../make.srcs java`
+	$(MAKE) DIRECTORY=java `../make.srcs java`
+	
+#for the same reason as java, translator was moved here
+translator:
+	$(MAKE) DIRECTORY=translator `../make.srcs translator`
