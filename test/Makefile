@@ -13,11 +13,11 @@ ifdef args
 endif
 
 %.class: %.java
-	javac -source 1.5 -classpath $(CLASSPATH) -sourcepath $(SOURCEPATH) $<
+	javac -source 1.5 -classpath $(RUNCLASSPATH) -sourcepath $(TESTPATH) $<
 
 run: $(CFILE)
 	#be sure to translate our base java classes
-	java -classpath $(CLASSPATH) translator.Translator $(ARGS) ../src/java/lang/Object.java ../src/java/lang/VMManager.java $(FILE)
+	java -classpath $(RUNCLASSPATH) translator.Translator $(ARGS) ../src/java/lang/Object.java ../src/java/lang/VMManager.java $(FILE)
 
 clean:
 	find -name "*.class" -exec rm {} \;

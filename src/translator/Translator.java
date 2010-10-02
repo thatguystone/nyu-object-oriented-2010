@@ -16,9 +16,14 @@ import xtc.tree.Visitor;
 import xtc.util.Tool;
 
 public class Translator extends Tool {
+	/**
+	 * The C++ tree.
+	 */
+	private CppTree cppTree;
+	
 	/** Create a new translator. */
 	public Translator() {
-		// Nothing to do.
+		this.cppTree = new CppTree(runtime);
 	}
 
 	public String getCopy() {
@@ -65,15 +70,16 @@ public class Translator extends Tool {
 	}
 
 	public void process(Node node) {
-		// Handle the printJavaAST option
 		if (runtime.test("printJavaAST"))
 			runtime.console().format(node).pln().flush();
 
 		if (runtime.test("optionCountMethods"))
 			new MethodCounter(runtime).dispatch(node);
 		
+		//start our translation -- create the output file
 		CppWriter.nukeFile(runtime.getString("outputFile"));
 		CppWriter writer = new CppWriter(runtime.getString("outputFile"));
+		
 		writer.writeln("Test");
 		writer.close();
 	}

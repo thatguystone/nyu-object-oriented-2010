@@ -16,7 +16,7 @@ clean: clean-translator clean-java
 #  * cd-ing from the child directory (java) to here in the makefile causes an error because none of java's rules are in this file
 #  * the simplest solution was to move everything here
 %.class: %.java
-	javac -source 1.5 -classpath $(CLASSPATH) -sourcepath $(DIRECTORY) $<
+	javac -source 1.5 -classpath $(XTCCLASSPATH) -sourcepath $(SRCPATH) $<
 
 java:
 	$(MAKE) DIRECTORY=java `../make.srcs java`
