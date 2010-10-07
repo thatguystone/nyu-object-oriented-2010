@@ -4,7 +4,7 @@ import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
 
-class JavaClass extends Visitor {
+class JavaClass extends ActivatableVisitor {
 	/**
 	 * The package this class is contained in.
 	 */
@@ -15,6 +15,11 @@ class JavaClass extends Visitor {
 	 */
 	private String name;
 	
+	/**
+	 * The name of the file that contains this class.
+	 */
+	private JavaFile file;
+	
 	/****************************************************************************************************
 	 ****************************************************************************************************
 	 ****************************************************************************************************
@@ -24,20 +29,24 @@ class JavaClass extends Visitor {
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
 	
-	JavaClass(String pkg, GNode n) {
+	JavaClass(JavaFile file, String pkg, Node n) {
+		this.file = file;
 		this.pkg = pkg;
 		this.name = (String)n.get(1);
+		this.setup(n);
+		
+		//and register ourself with JavaPackages
+		JavaStatic.pkgs.addClass(this);
 	}
 	
-	public void process(Node n) {
+	protected void process() {
 		//see if we are doing any inheritance -- if we aren't, then we need to import
 		//our base object
-		if (n.get(3) == null) {
-			JavaFile.importPkg("java.lang.Object");
-		}
+		if (this.node.get(3) == null)
+			JavaPackages.importFile("java.lang.Object");
 		
 		//and visit the rest
-		this.dispatch(n);
+		this.dispatch(this.node);
 	}
 	
 	/**

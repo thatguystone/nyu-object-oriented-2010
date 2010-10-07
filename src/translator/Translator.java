@@ -19,7 +19,7 @@ public class Translator extends Tool {
 	/**
 	 * The C++ tree.
 	 */
-	private JavaFiles javaFiles;
+	private JavaPackages packages;
 	
 	/**
 	 * The file currently being processed.
@@ -69,15 +69,15 @@ public class Translator extends Tool {
 	public void prepare() {
 		super.prepare();
 		
-		//setup our processor
-		this.javaFiles = JavaFiles.getInstance();
+		//setup our package
+		JavaPackages.getInstance();
 		
 		//set our runtime in our static guys
 		JavaStatic.runtime = runtime;
 	}
 	
 	public void wrapUp() {
-		this.javaFiles.wrapUp();
+		JavaStatic.pkgs.wrapUp();
 	}
 
 	public File locate(String name) throws IOException {
@@ -104,7 +104,7 @@ public class Translator extends Tool {
 		if (runtime.test("optionCountMethods"))
 			new MethodCounter(runtime).dispatch(node);
 		
-		this.javaFiles.process(this.currentFile, node);
+		JavaFile f = new JavaFile(this.currentFile, node);
 	}
 	
 	public static void main(String args[]) {

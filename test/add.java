@@ -5,12 +5,11 @@ public class add extends Object implements test {
 
 	private native int test();
 
-	public static void main(String[] args) {
-		int i = 3 + 7;
-	}
-	
-	public int add(int a, int b) {
-		VMManager.getClass(this);
+	public static int add(int a, int b) {
 		return a + b;
+	}
+		
+	public static void main(String args[]) {
+		add.add(1, 2);
 	}
 }

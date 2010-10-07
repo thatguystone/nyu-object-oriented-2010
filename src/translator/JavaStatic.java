@@ -8,6 +8,6 @@ import xtc.util.Runtime;
  */
 public class JavaStatic {
 	public static Translator translator;
-	public static JavaFiles javaFiles;
+	public static JavaPackages pkgs;
 	public static Runtime runtime;
 }
