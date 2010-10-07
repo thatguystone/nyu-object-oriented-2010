@@ -1,4 +1,6 @@
-public class add {
+interface test { } 
+
+public class add extends Object implements test {
 	private add j;
 
 	private native int test();

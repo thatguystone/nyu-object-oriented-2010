@@ -19,11 +19,16 @@ public class Translator extends Tool {
 	/**
 	 * The C++ tree.
 	 */
-	private CppTree cppTree;
+	private JavaFiles javaFiles;
+	
+	/**
+	 * The file currently being processed.
+	 */
+	private String currentFile;
 	
 	/** Create a new translator. */
-	public Translator() {
-		this.cppTree = new CppTree(runtime);
+	private Translator() {
+		JavaStatic.translator = this;
 	}
 
 	public String getCopy() {
@@ -48,10 +53,31 @@ public class Translator extends Tool {
 			.word("outputFile", "outputFile", false, "The file to which to output the translated code (defaults to stdout; when the file cannot be written, goes to stdout)")
 		;
 	}
+	
+	/**
+	 * Singleton so that only 1 can exist.
+	 */
+	private static Translator instance = null;
+	 
+	public static Translator getInstance() {
+		if (instance == null)
+			instance = new Translator();
+		
+		return instance;
+	}
 
 	public void prepare() {
 		super.prepare();
-		// Perform consistency checks on command line arguments.
+		
+		//setup our processor
+		this.javaFiles = JavaFiles.getInstance();
+		
+		//set our runtime in our static guys
+		JavaStatic.runtime = runtime;
+	}
+	
+	public void wrapUp() {
+		this.javaFiles.wrapUp();
 	}
 
 	public File locate(String name) throws IOException {
@@ -64,6 +90,8 @@ public class Translator extends Tool {
 	}
 
 	public Node parse(Reader in, File file) throws IOException, ParseException {
+		this.currentFile = file.toString();
+		
 		JavaFiveParser parser = new JavaFiveParser(in, file.toString(), (int)file.length());
 		Result result = parser.pCompilationUnit(0);
 		return (Node)parser.value(result);
@@ -76,15 +104,10 @@ public class Translator extends Tool {
 		if (runtime.test("optionCountMethods"))
 			new MethodCounter(runtime).dispatch(node);
 		
-		//start our translation -- create the output file
-		CppWriter.nukeFile(runtime.getString("outputFile"));
-		CppWriter writer = new CppWriter(runtime.getString("outputFile"));
-		
-		writer.writeln("Test");
-		writer.close();
+		this.javaFiles.process(this.currentFile, node);
 	}
-
+	
 	public static void main(String args[]) {
-		new Translator().run(args);
+		Translator.getInstance().run(args);
 	}
 }

@@ -16,3 +16,6 @@ run: src
 clean:
 	$(MAKE) -C src clean
 	$(MAKE) -C test clean
+
+help: src
+	java -classpath $(RUNCLASSPATH) translator.Translator

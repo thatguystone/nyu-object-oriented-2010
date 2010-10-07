@@ -11,7 +11,6 @@ import java.io.IOException;
 public class CppWriter {
 	private Writer writer;
 	
-	private static boolean nuked = false;
 	private boolean writingFile = true;
 	
 	CppWriter(String fileName) {
@@ -25,19 +24,6 @@ public class CppWriter {
 		} catch (IOException e) {
 			writingFile = false;
 			this.writer = new BufferedWriter(new OutputStreamWriter(System.out));
-		}
-	}
-	
-	/**
-	 * Each file is processed separately, but we only want to nuke our output file once.
-	 */
-	public static void nukeFile(String fileName) {
-		if (!nuked) {
-			nuked = true;
-			
-			File f = new File(fileName);
-			if (f.exists() && f.canWrite() && !f.isDirectory())
-				f.delete();
 		}
 	}
 	
