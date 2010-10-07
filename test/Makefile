@@ -21,7 +21,7 @@ run: $(CFILE)
 		-classpath $(RUNCLASSPATH) \
 		translator.Translator $(ARGS) \
 		-in $(TESTPATH) -in $(SRCPATH) \
-		$(FILE) test2/add2.java
+		$(FILE)
 
 clean:
 	find -name "*.class" -exec rm {} \;
