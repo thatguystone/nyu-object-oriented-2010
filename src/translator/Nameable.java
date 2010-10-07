@@ -1,7 +1,7 @@
 package translator;
 
 /**
- * Anything that has a globally uninque name can use this.
+ * Anything that has a uninque name (in its own context) can use this.
  */
 interface Nameable {
 	String getName();
