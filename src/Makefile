@@ -1,8 +1,8 @@
 include ../Makebase
 
-.PHONY: translator java
+.PHONY: translator java xtc
 
-default: translator java
+default: translator java xtc
 
 clean-translator:
 	$(MAKE) -C translator clean
@@ -19,8 +19,12 @@ clean: clean-translator clean-java
 	javac -source 1.5 -classpath $(XTCCLASSPATH) -sourcepath $(SRCPATH) $<
 
 java:
-	$(MAKE) DIRECTORY=java `../make.srcs java`
+	$(MAKE) `../make.srcs java`
 	
 #for the same reason as java, translator was moved here
 translator:
-	$(MAKE) DIRECTORY=translator `../make.srcs translator`
+	$(MAKE) `../make.srcs translator`
+
+#for our xtc base
+xtc:
+	cd $(XTCROOT); . ./setup.sh; $(MAKE) classes

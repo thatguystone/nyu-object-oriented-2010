@@ -16,8 +16,12 @@ endif
 	javac -source 1.5 -classpath $(RUNCLASSPATH) -sourcepath $(TESTPATH) $<
 
 run: $(CFILE)
-	#be sure to translate our base java classes
-	java -classpath $(RUNCLASSPATH) translator.Translator $(ARGS) ../src/java/lang/VMManager.java $(FILE)
+	#run the translator
+	java \
+		-classpath $(RUNCLASSPATH) \
+		translator.Translator $(ARGS) \
+		-in $(TESTPATH) -in $(SRCPATH) \
+		$(FILE)
 
 clean:
 	find -name "*.class" -exec rm {} \;

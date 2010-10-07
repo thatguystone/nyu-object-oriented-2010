@@ -33,9 +33,11 @@ class JavaClass extends Visitor {
 		//see if we are doing any inheritance -- if we aren't, then we need to import
 		//our base object
 		if (n.get(3) == null) {
-			if (!JavaStatic.javaFiles.classExists("java.lang.Object"))
-				JavaFile.importPkg("java.lang.Object");
+			JavaFile.importPkg("java.lang.Object");
 		}
+		
+		//and visit the rest
+		this.dispatch(n);
 	}
 	
 	/**
@@ -68,7 +70,8 @@ class JavaClass extends Visitor {
 		//java only supports single inheritance...no need for loops or anything here
 		String parent = (String)((GNode)((GNode)n.get(0)).get(0)).get(0);
 		
-		System.out.println(parent);
+		//need default imports / imports before we can do inheritance
+		System.out.println("Found inheritance: " + parent + "...but where does it come from?!");
 	}
 	
 	/*public void visitMethodDeclaration(GNode n) {

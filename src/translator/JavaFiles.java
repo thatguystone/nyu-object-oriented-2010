@@ -8,6 +8,7 @@ import xtc.parser.ParseException;
 import java.io.File;
 import java.io.Reader;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 
 import java.util.Hashtable;
 
@@ -69,14 +70,6 @@ class JavaFiles {
 }
 
 class JavaFile extends Visitor {
-	/**
-	 * The search path for our files.
-	 */
-	private static String[] searchPath = new String[]{
-		System.getProperty("user.dir"), //the directory with the test files
-		System.getProperty("user.dir") + "/../src/" //the directory with the re-implemented java source files
-	};
-	
 	/**
 	 * The name of the package we are currently working on.
 	 */
@@ -149,7 +142,7 @@ class JavaFile extends Visitor {
 			pkg += "." + imp.get(i); //append to our full package name
 		}
 		
-		JavaFile.importPkg(fileName);
+		JavaFile.importPkg(pkg);
 	}
 	
 	/**
@@ -158,33 +151,27 @@ class JavaFile extends Visitor {
 	 * @todo - handle * imports
 	 */
 	public static void importPkg(String pkg) {
+		if (JavaStatic.javaFiles.classExists(pkg))
+			return;
+		
 		//get a file path from our package name
 		String file = pkg.replace(".", "/") + ".java";
 	
-		//see if we can find the file in our search path
-		File f = null;
-		for (String p : JavaFile.searchPath) {
-			f = new File(p + file);
-			if (f.exists())
-				break; //stop this pointless exercise in looping
-		}
-		
-		//this should never happen (unless someone forgets to implement something)
-		//...but let's just be sure!
-		if (f == null || !f.exists()) {
-			JavaStatic.runtime.error("File could not be located for import (in JavaFiles.visitImportDeclaration): " + f.toString());
-			JavaStatic.runtime.exit(); //abort, we can't possibly go any further
-		}
-		
-		//if we get here, then we found our file, so let's throw it to the parser to make sure he gets imported properly
-		//so, we're going to restart the process, from the bottom-up, on the file we just found
-		
-		//run through the imported file and everything it has
-		JavaFile javaFile = new JavaFile();
-		
-		//shameless copy/paste job from xtc.util.Tool.run() for running parse on files.
+		//see if we can find the file in our search path (given by the "-in" flag)
 		try {
+			File f = JavaStatic.runtime.locate(file);
+			
+			//if we get here, then we found our file, so let's throw it to the parser to make sure he gets imported properly
+			//so, we're going to restart the process, from the bottom-up, on the file we just found
+		
+			//run through the imported file and everything it has
+			JavaFile javaFile = new JavaFile();
+		
+			//process the file like any other file given on the command line
 			javaFile.process(f.toString(), Translator.getInstance().parse(JavaStatic.runtime.getReader(f), f));
+		} catch (FileNotFoundException e) {
+			JavaStatic.runtime.error("File could not be located for import (in JavaFiles.visitImportDeclaration): " + file);
+			JavaStatic.runtime.exit(); //abort, we can't possibly go any further
 		} catch (IOException x) {
 			if (null == x.getMessage())
 				JavaStatic.runtime.error("I/O error");
