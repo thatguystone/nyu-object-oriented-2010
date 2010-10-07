@@ -2,11 +2,10 @@ package translator;
 
 import xtc.tree.GNode;
 import xtc.tree.Node;
-import xtc.tree.Visitor;
 
 import java.util.Hashtable;
 
-class JavaFile extends Visitor {
+class JavaFile extends ActivatableVisitor implements Nameable {
 	/**
 	 * The name of the package this file is in.
 	 */
@@ -40,6 +39,14 @@ class JavaFile extends Visitor {
 	
 	public String getName() {
 		return this.pkg + "." + this.fileName;
+	}
+	
+	/**
+	 * Activates all the classes in this file as the file is being marked as used, and we now need them
+	 */
+	protected void process() {
+		for (JavaClass cls : this.classes.values())
+			cls.activate();
 	}
 	
 	/**

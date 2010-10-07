@@ -105,6 +105,7 @@ public class Translator extends Tool {
 			new MethodCounter(runtime).dispatch(node);
 		
 		JavaFile f = new JavaFile(this.currentFile, node);
+		f.activate();
 	}
 	
 	public static void main(String args[]) {
