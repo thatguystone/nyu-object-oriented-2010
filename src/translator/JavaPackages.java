@@ -55,6 +55,9 @@ class JavaPackages {
 	 */
 	public HashSet<String> loadedPackages = new HashSet<String>();
 	
+	/**
+	 * Don't allow creation of the class anywhere but inside itself.
+	 */
 	private JavaPackages() {
 		JavaStatic.pkgs = this;
 	}
@@ -63,7 +66,10 @@ class JavaPackages {
 	 * Singleton so that only 1 can exist.
 	 */
 	private static JavaPackages instance = null;
-	 
+	
+	/**
+	 * Get the only instance of this class.
+	 */
 	public static JavaPackages getInstance() {
 		if (instance == null)
 			instance = new JavaPackages();
@@ -75,8 +81,11 @@ class JavaPackages {
 	 * =============================================================================================
 	 * Methods for adding classes / files to our structure.
 	 */
+	 
 	/**
-	 * Nice interface for adding a class and file to our registry at one time.
+	 * Adds a class (and its package) to the registry.
+	 *
+	 * @param cls The class to add to our registry.
 	 */
 	public void addClass(JavaClass cls) {
 		this.classes.put(cls.getName(), cls);
@@ -88,6 +97,11 @@ class JavaPackages {
 		this.packages.get(cls.getPackageName()).add(cls.getName(false)); 
 	}
 	
+	/**
+	 * Adds a file to the registry.
+	 *
+	 * @param file The file to be added.
+	 */
 	public void addFile(JavaFile file) {
 		this.files.put(file.getName(), file);
 	}
@@ -96,14 +110,30 @@ class JavaPackages {
 	 * =============================================================================================
 	 * Checkers to see if things exist.
 	 */
+	
+	/**
+	 * Tests if the class exists.
+	 *
+	 * @param cls The name of a class, in the "java.lang.Object" form.
+	 */
 	public boolean classExists(String cls) {
 		return this.classes.containsKey(cls);
 	}
 	
+	/**
+	 * Tests if the given file is registered (ie. exists).
+	 *
+	 * @param path The name of a file, in the "java.lang.Object" form.
+	 */
 	public boolean fileExists(String file) {
 		return this.files.containsKey(file);
 	}
 	
+	/**
+	 * Tests if the package exists.
+	 *
+	 * @param pkg The name of the package, in the "java.lang" form.
+	 */
 	public boolean packageExists(String pkg) {
 		return this.packages.containsKey(pkg);
 	}
@@ -115,6 +145,8 @@ class JavaPackages {
 	
 	/**
 	 * Get a file object by a class it contains.
+	 *
+	 * @param path The name of a file, in the "java.lang.Object" form.
 	 */
 	public JavaFile getFile(String path) {
 		return this.files.get(path);
@@ -122,6 +154,8 @@ class JavaPackages {
 	
 	/**
 	 * Get a class object by the name of a class.
+	 *
+	 * @param cls The name of a class, in the "java.lang.Object" form.
 	 */
 	public JavaClass getClass(String cls) {
 		return this.classes.get(cls);
@@ -129,6 +163,8 @@ class JavaPackages {
 	
 	/**
 	 * Get a list of all the defined classes (as strings) contained in the given package.
+	 *
+	 * @param pkg The name of the package, in the "java.lang" form.
 	 */
 	public HashSet<String> getPackage(String pkg) {
 		return this.packages.get(pkg);
@@ -139,6 +175,9 @@ class JavaPackages {
 	 * Some extra utility stuff.
 	 */
 	
+	/**
+	 * Stuff to execute when we're done translating.
+	 */
 	public void wrapUp() {
 		/*
 		for (String cls : this.classes.keySet()) {
@@ -156,7 +195,7 @@ class JavaPackages {
 	 *
 	 * @param file A string in the format java.lang.Object for the file to import.
 	 *
-	 * @todo - handle * imports
+	 * @TODO - handle * imports
 	 */
 	public JavaFile importFile(String file) {
 		if (this.fileExists(file))
@@ -194,6 +233,10 @@ class JavaPackages {
 	
 	/**
 	 * Loads a package when we're sure that it will be in the search path.
+	 *
+	 * @see translator.importMany(String, String)
+	 * 
+	 * @param pkg The name of the package to import, in "java.lang.Object" form.
 	 */
 	public void importMany(String pkg) {
 		this.importMany(pkg, null);
@@ -206,6 +249,9 @@ class JavaPackages {
 	 * 
 	 * Done with file as an extra parameter so as not to compromise look-ups for all imports (if we just passed in the 
 	 * file and hoped that it could resolve, it would fail: how do we resolve java.lang from some random test.pkg?).
+	 *
+	 * @param pkg The name of the package to import, in "java.lang.Object" form.
+	 * @param file The path to the file that caused the import (only important for "default" packages).
 	 */
 	public void importMany(String pkg, String file) {
 		//this is kinda janky, but "packages" can contain partially-loaded packages, so we can't rely on it

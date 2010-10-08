@@ -32,7 +32,14 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	 * The list of classes that are imported and ready for use in this file.
 	 */
 	private Hashtable<String, String> imports = new Hashtable<String, String>();
-
+	
+	/**
+	 * Builds a file from a node. Runs dispatch by default so as to cause the list of classes
+	 * in the file to be loaded up, imports to be imported, and package to be named.
+	 *
+	 * @param fileName The name of the file that this object represents.
+	 * @param n The structure of everything in the file.
+	 */
 	JavaFile(String fileName, Node n) {
 		this.setFileInfo(fileName);
 		
@@ -50,16 +57,22 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		this.defaultImports();
 	}
 	
+	/**
+	 * Gets the full name of the file in the form "java.lang.Object".
+	 */
 	public String getName() {
 		return this.pkg + "." + this.fileName;
 	}
 	
+	/**
+	 * Gets the name of the package this file is a part of.
+	 */
 	public String getPackageName() {
 		return this.pkg;
 	}
 	
 	/**
-	 * Activates all the classes in this file as the file is being marked as used, and we now need them
+	 * Activates all the classes in this file as the file is being marked as used, and we now need them.
 	 */
 	protected void process() {
 		for (JavaClass cls : this.classes.values())
@@ -67,7 +80,8 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	}
 	
 	/**
-	 * Setup our default imports.
+	 * Setup our default imports.  Anything that is imported by default into a file by java should be
+	 * listed here so that we can correctly simulate a java environment.
 	 */
 	private void defaultImports() {
 		this.importFile("java.lang.Object");
@@ -75,11 +89,11 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	}
 	
 	/**
-	 * Sets the current package we are dealing with.  If the package name ends in ".java", it assumes
-	 * that the current package is part of the "default" package, and the package is set to "default".
-	 * Otherwise, the package is st to whatever is passed in.
-	 * 
-	 * @param pkg The name of the package / file to be set.
+	 * Sets up our information about the file we are looking at.  By default, it will set the package to "default",
+	 * store the path to the file, and extract the file name (from test/test2/some.java, it will extract "some" as
+	 * the name).
+	 *
+	 * @param file The full path to the file (in /location/to/file.java form). 
 	 */
 	private void setFileInfo(String file) {
 		//everything is in the "default" package by default
@@ -99,7 +113,10 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	 */
 	
 	/**
-	 * Imports a module into this file given something like "java.lang.Object".
+	 * Imports a module into this file given something like "java.lang.Object".  This is the main handler
+	 * for all import statements.
+	 *
+	 * @param pkg The name of a file to import, in "java.lang.Object" form.
 	 */
 	private void importFile(String pkg) {
 		JavaFile f = JavaStatic.pkgs.importFile(pkg);
@@ -109,9 +126,24 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 			this.imports.put(cls, f.classes.get(cls).getName()); 
 	}
 	
+	/**
+	 * Searches for a class that has been imported into this file.  Given the name of a class, in "Object"
+	 * form, it will search its local imports to expand to the full name of the class (ie. expand "Object"
+	 * to "java.lang.Object") and return the {@link JavaClass} associated with that import.
+	 *
+	 * @param cls The name of the class to get, in the "Object" form.
+	 */
 	public JavaClass getImport(String cls) {
+		//first, check our local classes
+		if (this.classes.containsKey(cls))
+			return this.classes.get(cls);
+	
 		if (this.imports.containsKey(cls))
 			return JavaStatic.pkgs.getClass(this.imports.get(cls));
+		
+		/**
+		 * @TODO Check package imports from JavaPackages
+		 */
 		
 		return null;
 	}
@@ -134,6 +166,9 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		this.pkg = dec.substring(1);
 	}
 	
+	/**
+	 * Grabs the imports and imports them into the file using {@link #importFile(String)}
+	 */
 	public void visitImportDeclaration(GNode n) {
 		String pkg = "";
 		
@@ -147,7 +182,7 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		this.importFile(pkg);
 		
 		/**
-		 * @todo - handle * imports
+		 * @TODO - handle * imports
 		 */
 		 
 		/**
@@ -156,6 +191,9 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		 */
 	}
 	
+	/**
+	 * Adds a class to the file.
+	 */
 	public void visitClassDeclaration(GNode n) {
 		//we know that we will have our package set properly before we start building any classes
 		//as java forces package declarations to come before any class declarations, and we are 
@@ -166,6 +204,9 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		this.classes.put(cls.getName(false), cls);
 	}
 	
+	/**
+	 * The default visitor method from Visitor.
+	 */
 	public void visit(Node n) {
 		for (Object o : n) {
 			if (o instanceof Node)

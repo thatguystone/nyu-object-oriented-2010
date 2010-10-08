@@ -17,6 +17,9 @@ import xtc.util.Tool;
 
 import java.util.*;
 
+/**
+ * The public / "user friendly" (hahahahah! right) interface to our Java to C++ translator.
+ */
 public class Translator extends Tool {
 	/**
 	 * The C++ tree.

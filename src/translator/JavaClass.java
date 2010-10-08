@@ -19,6 +19,13 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 */
 	private JavaFile file;
 	
+	/**
+	 * Builds a class from a node.
+	 *
+	 * @param file The file that contains this class (the "parent file").
+	 * @param pkg The name of the package this class is contained in.
+	 * @param n The node that contains the defintion for this class.
+	 */
 	JavaClass(JavaFile file, String pkg, Node n) {
 		this.file = file;
 		this.pkg = pkg;
@@ -29,6 +36,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		JavaStatic.pkgs.addClass(this);
 	}
 	
+	/**
+	 * Runs the dispatcher in Visitor and builds out this entire class
+	 */
 	protected void process() {
 		//go for a nice visit to everyone
 		this.dispatch(this.node);
@@ -41,10 +51,19 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		return this.getName(true);
 	}
 	
+	/**
+	 * Returns the name of the package, as specified.
+	 *
+	 * @param withPackage If true, includes the package name in the name, as in "java.lang.Object"; otherwise (if false),
+	 * just returns the name of the class, as in "Object".
+	 */
 	public String getName(boolean withPackage) {
 		return (withPackage ? this.pkg + "." : "") + this.name;
 	}
 	
+	/**
+	 * Gets the name of the package this class is contained in.
+	 */
 	public String getPackageName() {
 		return this.pkg;
 	}
@@ -55,7 +74,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 */
 	 
 	/**
-	 * Handles resolving dependencies for inheritance.
+	 * Handles resolving dependencies for inheritance.  When it sees an extension, it throws the name
+	 * to its parent file's import manager in order to resolve the name and activate the class so that 
+	 * it can extend it properly.
 	 */
 	public void visitExtension(GNode n) {
 		/** 
@@ -80,6 +101,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		methods.add("nameOfMethod", new JavaMethod(n));
 	}*/
 	
+	/**
+	 * The default visitor method from Visitor.
+	 */
 	public void visit(Node n) {
 		for (Object o : n) {
 			if (o instanceof Node)
