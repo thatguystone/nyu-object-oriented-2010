@@ -208,6 +208,8 @@ class JavaPackages {
 	 * file and hoped that it could resolve, it would fail: how do we resolve java.lang from some random test.pkg?).
 	 */
 	public void importMany(String pkg, String file) {
+		//this is kinda janky, but "packages" can contain partially-loaded packages, so we can't rely on it
+		//thus, we needed another data structure to confirm when something has been through here (ie. completely loaded)
 		if (this.loadedPackages.contains(pkg))
 			return;
 		
