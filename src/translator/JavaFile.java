@@ -5,6 +5,8 @@ import xtc.tree.Node;
 
 import java.util.Hashtable;
 
+import java.util.*;
+
 class JavaFile extends ActivatableVisitor implements Nameable {
 	/**
 	 * The name of the package this file is in.
@@ -25,6 +27,11 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	 * Keep a local list of all the classes we have in this one file.
 	 */
 	private Hashtable<String, JavaClass> classes = new Hashtable<String, JavaClass>();
+	
+	/**
+	 * The list of classes that are imported and ready for use in this file.
+	 */
+	private Hashtable<String, String> imports = new Hashtable<String, String>();
 
 	JavaFile(String fileName, Node n) {
 		this.setFileInfo(fileName);
@@ -35,10 +42,20 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		
 		//and register ourself with JavaPackages
 		JavaStatic.pkgs.addFile(this);
+		
+		//load all of our package / package default imports, we're going to need them
+		JavaStatic.pkgs.importMany(this.getPackageName(), fileName);
+		
+		//setup our default imports that Java provides
+		this.defaultImports();
 	}
 	
 	public String getName() {
 		return this.pkg + "." + this.fileName;
+	}
+	
+	public String getPackageName() {
+		return this.pkg;
 	}
 	
 	/**
@@ -47,6 +64,14 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	protected void process() {
 		for (JavaClass cls : this.classes.values())
 			cls.activate();
+	}
+	
+	/**
+	 * Setup our default imports.
+	 */
+	private void defaultImports() {
+		this.importFile("java.lang.Object");
+		//this.importFile("java.lang.System");
 	}
 	
 	/**
@@ -66,6 +91,29 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		
 		//screw efficiency...iterate that string as often as possible! muahahahaha!
 		this.fileName = file.substring((file.lastIndexOf('/') == -1 ? 0 : file.lastIndexOf('/') + 1), file.indexOf(".java"));
+	}
+	
+	/**
+	 * ==================================================================================================
+	 * Utility methods
+	 */
+	
+	/**
+	 * Imports a module into this file given something like "java.lang.Object".
+	 */
+	private void importFile(String pkg) {
+		JavaFile f = JavaStatic.pkgs.importFile(pkg);
+		
+		//grab the entries in the imported file's class entries and add them to our imports
+		for (String cls : f.classes.keySet())
+			this.imports.put(cls, f.classes.get(cls).getName()); 
+	}
+	
+	public JavaClass getImport(String cls) {
+		if (this.imports.containsKey(cls))
+			return JavaStatic.pkgs.getClass(this.imports.get(cls));
+		
+		return null;
 	}
 	
 	/**
@@ -93,7 +141,10 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		for (int i = 0; i < imp.size(); i++)
 			pkg += "." + imp.get(i); //append to our full package name
 		
-		JavaPackages.importFile(pkg);
+		//lose the first dot
+		pkg = pkg.substring(1);
+		
+		this.importFile(pkg);
 		
 		/**
 		 * @todo - handle * imports
@@ -112,7 +163,7 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		JavaClass cls = new JavaClass(this, this.pkg, (Node)n);
 		
 		//save a copy of the class locally
-		this.classes.put(cls.getName(), cls);
+		this.classes.put(cls.getName(false), cls);
 	}
 	
 	public void visit(Node n) {

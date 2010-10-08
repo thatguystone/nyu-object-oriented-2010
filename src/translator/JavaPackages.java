@@ -4,24 +4,30 @@ import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
 import xtc.parser.ParseException;
+import xtc.util.Runtime;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.Reader;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
 import java.util.Hashtable;
+import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provides a nice interface to Translator.  Rather than having everything in Translator, we come here
  * and do all of the processing.  This serves as a bridge from what the user wants to what needs to happen:
  * here is where the hard work begins.  We are given files to translate by Translator, and this takes care of
  * it.
- *
- * On a deeper level, this is really only a wrapper to a Hashtable with a list of all the defined classes.
- * We keep those here in order to have quick access to them from everywhere.  Don't let the name fool you:
- * this is for processing java files from translator, but it's little more than a nice interface.
+ * 
+ * Rather than creating a tree-like structure for our class heirachy, I'm going to
+ * store everything in Hashtables so that we can do quick lookups based on names
+ * alone, rather than having to traverse and find.  Everything in java (as with
+ * any language), is represented by a string, so this is the quickest and easiest
+ * way to store all our information.
  */
 class JavaPackages {
 	/**
@@ -35,6 +41,19 @@ class JavaPackages {
 	 * Filename -> File Object
 	 */
 	private Hashtable<String, JavaFile> files = new Hashtable<String, JavaFile>();
+	
+	/**
+	 * The list of all imported packages.
+	 * Name of package -> list of classes in that package
+	 */
+	private Hashtable<String, HashSet<String>> packages = new Hashtable<String, HashSet<String>>(); 
+	
+	/**
+	 * All of the packages that we have loaded in their entirety.
+	 * We can't rely on packages for this information because it is populated when even 1 class
+	 * is loaded, not when all are.
+	 */
+	public HashSet<String> loadedPackages = new HashSet<String>();
 	
 	private JavaPackages() {
 		JavaStatic.pkgs = this;
@@ -61,6 +80,12 @@ class JavaPackages {
 	 */
 	public void addClass(JavaClass cls) {
 		this.classes.put(cls.getName(), cls);
+		
+		//add the class to our package
+		if (!this.packageExists(cls.getPackageName()))
+			this.packages.put(cls.getPackageName(), new HashSet<String>());
+		
+		this.packages.get(cls.getPackageName()).add(cls.getName(false)); 
 	}
 	
 	public void addFile(JavaFile file) {
@@ -77,6 +102,10 @@ class JavaPackages {
 	
 	public boolean fileExists(String file) {
 		return this.files.containsKey(file);
+	}
+	
+	public boolean packageExists(String pkg) {
+		return this.packages.containsKey(pkg);
 	}
 	
 	/**
@@ -96,6 +125,13 @@ class JavaPackages {
 	 */
 	public JavaClass getClass(String cls) {
 		return this.classes.get(cls);
+	}
+	
+	/**
+	 * Get a list of all the defined classes (as strings) contained in the given package.
+	 */
+	public HashSet<String> getPackage(String pkg) {
+		return this.packages.get(pkg);
 	}
 	
 	/**
@@ -122,24 +158,26 @@ class JavaPackages {
 	 *
 	 * @todo - handle * imports
 	 */
-	public static void importFile(String file) {
-		if (JavaStatic.pkgs.classExists(file))
-			return;
+	public JavaFile importFile(String file) {
+		if (this.fileExists(file))
+			return this.getFile(file);
 		
 		//get a file path from our package name
-		file = file.replace(".", "/") + ".java";
-	
+		String jFile = file.replace(".", "/") + ".java";
+		
 		//see if we can find the file in our search path (given by the "-in" flag)
 		try {
-			File f = JavaStatic.runtime.locate(file);
+			File f = JavaStatic.runtime.locate(jFile);
 			
 			//if we get here, then we found our file, so let's throw it to the parser to make sure he gets imported properly
 			//so, we're going to restart the process, from the bottom-up, on the file we just found
 		
 			//run through the imported file and everything it has
-			JavaFile javaFile = new JavaFile(f.toString(), Translator.getInstance().parse(JavaStatic.runtime.getReader(f), f));
+			JavaFile javaFile = new JavaFile(f.toString(), JavaStatic.translator.parse(JavaStatic.runtime.getReader(f), f));
+			
+			return javaFile;
 		} catch (FileNotFoundException e) {
-			JavaStatic.runtime.error("File could not be located for import (in JavaFiles.visitImportDeclaration): " + file);
+			JavaStatic.runtime.error("File could not be located for import (in JavaPackages.importFile): " + file);
 			JavaStatic.runtime.exit(); //abort, we can't possibly go any further
 		} catch (IOException x) {
 			if (null == x.getMessage())
@@ -150,5 +188,87 @@ class JavaPackages {
 			JavaStatic.runtime.error();
 			System.err.print(x.getMessage());
 		}
+		
+		return null; //silence, Java!
+	}
+	
+	/**
+	 * Loads a package when we're sure that it will be in the search path.
+	 */
+	public void importMany(String pkg) {
+		this.importMany(pkg, null);
+	}
+	
+	/**
+	 * Loads a full package.  When we're loading the default package, we need the filename that caused the package
+	 * to load as "default" is not actually a path that we can just load.  If it's not the default package, then it 
+	 * should be able to find itself in the package search path.
+	 * 
+	 * Done with file as an extra parameter so as not to compromise look-ups for all imports (if we just passed in the 
+	 * file and hoped that it could resolve, it would fail: how do we resolve java.lang from some random test.pkg?).
+	 */
+	public void importMany(String pkg, String file) {
+		if (this.loadedPackages.contains(pkg))
+			return;
+		
+		//make sure we don't load the package again
+		this.loadedPackages.add(pkg);
+		
+		//the directory that contains the package
+		File dir = null;
+		
+		//if we're loading the default package
+		if (pkg == "default") {
+			file = new File(file).getAbsolutePath();
+			//attempt to remove the file name from the path
+			dir = new File(file.substring(0, file.lastIndexOf("/")));
+			
+			//if we failed at finding the package root
+			if (!dir.isDirectory())
+				dir = null;
+			
+			//clear package
+			pkg = "";
+		} else {
+			//we need to look for a directory, and xtc.runtime.locate() doesn't do that
+			List<File> dirs = JavaStatic.runtime.getFileList(Runtime.INPUT_DIRECTORY); 
+		
+			//if no source dirs were specified on the command line
+			if (dirs == null)
+				return;
+			
+			//prepare to go to the filesystem
+			String jPkg = pkg.replace(".", "/");
+		
+			for (File root : dirs) {
+				dir = new File(root, jPkg);
+				if (dir.exists() && dir.isDirectory())
+					break;
+			}
+			
+			//add a "." for easier stringing later (really so that we don't need anything else to hold pkg for importFile() later)
+			pkg += ".";
+		}
+		
+		//we couldn't find the import directory...surely this is an error
+		if (dir == null) {
+			JavaStatic.runtime.error("Package could not be located for import (in JavaPackages.importMany): " + pkg);
+			JavaStatic.runtime.exit(); //abort, we can't possibly go any further
+		}
+		
+		//glob for our .java files to import
+		File[] jFiles = dir.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.indexOf(".java") > -1;
+			}
+		});
+		
+		//if we don't have any files...w/e, just return
+		if (jFiles == null)
+			return;
+		
+		//and import all our of files in this package
+		for (File f : jFiles)
+			this.importFile(pkg + f.getName().replace(".java", ""));
 	}
 }

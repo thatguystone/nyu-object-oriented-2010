@@ -3,7 +3,6 @@ include ../Makebase
 #the name of the file to run
 ifdef file
 	FILE=$(file).java
-	CFILE=$(file).class #the name of the class file for the run dependency
 endif
 
 #args to be passed to the run command
@@ -15,7 +14,10 @@ endif
 %.class: %.java
 	javac -source 1.5 -classpath $(RUNCLASSPATH) -sourcepath $(TESTPATH) $<
 
-run: $(CFILE)
+allTests:
+	$(MAKE) `../make.srcs .`
+
+run: allTests
 	#run the translator
 	java \
 		-classpath $(RUNCLASSPATH) \

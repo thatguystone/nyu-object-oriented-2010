@@ -15,6 +15,8 @@ import xtc.tree.Visitor;
 
 import xtc.util.Tool;
 
+import java.util.*;
+
 public class Translator extends Tool {
 	/**
 	 * The C++ tree.
@@ -51,6 +53,7 @@ public class Translator extends Tool {
 			.bool("printJavaAST", "printJavaAST", false, "Print the Java AST.")
 			.bool("countMethods", "optionCountMethods", false, "Print the number of method declarations.")
 			.word("outputFile", "outputFile", false, "The file to which to output the translated code (defaults to stdout; when the file cannot be written, goes to stdout)")
+			.bool("printImportedPackages", "printImportedPackages", false, "Print a list of all packages imported during this run.")
 		;
 	}
 	
@@ -96,7 +99,7 @@ public class Translator extends Tool {
 		Result result = parser.pCompilationUnit(0);
 		return (Node)parser.value(result);
 	}
-
+	
 	public void process(Node node) {
 		if (runtime.test("printJavaAST"))
 			runtime.console().format(node).pln().flush();
@@ -106,6 +109,14 @@ public class Translator extends Tool {
 		
 		JavaFile f = new JavaFile(this.currentFile, node);
 		f.activate();
+		
+		//print the list of packages loaded during this run?
+		if (runtime.test("printImportedPackages")) {
+			System.out.println("\nImported packages:");
+			Iterator itr = JavaStatic.pkgs.loadedPackages.iterator();
+			while (itr.hasNext())
+				System.out.println("\t" + itr.next());
+		}
 	}
 	
 	public static void main(String args[]) {

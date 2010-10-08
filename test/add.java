@@ -1,6 +1,8 @@
-interface test { } 
+import test2.add2;
 
-public class add extends Object implements test {
+interface test1 { } 
+
+public class add extends Object implements test1 {
 	private add j;
 
 	private native int test();
