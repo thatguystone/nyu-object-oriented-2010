@@ -1,8 +1,19 @@
 include Makebase
 
-.PHONY: src test
+.PHONY: src test doc
 
 default: run
+
+doc:
+	javadoc -d doc \
+		-windowtitle "Translator Docs" \
+		-sourcepath $(SRCPATH) \
+		-classpath $(XTCCLASSPATH) \
+		-private \
+		-use \
+		-version \
+		-splitIndex \
+		translator
 
 src:
 	$(MAKE) -C src

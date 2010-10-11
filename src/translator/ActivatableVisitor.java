@@ -9,9 +9,22 @@ import xtc.tree.Visitor;
  * as only files/classes that are actually needed are ever processed.
  */
 abstract class ActivatableVisitor extends Visitor {
+	/**
+	 * The Node that contains the information for this object.
+	 */
 	protected Node node = null;
+	
+	/**
+	 * If the visitor has been activated / used.
+	 */
 	protected boolean activated = false; 
 	
+	/**
+	 * Setup anything needed for this run. Right now, only saves the Node for use
+	 * when activated.
+	 *
+	 * @param n The node with all the information.
+	 */
 	public void setup(Node n) {
 		this.node = n;
 	}
