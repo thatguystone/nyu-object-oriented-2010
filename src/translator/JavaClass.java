@@ -3,6 +3,8 @@ package translator;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 
+import java.util.HashSet;
+
 class JavaClass extends ActivatableVisitor implements Nameable {
 	/**
 	 * The package this class is contained in.
@@ -18,6 +20,18 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * The name of the file that contains this class.
 	 */
 	private JavaFile file;
+
+	/**
+	 * List of all fields in this class
+	 * Field name -> Field object
+	 */
+	private HashSet<JavaClassField> fields = new HashSet<JavaClassField>();
+
+	/**
+	 * List of all methods in this class
+	 * Method name -> Method object
+	 */
+	//private HashSet<JavaMethod> methods = new HashSet<JavaMethod>();
 	
 	JavaClass(JavaFile file, String pkg, Node n) {
 		this.file = file;
@@ -29,9 +43,17 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		JavaStatic.pkgs.addClass(this);
 	}
 	
+	public void addField(JavaClassField field) {
+		this.fields.add(field);
+	}
+
 	protected void process() {
 		//go for a nice visit to everyone
-		this.dispatch(this.node);
+		//this.dispatch(this.node);
+		for (Object o : this.node) {
+			if (o instanceof Node)
+				this.dispatch((Node)o);
+		}
 	}
 	
 	/**
@@ -79,11 +101,22 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	/*public void visitMethodDeclaration(GNode n) {
 		methods.add("nameOfMethod", new JavaMethod(n));
 	}*/
+
+	public void visitFieldDeclaration(GNode n) {
+		//cannot store the field since a single field declaration
+		//might declare multiple fields
+		JavaFieldDec fieldDec = new JavaFieldDec(this, (Node)n);
+	}
 	
 	public void visit(Node n) {
+		//We don't want to iterate through the class's entire subtree, just its
+		//immediate children, xtc doesn't differentiate between class field declarations
+		//and method field declarations 
+		/*
 		for (Object o : n) {
 			if (o instanceof Node)
 				this.dispatch((Node)o);
 		}
+		*/
 	}
 }
