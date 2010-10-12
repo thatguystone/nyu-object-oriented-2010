@@ -123,7 +123,7 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		
 		//grab the entries in the imported file's class entries and add them to our imports
 		for (String cls : f.classes.keySet())
-			this.imports.put(cls, f.classes.get(cls).getName()); 
+			this.imports.put(cls, f.classes.get(cls).getName());
 	}
 	
 	/**
@@ -131,21 +131,30 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	 * form, it will search its local imports to expand to the full name of the class (ie. expand "Object"
 	 * to "java.lang.Object") and return the {@link JavaClass} associated with that import.
 	 *
-	 * @param cls The name of the class to get, in the "Object" form.
+	 * If given the name of the class in "java.lang.Object" form, it will merely run to {@link JavaPackages#getClass}
+	 * to get the class.
+	 *
+	 * @param cls The name of the class to get, in the "Object" or "java.lang.Object" form.  In other words, any way
+	 * that it could be typed in the code.
 	 */
 	public JavaClass getImport(String cls) {
-		//first, check our local classes
-		if (this.classes.containsKey(cls))
-			return this.classes.get(cls);
+		//see which form of class name we are using
+		if (cls.indexOf(".") > -1) {
+			return JavaStatic.pkgs.getClass(cls);
+		} else {
+			//first, check our local classes
+			if (this.classes.containsKey(cls))
+				return this.classes.get(cls);
 	
-		if (this.imports.containsKey(cls))
-			return JavaStatic.pkgs.getClass(this.imports.get(cls));
+			if (this.imports.containsKey(cls))
+				return JavaStatic.pkgs.getClass(this.imports.get(cls));
+		}
 		
-		/**
-		 * @TODO Check package imports from JavaPackages
-		 */
+		//wtf? error...
+		JavaStatic.runtime.error("Class could not be found for import (in JavaFile.getImport): " + cls);
+		JavaStatic.runtime.exit(); //abort, we can't possibly go any further
 		
-		return null;
+		return null; //oh, shutup already, Java...yes, you need a return statement. w/e.
 	}
 	
 	/**

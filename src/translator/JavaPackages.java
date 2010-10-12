@@ -123,7 +123,7 @@ class JavaPackages {
 	/**
 	 * Tests if the given file is registered (ie. exists).
 	 *
-	 * @param path The name of a file, in the "java.lang.Object" form.
+	 * @param file The name of a file, in the "java.lang.Object" form.
 	 */
 	public boolean fileExists(String file) {
 		return this.files.containsKey(file);
@@ -234,7 +234,7 @@ class JavaPackages {
 	/**
 	 * Loads a package when we're sure that it will be in the search path.
 	 *
-	 * @see translator.importMany(String, String)
+	 * @see translator#importMany(String, String)
 	 * 
 	 * @param pkg The name of the package to import, in "java.lang.Object" form.
 	 */

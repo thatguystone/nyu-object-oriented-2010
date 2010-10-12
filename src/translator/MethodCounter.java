@@ -9,7 +9,7 @@ import xtc.util.Runtime;
 /**
  * This just made me laugh, so I left it here.
  */
-public class MethodCounter extends Visitor {
+class MethodCounter extends Visitor {
 	int count = 0;
 	
 	private Runtime runtime;
