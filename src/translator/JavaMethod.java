@@ -85,6 +85,13 @@ class JavaMethod extends Visitor implements Nameable {
 	}
 	
 	/**
+	 * Is this a constructor method?
+	 */
+	public boolean isConstructor() {
+		return this.isConstructor;
+	}
+	
+	/**
 	 * Set the method as not being virtual.
 	 */
 	private void notVirtual() {

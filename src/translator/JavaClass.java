@@ -144,15 +144,21 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 	//add the methods directly implemented in our parent to our inherited methods
 	 	for (String sig : this.parent.vMethods.keySet()) {
 	 		//only add the method if we don't override it / make it more private
-	 		if (!this.vMethods.containsKey(sig) && !this.pMethods.containsKey(sig))
-	 			this.iMethods.put(sig, this.parent.vMethods.get(sig).getParent());
+	 		if (!this.vMethods.containsKey(sig) && !this.pMethods.containsKey(sig)) {
+	 			JavaMethod jMethod = this.parent.vMethods.get(sig);
+	 			if (!jMethod.isConstructor())
+	 				this.iMethods.put(sig, jMethod.getParent());
+	 		}
 	 	}
 	 	
 	 	//add the methods that our parent inherited from its parent(s)
 	 	for (String sig : this.parent.iMethods.keySet()) {
 	 		//only add the method if we don't override it / make it more private
-	 		if (!this.vMethods.containsKey(sig) && !this.pMethods.containsKey(sig))
+	 		if (!this.vMethods.containsKey(sig) && !this.pMethods.containsKey(sig)) {
+	 			//we don't need a constructor test here because, we're assuming, if a method got into the 
+	 			//parent iMethods table, then it wasn't a constructor
 	 			this.iMethods.put(sig, this.parent.iMethods.get(sig));
+	 		}
 	 	}
 	 }
 	 
