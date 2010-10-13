@@ -29,12 +29,6 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	private JavaClass parent;
 
 	/**
-	 * List of all fields in this class
-	 * Field name -> Field object
-	 */
-	private Hashtable<String, JavaField> fields = new Hashtable<String, JavaField>();
-
-	/**
 	 * List of all virtual methods in this class (v is for virtual).
 	 * Method name -> Method object
 	 */
@@ -67,8 +61,6 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		
 		//and register ourself with JavaPackages
 		JavaStatic.pkgs.addClass(this);
-
-		this.addType();
 	}			
 
 	/**
@@ -87,98 +79,6 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		//once we're sure we have a parent, then add all our inherited methods
 		this.setupVTable();
 	}	
-
-	//Might get removed
-	/**
-	public boolean hasID(String ID) {
-		if (this.hasField(ID)) return true;
-		if (this.hasMethod(ID)) return true;
-		return false;
-	}
-
-	/**
-	 * =================================================================================================
-	 * Some reorganizing and commenting needed
-	 *
-
-	//The field methods can be used by any block
-	//They aren't in JavaScope because not every JavaScope object is
-	//a block.
-	//TODO create a JavaBlock or whatever class to handle some/all of these methods
-
-	public boolean hasField(String ID) {
-		if (this.fields.containsKey(ID)) {
-			this.lastID = ID;
-			this.lastScope = this.fields.get(ID);
-			return true;
-		}
-		return false;
-	}
-
-	public boolean hasMethod(String ID) {
-		if (this.hasPMethod(ID)) return true;
-		if (this.hasVMethod(ID)) return true;
-		if (this.hasIMethod(ID)) return true;
-		return false;
-	}
-
-	public boolean hasPMethod(String ID) {
-		if (this.pMethods.containsKey(ID)) {
-			this.lastID = ID;
-			this.lastScope = this.getPMethod(ID);
-			return true;
-		}
-		return false;
-	}
-
-	public boolean hasVMethod(String ID) {
-		if (this.vMethods.containsKey(ID)) {
-			this.lastID = ID;
-			this.lastScope = this.getVMethod(ID);
-			return true;
-		}
-		return false;
-	}
-
-	public boolean hasIMethod(String ID) {
-		if (this.iMethods.containsKey(ID)) {
-			this.lastID = ID;
-			this.lastScope = this.getIMethod(ID);
-			return true;
-		}
-		return false;
-	}
-
-	public JavaScope getScopeFromID(String ID) {
-		//at the moment this should always work
-		if (lastID == ID) return lastScope;
-		//TODO get a scope when lastID wasn't set and throw exception if no scope exists
-		return null;
-	}
-
-	public JavaMethod getMethod(String method) {
-		if (this.hasPMethod(method)) return this.getPMethod(method);
-		if (this.hasVMethod(method)) return this.getVMethod(method);
-		if (this.hasIMethod(method)) return this.getIMethod(method);
-		return null;
-	}
-
-	public JavaMethod getPMethod(String method) {
-		return this.pMethods.get(method);
-	}
-
-	public JavaMethod getVMethod(String method) {
-		return this.vMethods.get(method);
-	}
-
-	public JavaMethod getIMethod(String method) {
-		return this.iMethods.get(method).getMethod(method);
-	}
-
-	/**
-	 * End
-	 * =================================================================================================
-	 */
 
 	/**
 	 * Returns the name and package of the class in the java.lang.Pkg form.
@@ -225,28 +125,6 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		}
 	}
 
-	public void addField(String name, JavaField field) {
-		this.fields.put(name, field);
-	}
-
-	/**
-	 * Adds this class to the list of JavaTypes and adds the primitive
-	 * types as well if they don't already exist
-	 */	
-	private void addType() {
-		if (!this.typeList.containsKey("INT")) {
-			JavaPrimitive temp = new JavaPrimitive();
-			this.typeList.put("INT", temp);
-			this.typeList.put("LONG", temp);
-			this.typeList.put("FLOAT", temp);
-			this.typeList.put("DOUBLE", temp);
-			this.typeList.put("CHAR", temp);
-			//This probably shouldn't be here
-			this.typeList.put("STRING", temp);
-		}
-		this.typeList.put(this.name,(JavaType)this);
-	}
-	
 	/**
 	 * Go through all the parents and get their virtual methods, then just add them.  To do this, we test
 	 * if we first have a parent (java.lang.Object doesn't); if we have a parent, grab his virtual methods,
@@ -257,40 +135,47 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * the class, the parent's class must finish its activation before we can continue, and as this is part of activation,
 	 * we can be sure it will be ready.
 	 */
-	 private void setupVTable() {
-	 	//only do this if we have a parent...otherwise, there will be no methods to add
-	 	//java.lang.Object, I'm looking at you.
-	 	if (this.parent != null) {
-		 	//add the parent's vTable to our own
-		 	for (String sig : this.parent.vTable.keySet()) {
-		 		if (this.vMethods.containsKey(sig)) //we're overriding a parent method, use ours
-		 			this.vTable.put(sig, this.vMethods.get(sig).getParent());
-		 		else
-		 			this.vTable.put(sig, this.parent.vTable.get(sig));
-		 	}
-	 	}
-	 	
-	 	//once we're here, go ahead and add our own methods to the vTable
-	 	for (String sig : this.vMethods.keySet()) {
-	 		JavaMethod jMethod = this.vMethods.get(sig);
-	 		if (!this.vTable.containsKey(sig) && !jMethod.isConstructor())
-	 			this.vTable.put(sig, jMethod.getParent());
-	 	}
-	 	
-	 	if (JavaStatic.runtime.test("debug")) {
-		 	System.out.println("VTable for " + this.getName());
-		 	
-		 	//show the methods we have
-		 	for (String sig : this.vTable.keySet())
-		 		System.out.println("vtbl: " + sig + " --> " + this.vTable.get(sig).getName());
-		 	
-		 	for (String sig : this.pMethods.keySet())
-		 		System.out.println("priv: " + sig);
-		 		
-		 	System.out.println();
-		 }
-	 }
-	 
+	private void setupVTable() {
+		//only do this if we have a parent...otherwise, there will be no methods to add
+		//java.lang.Object, I'm looking at you.
+		if (this.parent != null) {
+			//add the parent's vTable to our own
+			for (String sig : this.parent.vTable.keySet()) {
+				if (this.vMethods.containsKey(sig)) //we're overriding a parent method, use ours
+					this.vTable.put(sig, this.vMethods.get(sig).getParent());
+				else
+					this.vTable.put(sig, this.parent.vTable.get(sig));
+			}
+		}
+
+		//once we're here, go ahead and add our own methods to the vTable
+		for (String sig : this.vMethods.keySet()) {
+			JavaMethod jMethod = this.vMethods.get(sig);
+			if (!this.vTable.containsKey(sig) && !jMethod.isConstructor())
+				this.vTable.put(sig, jMethod.getParent());
+		}
+
+		if (JavaStatic.runtime.test("debug")) {
+			System.out.println("VTable for " + this.getName());
+
+			//show the methods we have
+			for (String sig : this.vTable.keySet())
+				System.out.println("vtbl: " + sig + " --> " + this.vTable.get(sig).getName());
+
+			for (String sig : this.pMethods.keySet())
+				System.out.println("priv: " + sig);
+			
+			System.out.println();
+		}
+	}
+	
+	/**
+	 * Print out the VTable to the header.
+	 */
+	public void print() {
+		//JavaStatic.h.print("
+	}
+	
 	/**
 	 * ==================================================================================================
 	 * Visitor Methods
@@ -333,15 +218,5 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		//cannot store the field since a single field declaration
 		//might declare multiple fields
 		//JavaFieldDec fieldDec = new JavaFieldDec(this, (Node)n);
-	}
-	
-	/**
-	 * The default visitor method from Visitor.
-	 */
-	public void visit(Node n) {
-		for (Object o : n) {
-			if (o instanceof Node)
-				this.dispatch((Node)o);
-		}
 	}
 }

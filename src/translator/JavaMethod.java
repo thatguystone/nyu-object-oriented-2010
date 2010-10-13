@@ -1,8 +1,7 @@
 package translator;
 
-import xtc.tree.GNode;
 import xtc.tree.Node;
-import xtc.tree.Visitor;
+import xtc.tree.GNode;
 
 class JavaMethod extends JavaScope implements Nameable {
 	/**
@@ -57,16 +56,6 @@ class JavaMethod extends JavaScope implements Nameable {
 	}
 
 	/**
-	 * Checks if a local variable exists, if it does lastID and lastScope will get set
-	 */
-	public boolean hasID(String ID) {
-		/**
-		 * @TODO implement
-		 */
-		return false;
-	}
-	
-	/**
 	 * Gets the name of the method.
 	 */
 	public String getName() {
@@ -87,28 +76,6 @@ class JavaMethod extends JavaScope implements Nameable {
 		return this.getName() + "(" + this.signature + ")";
 	}
 
-	public String getID() {
-		return this.getMethodSignature();
-	}
-
-	/**
-	 * Same as getParent but visible to JavaScope
-	 */
-	public JavaScope getScope() {
-		return this.getParent();
-	}
-	
-	/**
-	 * Gets a local variable
-	 */
-	public JavaScope getScopeFromID(String ID) {
-		/**
-		 * @TODO implement, I'm holding back on this because I don't think
-		 * it'll end up being implemented here
-		 */
-		return null;
-	}
-	
 	/**
 	 * Is this a virtual method?
 	 */
@@ -128,6 +95,13 @@ class JavaMethod extends JavaScope implements Nameable {
 	 */
 	private void notVirtual() {
 		this.isVirtual = false;
+	}
+	
+	/**
+	 * Print out the translation.
+	 */
+	public void print() {
+		//JavaStatic.h.print("
 	}
 	
 	/**
@@ -169,16 +143,6 @@ class JavaMethod extends JavaScope implements Nameable {
 			//surely there is a better way to do this...
 			if (modifier == "private" || modifier == "static")
 				this.notVirtual();
-		}
-	}
-	
-	/**
-	 * The default visitor method from Visitor.
-	 */
-	public void visit(Node n) {
-		for (Object o : n) {
-			if (o instanceof Node)
-				this.dispatch((Node)o);
 		}
 	}
 }

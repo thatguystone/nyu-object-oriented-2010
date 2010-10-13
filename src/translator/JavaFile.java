@@ -108,6 +108,13 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	}
 	
 	/**
+	 * Tell the classes that it's their turn to print.
+	 */
+	public void print() {
+		//JavaStatic.h.print("
+	}
+	
+	/**
 	 * ==================================================================================================
 	 * Utility methods
 	 */
@@ -211,15 +218,5 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		
 		//save a copy of the class locally
 		this.classes.put(cls.getName(false), cls);
-	}
-	
-	/**
-	 * The default visitor method from Visitor.
-	 */
-	public void visit(Node n) {
-		for (Object o : n) {
-			if (o instanceof Node)
-				this.dispatch((Node)o);
-		}
 	}
 }

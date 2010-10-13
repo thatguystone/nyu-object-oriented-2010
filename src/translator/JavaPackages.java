@@ -172,6 +172,19 @@ class JavaPackages {
 	
 	/**
 	 * =============================================================================================
+	 * The printer.
+	 */
+	 
+	/**
+	 * Instructs every file to print itself.
+	 */
+	public void print() {
+		for (JavaFile f : this.files.values())
+			f.print();
+	}
+	
+	/**
+	 * =============================================================================================
 	 * Some extra utility stuff.
 	 */
 	

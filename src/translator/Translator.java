@@ -117,6 +117,7 @@ public class Translator extends Tool {
 		
 		JavaFile f = new JavaFile(this.currentFile, node);
 		f.activate();
+		JavaStatic.pkgs.print();
 		
 		//print the list of packages loaded during this run?
 		if (runtime.test("printImportedPackages")) {
