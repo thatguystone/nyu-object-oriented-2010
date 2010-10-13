@@ -4,7 +4,7 @@ import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
 
-class JavaMethod extends Visitor implements Nameable {
+class JavaMethod extends JavaScope implements Nameable {
 	/**
 	 * The class we are a part of.  This is helpful for determing if we're a constructor, and etc.
 	 */
@@ -55,6 +55,16 @@ class JavaMethod extends Visitor implements Nameable {
 		
 		this.isConstructor = (this.name == this.parent.getName());
 	}
+
+	/**
+	 * Checks if a local variable exists, if it does lastID and lastScope will get set
+	 */
+	public boolean hasID(String ID) {
+		/**
+		 * @TODO implement
+		 */
+		return false;
+	}
 	
 	/**
 	 * Gets the name of the method.
@@ -75,6 +85,28 @@ class JavaMethod extends Visitor implements Nameable {
 	 */
 	public String getMethodSignature() {
 		return this.getName() + "(" + this.signature + ")";
+	}
+
+	public String getID() {
+		return this.getMethodSignature();
+	}
+
+	/**
+	 * Same as getParent but visible to JavaScope
+	 */
+	public JavaScope getScope() {
+		return this.getParent();
+	}
+	
+	/**
+	 * Gets a local variable
+	 */
+	public JavaScope getScopeFromID(String ID) {
+		/**
+		 * @TODO implement, I'm holding back on this because I don't think
+		 * it'll end up being implemented here
+		 */
+		return null;
 	}
 	
 	/**

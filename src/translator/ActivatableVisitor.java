@@ -8,11 +8,12 @@ import xtc.tree.Visitor;
  * Create a visitor structure that only processes classes on demand. This makes our processing faster
  * as only files/classes that are actually needed are ever processed.
  */
-abstract class ActivatableVisitor extends Visitor {
+abstract class ActivatableVisitor extends JavaType {
 	/**
 	 * The Node that contains the information for this object.
 	 */
-	protected Node node = null;
+	//moved to JavaScope
+	//protected Node node = null;
 	
 	/**
 	 * If the visitor has been activated / used.

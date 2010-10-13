@@ -7,75 +7,98 @@ import xtc.tree.Visitor;
 /**
  * All fields are either class or method fields
  */
-abstract class JavaField extends Visitor implements Nameable {
+class JavaField extends JavaScope implements Nameable {
 
 	/**
 	 * The name of the field.
 	 */
-	protected String name;
+	private String name;
 	
 	/**
 	 * Is this declaration static.
 	 */
-	protected boolean isStatic = false;
+	private boolean isStatic = false;
 
 	/**
 	 * Is this declaration final.
 	 */
-	protected boolean isFinal = true;
+	private boolean isFinal = true;
 
 	/**
 	 * Number of array dimensions, 0 means not an array.
 	 */
-	protected int dimensions = 0;
+	private int dimensions = 0;
 
 	/**
 	 * Type of the object represented as a string.
 	 */
-	protected String type;
+	private JavaType type;
 
-	protected Node node;
+	/**
+	 * Scope of the field
+	 */
+	private JavaScope scope;
 
 	/**
 	 * Assignment statement associated with this field declaration.
 	 * May not exist.
 	 */
-	//protected JavaExpression assignment = null;
+	//private JavaExpression assignment = null;
 
-	JavaField(boolean isStatic, boolean isFinal, String type, int dimensions, Node n) {
+	JavaField(boolean isStatic, boolean isFinal, String type, int dimensions, JavaScope scope, Node n) {
 		this.name = (String)n.get(0);
 		this.isStatic = isStatic;
 		this.isFinal = isFinal;
-		this.type = type;
+		this.type = this.typeList.get(type);
 		this.dimensions = dimensions;
+		this.scope = scope;
 		this.node = n;
+
+		((JavaClass)this.scope).addField(name, this);
 	}
 
+	/**
+	 * This must be run AFTER all classes have been activated and populated
+	 * with a list of all thier methods and fields. Fields (along with methods
+	 * and expressions) may contain pointers to classes, methods, and fields.
+	 */
 	protected void process() {
 		this.dispatch(this.node);
 		this.node = null;
+	}
+
+	public JavaScope getScope() {
+		return this.scope;
 	}
 
 	public String getName() {
 		return this.name;
 	}
 
+	public String getID() {
+		return this.getName();
+	}
+
 	/**
 	 * Returns just the data type.
 	 * int x and int[] y both return int.
 	 */
-	public String getType() {
+	public JavaType getType() {
 		return this.type;
 	}
 
 	/**
 	 * Returns all information about a field's type.
 	 * int[] x would return int_Array_1.
+	 */	
+	/**
+	 * Type is now represented as a JavaType
 	 */
-	public String getFullType() {
+	/*public String getFullType() {
 		if (this.dimensions == 0) return this.type;
 		return this.type + "_Array_" + this.dimensions;
-	}
+	}*/
+	
 
 	/**
 	 * ==================================================================================================
@@ -88,13 +111,17 @@ abstract class JavaField extends Visitor implements Nameable {
 		}
 	}
 
-	public void visitnewArrayExpression(GNode n) {}
+	public void visitArrayInitializer(GNode n) {
+		//assignment = new JavaArrayInitializer();
+	}
 
-	public void visitnewClassExpression(GNode n) {}
+	public void visitnewArrayExpression(GNode n) {
+		//assignment = new JavaArrayExpression();
+	}
 
-	public void visitPrimaryIdentifier(GNode n) {}
-
-	public void visitLiteral(GNode n) {}
+	public void visitnewClassExpression(GNode n) {
+		//assignment = new JavaClassExpression();
+	}
 
 	public void visit(GNode n) {
 		for (Object o : n) {
