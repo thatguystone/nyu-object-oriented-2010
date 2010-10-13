@@ -46,8 +46,10 @@ class CodePrinter extends Printer {
 		Writer writer;
 		try {
 			writer = new FileWriter(name);
+			System.out.println(name);
 		} catch (IOException e) { 
-			writer = new BufferedWriter(new OutputStreamWriter(System.out));
+			writer = new OutputStreamWriter(System.out);
+			System.out.println("stdout");
 		}
 		
 		//set our printer to our writer

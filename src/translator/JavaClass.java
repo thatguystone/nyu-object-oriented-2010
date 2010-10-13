@@ -65,6 +65,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		//go for a nice visit to see everyone
 		this.dispatch(this.node);
 		
+		//activate the parent file so that all the classes with him are included
+		this.file.activate();
+		
 		if (JavaStatic.runtime.test("debug"))
 			System.out.println("Class activated: " + this.getName());
 		
@@ -207,11 +210,5 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 			this.vMethods.put(jMethod.getMethodSignature(), jMethod);
 		else
 			this.pMethods.put(jMethod.getMethodSignature(), jMethod);
-	}
-	
-	public void visitFieldDeclaration(GNode n) {
-		//cannot store the field since a single field declaration
-		//might declare multiple fields
-		//JavaFieldDec fieldDec = new JavaFieldDec(this, (Node)n);
 	}
 }

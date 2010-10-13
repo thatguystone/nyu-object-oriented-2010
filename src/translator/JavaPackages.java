@@ -287,9 +287,6 @@ class JavaPackages {
 			//if we failed at finding the package root
 			if (!dir.isDirectory())
 				dir = null;
-			
-			//clear package
-			pkg = "";
 		} else {
 			//we need to look for a directory, and xtc.runtime.locate() doesn't do that
 			List<File> dirs = JavaStatic.runtime.getFileList(Runtime.INPUT_DIRECTORY); 
@@ -306,9 +303,6 @@ class JavaPackages {
 				if (dir.exists() && dir.isDirectory())
 					break;
 			}
-			
-			//add a "." for easier stringing later (really so that we don't need anything else to hold pkg for importFile() later)
-			pkg += ".";
 		}
 		
 		//we couldn't find the import directory...surely this is an error
@@ -329,7 +323,8 @@ class JavaPackages {
 			return;
 		
 		//and import all our of files in this package
-		for (File f : jFiles)
-			this.importFile(pkg + f.getName().replace(".java", ""));
+		for (File f : jFiles) {
+			this.importFile(pkg + "." + f.getName().replace(".java", ""));
+		}
 	}
 }
