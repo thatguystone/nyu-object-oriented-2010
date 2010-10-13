@@ -171,7 +171,25 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * Print out the VTable to the header.
 	 */
 	public void print() {
-		JavaStatic.h.p("test");
+		JavaStatic.h
+			.pln("namespace " + this.pkg + " {")
+			.incr()
+				.pln("typedef __" + this.getName(false) + "* " + this.getName(false) + ";") 
+				.pln("struct __" + this.getName(false) + " {")
+					.incr()
+					.pln("__" + this.getName(false) + "_VT* __vptr;")
+					.decr()
+				.pln("};")
+				.pln()
+				.pln("struct __" + this.getName(false) + "_VT {")
+					.incr()
+					.pln("Class __isa;")
+					.decr()
+				.pln("};")
+			.decr()
+			.pln("}")
+			.pln()
+		;
 	}
 	
 	/**

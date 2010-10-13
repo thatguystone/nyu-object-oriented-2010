@@ -55,4 +55,14 @@ class CodePrinter extends Printer {
 		//set our printer to our writer
 		return new CodePrinter(writer); 
 	}
+	
+	/**
+	 * The pln method in xtc.Printer is too difficult to use -- requires indentation before every line.  This automatically
+	 * adds in the indentation before printing the line.
+	 */
+	public Printer pln(String s) {
+		this.indent();
+		super.pln(s);
+		return this;
+	}
 }
