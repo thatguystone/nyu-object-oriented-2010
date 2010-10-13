@@ -57,6 +57,7 @@ public class Translator extends Tool {
 			.bool("countMethods", "optionCountMethods", false, "Print the number of method declarations.")
 			.word("outputFile", "outputFile", false, "The file to which to output the translated code (defaults to stdout; when the file cannot be written, goes to stdout)")
 			.bool("printImportedPackages", "printImportedPackages", false, "Print a list of all packages imported during this run.")
+			.bool("debug", "debug", false, "Print debugging messages while translating.")
 		;
 	}
 	
@@ -79,7 +80,11 @@ public class Translator extends Tool {
 		JavaPackages.getInstance();
 		
 		//set our runtime in our static guys
-		JavaStatic.runtime = runtime;
+		JavaStatic.runtime = this.runtime;
+		
+		//setup our output file
+		JavaStatic.cpp = new CodePrinter("cpp");
+		JavaStatic.h = new CodePrinter("h");
 	}
 	
 	public void wrapUp() {

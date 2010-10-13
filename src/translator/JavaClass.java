@@ -5,6 +5,7 @@ import xtc.tree.Node;
 
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 
 class JavaClass extends ActivatableVisitor implements Nameable {
 	/**
@@ -37,19 +38,19 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * List of all virtual methods in this class (v is for virtual).
 	 * Method name -> Method object
 	 */
-	private Hashtable<String, JavaMethod> vMethods = new Hashtable<String, JavaMethod>();
+	private LinkedHashMap<String, JavaMethod> vMethods = new LinkedHashMap<String, JavaMethod>();
 	
 	/**
 	 * List of all non-virtual methods in this class (p is for private).
 	 * Method name -> Method object
 	 */
-	private Hashtable<String, JavaMethod> pMethods = new Hashtable<String, JavaMethod>();
+	private LinkedHashMap<String, JavaMethod> pMethods = new LinkedHashMap<String, JavaMethod>();
 	
 	/**
 	 * List of all the methods from the parent class that haven't been overriden(written?) (i is for inherited).
 	 * Points to a {@link JavaClass} because we're going to need the class for vtable resolution.
 	 */
-	private Hashtable<String, JavaClass> iMethods = new Hashtable<String, JavaClass>();
+	private LinkedHashMap<String, JavaClass> vTable = new LinkedHashMap<String, JavaClass>();
 	
 	/**
 	 * Builds a class from a node.
@@ -77,14 +78,18 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		//go for a nice visit to see everyone
 		this.dispatch(this.node);
 		
+		if (JavaStatic.runtime.test("debug"))
+			System.out.println("Class activated: " + this.getName());
+		
 		//check if we have a parent; if we don't, then java.lang.Object is our parent
 		this.setParent("java.lang.Object");
 		
 		//once we're sure we have a parent, then add all our inherited methods
-		this.addInheritedMethods();
+		this.setupVTable();
 	}	
 
 	//Might get removed
+	/**
 	public boolean hasID(String ID) {
 		if (this.hasField(ID)) return true;
 		if (this.hasMethod(ID)) return true;
@@ -94,7 +99,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	/**
 	 * =================================================================================================
 	 * Some reorganizing and commenting needed
-	 */
+	 *
 
 	//The field methods can be used by any block
 	//They aren't in JavaScope because not every JavaScope object is
@@ -204,11 +209,15 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 */
 	private void setParent(String parent) {
 		//java.lang.Object has no parent
-		if (this.getName(true) == "java.lang.Object")
+		if (this.getName(true).equals("java.lang.Object"))
 			return;
 		
 		//only allow one parent to be set
 		if (this.parent == null) {
+			if (JavaStatic.runtime.test("debug"))
+				System.out.println(this.getName() + " extends " + this.file.getImport(parent).getName());
+		
+			//set our parent from its name in import
 			this.parent = this.file.getImport(parent);
 		
 			//with the extension, we need to activate it (ie. process it) before we can use it
@@ -248,29 +257,38 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * the class, the parent's class must finish its activation before we can continue, and as this is part of activation,
 	 * we can be sure it will be ready.
 	 */
-	 private void addInheritedMethods() {
-	 	if (this.parent == null)
-	 		return;
-	 	
-	 	//add the methods directly implemented in our parent to our inherited methods
-	 	for (String sig : this.parent.vMethods.keySet()) {
-	 		//only add the method if we don't override it / make it more private
-	 		if (!this.vMethods.containsKey(sig) && !this.pMethods.containsKey(sig)) {
-	 			JavaMethod jMethod = this.parent.vMethods.get(sig);
-	 			if (!jMethod.isConstructor())
-	 				this.iMethods.put(sig, jMethod.getParent());
-	 		}
+	 private void setupVTable() {
+	 	//only do this if we have a parent...otherwise, there will be no methods to add
+	 	//java.lang.Object, I'm looking at you.
+	 	if (this.parent != null) {
+		 	//add the parent's vTable to our own
+		 	for (String sig : this.parent.vTable.keySet()) {
+		 		if (this.vMethods.containsKey(sig)) //we're overriding a parent method, use ours
+		 			this.vTable.put(sig, this.vMethods.get(sig).getParent());
+		 		else
+		 			this.vTable.put(sig, this.parent.vTable.get(sig));
+		 	}
 	 	}
 	 	
-	 	//add the methods that our parent inherited from its parent(s)
-	 	for (String sig : this.parent.iMethods.keySet()) {
-	 		//only add the method if we don't override it / make it more private
-	 		if (!this.vMethods.containsKey(sig) && !this.pMethods.containsKey(sig)) {
-	 			//we don't need a constructor test here because, we're assuming, if a method got into the 
-	 			//parent iMethods table, then it wasn't a constructor
-	 			this.iMethods.put(sig, this.parent.iMethods.get(sig));
-	 		}
+	 	//once we're here, go ahead and add our own methods to the vTable
+	 	for (String sig : this.vMethods.keySet()) {
+	 		JavaMethod jMethod = this.vMethods.get(sig);
+	 		if (!this.vTable.containsKey(sig) && !jMethod.isConstructor())
+	 			this.vTable.put(sig, jMethod.getParent());
 	 	}
+	 	
+	 	if (JavaStatic.runtime.test("debug")) {
+		 	System.out.println("VTable for " + this.getName());
+		 	
+		 	//show the methods we have
+		 	for (String sig : this.vTable.keySet())
+		 		System.out.println("vtbl: " + sig + " --> " + this.vTable.get(sig).getName());
+		 	
+		 	for (String sig : this.pMethods.keySet())
+		 		System.out.println("priv: " + sig);
+		 		
+		 	System.out.println();
+		 }
 	 }
 	 
 	/**

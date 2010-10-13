@@ -22,4 +22,14 @@ class JavaStatic {
 	 * around like a monkey on crack.
 	 */
 	public static Runtime runtime;
+	
+	/**
+	 * The cpp file printer.
+	 */
+	public static CodePrinter cpp;
+	
+	/**
+	 * The header file printer.
+	 */
+	public static CodePrinter h;
 }
