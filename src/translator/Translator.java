@@ -83,12 +83,14 @@ public class Translator extends Tool {
 		JavaStatic.runtime = this.runtime;
 		
 		//setup our output file
-		JavaStatic.cpp = new CodePrinter("cpp");
-		JavaStatic.h = new CodePrinter("h");
+		JavaStatic.cpp = CodePrinter.factory("cpp");
+		JavaStatic.h = CodePrinter.factory("h");
 	}
 	
 	public void wrapUp() {
 		JavaStatic.pkgs.wrapUp();
+		JavaStatic.cpp.close();
+		JavaStatic.h.close();
 	}
 
 	public File locate(String name) throws IOException {

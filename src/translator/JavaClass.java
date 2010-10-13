@@ -19,11 +19,6 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	private String name;
 	
 	/**
-	 * The name of the file that contains this class.
-	 */
-	private JavaFile file;
-	
-	/**
 	 * The parent class.  This is going to be something from "extends" or java.lang.Object.
 	 */
 	private JavaClass parent;
@@ -54,9 +49,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * @param n The node that contains the defintion for this class.
 	 */
 	JavaClass(JavaFile file, String pkg, Node n) {
-		this.file = file;
 		this.pkg = pkg;
 		this.name = (String)n.get(1);
+		this.setFile(file);
 		this.setup(n);
 		
 		//and register ourself with JavaPackages
@@ -78,8 +73,8 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		
 		//once we're sure we have a parent, then add all our inherited methods
 		this.setupVTable();
-	}	
-
+	}
+	
 	/**
 	 * Returns the name and package of the class in the java.lang.Pkg form.
 	 */
@@ -173,7 +168,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * Print out the VTable to the header.
 	 */
 	public void print() {
-		//JavaStatic.h.print("
+		JavaStatic.h.p("test");
 	}
 	
 	/**

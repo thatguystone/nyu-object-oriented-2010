@@ -12,12 +12,14 @@ import java.io.IOException;
 /**
  * Responsible for printing out pretty code.
  */
-class CodePrinter {
+class CodePrinter extends Printer {
 	/**
-	 * The printer we use to print out all our prettiness.
+	 * This is not too important, because we're extending printer, but only allow construct from the factory method.
 	 */
-	private Printer printer;
-	
+	private CodePrinter(Writer w) {
+		super(w);
+	}
+
 	/**
 	 * Sets up our printer. Attempts to get a file writer on outputFile, and if it fails, then it just
 	 * defaults to writing to stdout.  If it succeeds, then the file is destroyed and all the output
@@ -25,7 +27,7 @@ class CodePrinter {
 	 *
 	 * @param ext The ext that the file being written should have. Typically, this will be "h" or "cpp".
 	 */
-	CodePrinter(String ext) {
+	public static CodePrinter factory(String ext) {
 		String fileName = JavaStatic.runtime.getString("outputFile");
 		String name = "";
 		
@@ -49,6 +51,6 @@ class CodePrinter {
 		}
 		
 		//set our printer to our writer
-		this.printer = new Printer(writer); 
+		return new CodePrinter(writer); 
 	}
 }

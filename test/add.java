@@ -19,6 +19,8 @@ public class add extends test implements test1 {
 	private native int test();
 
 	public static int add(int a, int b) {
+		int i = 1;
+		Object o = new Object();
 		return a + b;
 	}
 	
