@@ -90,4 +90,77 @@ class CodePrinter extends Printer {
 		indent -= 4;
 		return this;
 	}
+	
+	/**
+	 * Creates a new indented block.
+	 *
+	 * @param header The header for the block (the "if (...)" part of an if statement)
+	 */
+	public CodeBlock block(String header) {
+		return new CodeBlock(this, header);
+	}
+	
+	/**
+	 * Creates a nested CodeBlock.
+	 */
+	public CodeBlock block(CodeBlock block, String header) {
+		return new CodeBlock(this, block, header);
+	}
+}
+
+/**
+ * A class that formats code blocks nicely and is capable of nesting.
+ */
+class CodeBlock {
+	/**
+	 * The Code Printer.
+	 */
+	private CodePrinter writer;
+	
+	/**
+	 * The parent block, if there is one.
+	 */
+	private CodeBlock parent = null;
+	
+	/**
+	 * Constructor...
+	 */
+	CodeBlock(CodePrinter writer, String header) {
+		this.writer = writer;
+		this.writer.pln(header + " {");
+		this.writer.incr();
+	}
+	
+	CodeBlock(CodePrinter writer, CodeBlock block, String header) {
+		this(writer, header);
+		this.parent = block;
+	}
+	
+	public CodeBlock block(String header) {
+		return this.writer.block(this, header);
+	}
+	
+	/**
+	 * When we're done with the block, be sure to close it.
+	 */
+	public CodeBlock close() {
+		this.writer.decr();
+		this.writer.pln("}\n");
+		return this.parent;
+	}
+	
+	/**
+	 * For printing out empty lines.
+	 */
+	public CodeBlock pln() {
+		return this.pln("");
+	}
+	
+	/**
+	 * Prints a line in the current block.
+	 */
+	public CodeBlock pln(String line) {
+		this.writer.pln(line);
+		return this;
+	}
 }

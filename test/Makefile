@@ -22,7 +22,7 @@ run: allTests
 	java \
 		-classpath $(RUNCLASSPATH) \
 		translator.Translator $(ARGS) \
-		-in $(TESTPATH) -in $(SRCPATH) \
+		-in $(TESTPATH) -in $(JAVAAPIPATH) \
 		$(FILE)
 
 clean:

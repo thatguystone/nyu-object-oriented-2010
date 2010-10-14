@@ -19,7 +19,7 @@ clean: clean-translator clean-java
 	javac -source 1.5 -classpath $(XTCCLASSPATH) -sourcepath $(SRCPATH) $<
 
 java:
-	$(MAKE) `../make.srcs java`
+	$(MAKE) `../make.srcs api`
 	
 #for the same reason as java, translator was moved here
 translator:
