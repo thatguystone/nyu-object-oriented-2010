@@ -1,10 +1,14 @@
 package translator;
 
+import java.util.Hashtable;
+
 import xtc.tree.Node;
 import xtc.tree.GNode;
 import xtc.tree.Visitor;
 
 abstract class JavaScope extends Visitor {
+	protected Hashtable<String, JavaVariable> variables = new Hashtable<String, JavaVariable>();
+
 	/**
 	 * Each scope is going to need a pointer to its file so that it can activate classes when
 	 * they are run across.
@@ -30,10 +34,16 @@ abstract class JavaScope extends Visitor {
 		return this.file;
 	}
 
+	
 	/**
 	 * ==================================================================================================
 	 * Visitor Methods
 	 */
+	 
+	public void visitFieldDeclaration(GNode n) {
+		JavaVariable jVar = new JavaVariable(this, n);
+		//this.variables.put(jVar.getName(), jVar);
+	}
 
 	/**
 	 * The default visitor method from Visitor.
