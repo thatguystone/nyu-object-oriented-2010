@@ -40,9 +40,9 @@ class JavaVariable extends Visitor {
 	 * Grabs all modifiers placed on a variable
 	 */
 	public void visitModifiers(GNode n) {
-		for (int child = 0; child < n.size(); child++) {
-			modifiers.add(((GNode)n.get(0)).get(child).toString());
-		}
+		//for (int child = 0; child < n.size(); child++) {
+		//	modifiers.add(((GNode)n.get(0)).get(child).toString());
+		//}
 	}
 	
 	/**

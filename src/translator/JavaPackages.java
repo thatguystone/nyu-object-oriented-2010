@@ -215,7 +215,7 @@ class JavaPackages {
 			return this.getFile(file);
 		
 		//get a file path from our package name
-		String jFile = file.replace(".", "/") + ".java";
+		String jFile = file.replace("default.", "").replace(".", "/") + ".java";
 		
 		//see if we can find the file in our search path (given by the "-in" flag)
 		try {
@@ -223,7 +223,7 @@ class JavaPackages {
 			
 			//if we get here, then we found our file, so let's throw it to the parser to make sure he gets imported properly
 			//so, we're going to restart the process, from the bottom-up, on the file we just found
-		
+			
 			//run through the imported file and everything it has
 			JavaFile javaFile = new JavaFile(f.toString(), JavaStatic.translator.parse(JavaStatic.runtime.getReader(f), f));
 			
