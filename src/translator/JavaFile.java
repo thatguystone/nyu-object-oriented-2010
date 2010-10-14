@@ -85,6 +85,7 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	 */
 	private void defaultImports() {
 		this.importFile("java.lang.Object");
+		this.importFile("java.lang.String");
 		//this.importFile("java.lang.System");
 	}
 	
@@ -111,7 +112,12 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	 * Tell the classes that it's their turn to print.
 	 */
 	public void print() {
-		//JavaStatic.h.print("
+		//only print it if the file has been activated
+		if (!this.activated)
+			return;
+		
+		for (JavaClass cls : this.classes.values())
+			cls.print();
 	}
 	
 	/**

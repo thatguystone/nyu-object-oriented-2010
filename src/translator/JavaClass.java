@@ -65,6 +65,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		//go for a nice visit to see everyone
 		this.dispatch(this.node);
 		
+		//activate the parent file so that all the classes with him are included
+		this.file.activate();
+		
 		if (JavaStatic.runtime.test("debug"))
 			System.out.println("Class activated: " + this.getName());
 		
@@ -97,6 +100,19 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 */
 	public String getPackageName() {
 		return this.pkg;
+	}
+	
+	/**
+	 * Gets the method from its signature.
+	 */
+	public JavaMethod getMethod(String sig) {
+		if (this.vMethods.containsKey(sig))
+			return this.vMethods.get(sig);
+		
+		if (this.pMethods.containsKey(sig))
+			return this.pMethods.get(sig);
+		
+		return null;
 	}
 	
 	/**
@@ -166,9 +182,73 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	
 	/**
 	 * Print out the VTable to the header.
+	 * This is just a jumbled mess...isn't there a neater way to do this?
 	 */
 	public void print() {
-		JavaStatic.h.p("test");
+		CodeBlock block = JavaStatic.h.block("namespace " + this.pkg);
+		
+		block = block
+			.pln("typedef __" + this.getName(false) + "* " + this.getName(false) + ";")
+			.pln()
+			.block("struct __" + this.getName(false))
+					.pln("__" + this.getName(false) + "_VT* __vptr;")
+					.pln()
+					.pln("__" + this.getName(false) + "() :")
+						.block("__vptr(&__vtable)").close()
+					.pln("static Class __class();")
+		;
+		
+					//now, dump out all of our virtual
+					for (JavaMethod jMeth : this.vMethods.values())
+						block.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodSignature(this.getName(false)) + ";");
+		
+					//and now for those static and private methods
+					for (JavaMethod jMeth : this.pMethods.values())
+						block.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodSignature(this.getName(false)) + ";");
+		
+		block =
+			block.close()
+			.block("struct __" + this.getName(false) + "_VT")
+				.pln("Class __isa;")
+		;
+				
+				//print out the methods in the vtable
+				for (String meth : this.vTable.keySet()) {
+					JavaMethod jMeth = this.vTable.get(meth).getMethod(meth);
+					JavaStatic.h.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodType(this.getName(false)) + ";");
+				}
+				
+				//and now print the vtable constructor
+				block = block
+					.pln()
+					.block("__" + this.getName(false) + "_VT() :")
+					.pln("__isa(__" + this.getName(false) + "::__class()),")
+				;
+				
+				//and then the initializors
+				int i = 1, len = this.vTable.size();
+				for (String meth : this.vTable.keySet()) {
+					JavaClass cls = this.vTable.get(meth);
+					JavaMethod jMeth = this.vTable.get(meth).getMethod(meth);
+			
+					//do we need to cast our function pointer?
+					if (cls.equals(this)) {
+						block.pln(jMeth.getName() + "(&__" + this.getName(false) + "::" + jMeth.getName() + ")" + (i == len ? " {" : ","));
+					} else { //nope, we're looking at inheritance, so cast
+						block.pln(
+							jMeth.getName() + "(" + jMeth.getCMethodCast(this.getName(false)) +
+							"&__" + cls.getName(false) + "::" + jMeth.getName() + ")" + (i == len ? " {" : ",")
+						);
+					}
+				
+					i++;
+				}
+		
+		block =
+				block.close()
+			.close()
+		.close()
+		;
 	}
 	
 	/**
@@ -207,11 +287,5 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 			this.vMethods.put(jMethod.getMethodSignature(), jMethod);
 		else
 			this.pMethods.put(jMethod.getMethodSignature(), jMethod);
-	}
-	
-	public void visitFieldDeclaration(GNode n) {
-		//cannot store the field since a single field declaration
-		//might declare multiple fields
-		//JavaFieldDec fieldDec = new JavaFieldDec(this, (Node)n);
 	}
 }

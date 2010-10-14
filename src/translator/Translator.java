@@ -89,8 +89,8 @@ public class Translator extends Tool {
 	
 	public void wrapUp() {
 		JavaStatic.pkgs.wrapUp();
-		JavaStatic.cpp.close();
-		JavaStatic.h.close();
+		JavaStatic.cpp.flush().close();
+		JavaStatic.h.flush().close();
 	}
 
 	public File locate(String name) throws IOException {
