@@ -20,6 +20,11 @@ class JavaMethod extends JavaScope implements Nameable {
 	private String name;
 	
 	/**
+	 * Return type for method.
+	 */
+	private String returnType;
+	
+	/**
 	 * If the method is virtual.  Assume it is, unless otherwise proven.
 	 */
 	private boolean isVirtual = true;
@@ -76,6 +81,42 @@ class JavaMethod extends JavaScope implements Nameable {
 	public String getMethodSignature() {
 		return this.getName() + "(" + this.signature + ")";
 	}
+	
+	/**
+	 * Gets the function parameters for C++;
+	 *
+	 * @param cls The name of the class this function is being put into.
+	 */
+	private String getCMethodParameters(String cls) {
+		return cls + (this.signature.length() > 0 ? "," : "") + this.signature;
+	}
+	
+	/**
+	 * Gets the function type for C++.
+	 *
+	 * @param cls The name of the class to use for __this.
+	 */
+	public String getCMethodCast(String cls) {
+	    return "(" + this.getCReturnType() + "(*)(" + this.getCMethodParameters(cls) + "))";
+	}
+	
+	/**
+	 * Gets the function type for C++.
+	 *
+	 * @param cls The name of the class to use for __this.
+	 */
+	public String getCMethodType(String cls) {
+	    return "(*" + this.getName() + ")(" + this.getCMethodParameters(cls) + ")";
+	}
+	
+	/**
+	 * Gets the function signature for C++.
+	 *
+	 * @param cls The name of the class to use for __this.
+	 */
+	public String getCMethodSignature(String cls) {
+	    return this.getName() + "(" + this.getCMethodParameters(cls) + ")";
+	}
 
 	/**
 	 * Is this a virtual method?
@@ -96,6 +137,13 @@ class JavaMethod extends JavaScope implements Nameable {
 	 */
 	private void notVirtual() {
 		this.isVirtual = false;
+	}
+	
+	/**
+	 * Find and return the C type value.
+	 */
+	public String getCReturnType() {
+		return this.returnType;
 	}
 	
 	/**
@@ -132,6 +180,17 @@ class JavaMethod extends JavaScope implements Nameable {
 			
 			this.signature = this.signature.substring(1);
 		}
+	}
+	
+	/**
+	 * Grab the method return type.
+	 */
+	public void visitType(GNode n) {
+		this.returnType = ((GNode)n.get(0)).get(0).toString();
+	}
+	
+	public void visitVoidType(GNode n) {
+		this.returnType = "void";
 	}
 	
 	/**

@@ -103,6 +103,19 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	}
 	
 	/**
+	 * Gets the method from its signature.
+	 */
+	public JavaMethod getMethod(String sig) {
+		if (this.vMethods.containsKey(sig))
+			return this.vMethods.get(sig);
+		
+		if (this.pMethods.containsKey(sig))
+			return this.pMethods.get(sig);
+		
+		return null;
+	}
+	
+	/**
 	 * Setup our parent.  Can only be run once, then everything is permanent.
 	 */
 	private void setParent(String parent) {
@@ -174,16 +187,65 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		JavaStatic.h
 			.pln("namespace " + this.pkg + " {")
 			.incr()
-				.pln("typedef __" + this.getName(false) + "* " + this.getName(false) + ";") 
+				.pln("typedef __" + this.getName(false) + "* " + this.getName(false) + ";")
+				.pln() 
 				.pln("struct __" + this.getName(false) + " {")
 					.incr()
 					.pln("__" + this.getName(false) + "_VT* __vptr;")
+					.pln()
+					.pln("__" + this.getName(false) + "() :")
+						.incr().pln("__vptr(&__vtable) {").decr()
+					.pln("}")
+					.pln()
+					.pln("static Class __class();")
+		;
+		
+		//now, dump out all of our virtual
+		for (JavaMethod jMeth : this.vMethods.values())
+			JavaStatic.h.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodSignature(this.getName(false)) + ";");
+		
+		//and now for those static and private methods
+		for (JavaMethod jMeth : this.pMethods.values())
+			JavaStatic.h.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodSignature(this.getName(false)) + ";");
+		
+		JavaStatic.h
 					.decr()
 				.pln("};")
 				.pln()
 				.pln("struct __" + this.getName(false) + "_VT {")
 					.incr()
 					.pln("Class __isa;")
+		;
+		
+		for (String meth : this.vTable.keySet()) {
+			JavaMethod jMeth = this.vTable.get(meth).getMethod(meth);
+			JavaStatic.h.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodType(this.getName(false)) + ";");
+		}
+		
+		JavaStatic.h
+					.pln()
+					.pln("__" + this.getName(false) + "_VT() :")
+						.incr()
+						.pln("__isa(__" + this.getName(false) + "::__class()),")
+		;
+		
+		int i = 1, len = this.vTable.size();
+		for (String meth : this.vTable.keySet()) {
+			JavaClass cls = this.vTable.get(meth);
+			JavaMethod jMeth = this.vTable.get(meth).getMethod(meth);
+			
+			//do we need to cast our function pointer?
+			if (cls.equals(this))
+				JavaStatic.h.pln(jMeth.getName() + "(&__" + this.getName(false) + "::" + jMeth.getName() + ")" + (i == len ? " {" : ","));
+			else //nope, we're looking at inheritance, so cast
+				JavaStatic.h.pln(jMeth.getName() + "(" + jMeth.getCMethodCast(this.getName(false)) + "&__" + cls.getName(false) + "::" + jMeth.getName() + ")" + (i == len ? " {" : ","));
+				
+			i++;
+		}
+		JavaStatic.h
+						
+						.decr()
+					.pln("}")
 					.decr()
 				.pln("};")
 			.decr()

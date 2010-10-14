@@ -1,5 +1,6 @@
 package translator;
 
+import xtc.Constants;
 import xtc.tree.Printer;
 
 import java.io.FileWriter;
@@ -13,6 +14,13 @@ import java.io.IOException;
  * Responsible for printing out pretty code.
  */
 class CodePrinter extends Printer {
+	/**
+	 * Java doesn't like it when two things share Sysetm.out for stream writing,
+	 * or something like that (only one stream was printing), so use a static guy
+	 * to share it if the file can't be found.
+	 */
+	private static OutputStreamWriter systemOutWriter;
+
 	/**
 	 * This is not too important, because we're extending printer, but only allow construct from the factory method.
 	 */
@@ -46,14 +54,15 @@ class CodePrinter extends Printer {
 		Writer writer;
 		try {
 			writer = new FileWriter(name);
-			System.out.println(name);
-		} catch (IOException e) { 
-			writer = new OutputStreamWriter(System.out);
-			System.out.println("stdout");
+		} catch (IOException e) {
+			if (!(systemOutWriter instanceof OutputStreamWriter))
+				systemOutWriter = new OutputStreamWriter(System.out);
+			
+			writer = systemOutWriter;
 		}
 		
 		//set our printer to our writer
-		return new CodePrinter(writer); 
+		return new CodePrinter(writer);
 	}
 	
 	/**
@@ -63,6 +72,22 @@ class CodePrinter extends Printer {
 	public Printer pln(String s) {
 		this.indent();
 		super.pln(s);
+		return this;
+	}
+	
+	/**
+	 * Indentation is, by default, not enough, so this doubles it (to 4 WHOLE spaces!)
+	 */
+	public Printer incr() {
+		indent += 4;
+		return this;
+	}
+	
+	/**
+	 * The counter-part of incr().
+	 */
+	public Printer decr() {
+		indent -= 4;
 		return this;
 	}
 }

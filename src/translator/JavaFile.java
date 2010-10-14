@@ -115,11 +115,8 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		if (!this.activated)
 			return;
 		
-		
-		for (JavaClass cls : this.classes.values()) {
-			System.out.println(cls.getName());
+		for (JavaClass cls : this.classes.values())
 			cls.print();
-		}
 	}
 	
 	/**
