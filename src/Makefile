@@ -7,10 +7,10 @@ default: translator java xtc
 clean-translator:
 	$(MAKE) -C translator clean
 
-clean-java:
-	$(MAKE) -C java clean
+clean-api:
+	$(MAKE) -C api clean
 
-clean: clean-translator clean-java
+clean: clean-translator clean-api
 
 #java has to be made from the parent directory, otherwise it fails (packages break)
 #  * cd-ing from the child directory (java) to here in the makefile causes an error because none of java's rules are in this file
@@ -19,7 +19,7 @@ clean: clean-translator clean-java
 	javac -source 1.5 -classpath $(XTCCLASSPATH) -sourcepath $(SRCPATH) $<
 
 java:
-	$(MAKE) `../make.srcs api`
+	$(MAKE) -C api
 	
 #for the same reason as java, translator was moved here
 translator:
