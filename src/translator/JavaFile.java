@@ -109,15 +109,15 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	}
 	
 	/**
-	 * Tell the classes that it's their turn to print.
+	 * Tell the classes that it's their turn to print. (Just intercept one of the print calls.)
 	 */
-	public void print() {
+	public void printImplementation() {
 		//only print it if the file has been activated
 		if (!this.activated)
 			return;
 		
 		for (JavaClass cls : this.classes.values())
-			cls.print();
+			cls.triggerPrint();
 	}
 	
 	/**

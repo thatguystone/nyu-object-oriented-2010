@@ -149,8 +149,8 @@ class JavaMethod extends JavaScope implements Nameable {
 	/**
 	 * Print out the translation.
 	 */
-	public void print() {
-		//JavaStatic.h.print("
+	public void printImplementation() {
+		//CodeBlock block = this.hBlock("private void something(String something)");
 	}
 	
 	/**

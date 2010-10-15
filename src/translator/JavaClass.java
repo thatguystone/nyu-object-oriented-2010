@@ -184,8 +184,8 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * Print out the VTable to the header.
 	 * This is just a jumbled mess...isn't there a neater way to do this?
 	 */
-	public void print() {
-		CodeBlock block = JavaStatic.h.block("namespace " + this.pkg);
+	protected void printHeader() {
+		CodeBlock block = this.hBlock("namespace " + this.pkg);
 		
 		block = block
 			.pln("typedef __" + this.getName(false) + "* " + this.getName(false) + ";")
@@ -215,7 +215,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 				//print out the methods in the vtable
 				for (String meth : this.vTable.keySet()) {
 					JavaMethod jMeth = this.vTable.get(meth).getMethod(meth);
-					JavaStatic.h.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodType(this.getName(false)) + ";");
+					block.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodType(this.getName(false)) + ";");
 				}
 				
 				//and now print the vtable constructor
