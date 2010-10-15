@@ -283,7 +283,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	public void visitMethodDeclaration(GNode n) {
 		JavaMethod jMethod = new JavaMethod(n, this);
 		
-		if (jMethod.isVirtual())
+		if (jMethod.isNative())
+			JavaStatic.pkgs.importNative(this.getName());
+		else if (jMethod.isVirtual())
 			this.vMethods.put(jMethod.getMethodSignature(), jMethod);
 		else
 			this.pMethods.put(jMethod.getMethodSignature(), jMethod);

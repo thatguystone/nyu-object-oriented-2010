@@ -4,6 +4,7 @@ import xtc.tree.GNode;
 import xtc.tree.Node;
 
 import java.util.Hashtable;
+import java.util.HashSet;
 
 import java.util.*;
 
@@ -140,6 +141,21 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	}
 	
 	/**
+	 * Used for importing * declarations.
+	 *
+	 * @param pkg The name of the package from which to import all files.
+	 */
+	private void importPackage(String pkg) {
+		JavaStatic.pkgs.importMany(pkg);
+		
+		Iterator itr = JavaStatic.pkgs.getPackage(pkg).iterator();
+		while (itr.hasNext()) {
+			String cls = (String)itr.next();
+			this.imports.put(cls, JavaStatic.pkgs.getClass(pkg + "." + cls).getName());
+		}
+	}
+	
+	/**
 	 * Searches for a class that has been imported into this file.  Given the name of a class, in "Object"
 	 * form, it will search its local imports to expand to the full name of the class (ie. expand "Object"
 	 * to "java.lang.Object") and return the {@link JavaClass} associated with that import.
@@ -201,16 +217,10 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		//lose the first dot
 		pkg = pkg.substring(1);
 		
-		this.importFile(pkg);
-		
-		/**
-		 * @TODO - handle * imports
-		 */
-		 
-		/**
-		 * Get the names of all the classes contained inside this import,
-		 * then pass that on to all of the classes for their resolution
-		 */
+		if (n.get(2).toString().equals("*"))
+			this.importPackage(pkg);
+		else
+			this.importFile(pkg);
 	}
 	
 	/**

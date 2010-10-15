@@ -35,6 +35,11 @@ class JavaMethod extends JavaScope implements Nameable {
 	private boolean isConstructor = false;
 	
 	/**
+	 * If we are looking at a native method.
+	 */
+	private boolean isNative = false;
+	
+	/**
 	 * Runs the dispatcher on the node.
 	 */
 	JavaMethod(GNode n, JavaClass parent) {
@@ -140,6 +145,20 @@ class JavaMethod extends JavaScope implements Nameable {
 	}
 	
 	/**
+	 * Set the method as being native.
+	 */
+	private void setNative() {
+		this.isNative = true;
+	}
+	
+	/**
+	 * Test if this is a native method.
+	 */
+	public boolean isNative() {
+		return this.isNative;
+	}
+	
+	/**
 	 * Find and return the C type value.
 	 */
 	public String getCReturnType() {
@@ -189,6 +208,9 @@ class JavaMethod extends JavaScope implements Nameable {
 		this.returnType = ((GNode)n.get(0)).get(0).toString();
 	}
 	
+	/**
+	 * Void has its own SPECIAL (as in "herp derp") type.
+	 */
 	public void visitVoidType(GNode n) {
 		this.returnType = "void";
 	}
@@ -198,11 +220,14 @@ class JavaMethod extends JavaScope implements Nameable {
 	 */
 	public void visitModifiers(GNode n) {
 		for (int i = 0; i < n.size(); i++) {
-			String modifier = n.get(i).toString();
+			String modifier = ((GNode)n.get(i)).get(0).toString();
 			
 			//surely there is a better way to do this...
 			if (modifier == "private" || modifier == "static")
 				this.notVirtual();
+			
+			if (modifier == "native")
+				this.setNative();
 		}
 	}
 }

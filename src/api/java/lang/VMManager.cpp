@@ -1,7 +1,3 @@
-#include <stdint.h>
-#include "java_lang.h"
-#include "VMManager.h"
-
 namespace java {
 	namespace lang {
 		Class VMManager::getClass(Object o) {

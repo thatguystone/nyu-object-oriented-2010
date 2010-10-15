@@ -1,4 +1,4 @@
-import test2.add2;
+import test2.*;
 
 interface test1 { } 
 
@@ -15,8 +15,6 @@ class test {
 public class add extends test implements test1 {
 	private static String something;
 	private add j;
-
-	private native int test();
 
 	public static int add(int a, int b) {
 		int i = 1;

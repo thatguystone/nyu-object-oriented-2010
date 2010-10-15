@@ -16,6 +16,7 @@ import java.util.Hashtable;
 import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Provides a nice interface to Translator.  Rather than having everything in Translator, we come here
@@ -54,6 +55,11 @@ class JavaPackages {
 	 * is loaded, not when all are.
 	 */
 	public HashSet<String> loadedPackages = new HashSet<String>();
+	
+	/**
+	 * The list of classes that contain native methods that we have already loaded.
+	 */
+	public HashSet<String> loadedNatives = new HashSet<String>();
 	
 	/**
 	 * Don't allow creation of the class anywhere but inside itself.
@@ -204,11 +210,46 @@ class JavaPackages {
 	}
 	
 	/**
+	 * When we have a method marked as native, we need to import its corresponding .cpp and .h implementation files.
+	 * We allow methods to be marked as native in accordance with the Apache Harmony with implementation of native:
+	 * they use the @api2vm tag to flag a class as doing calls directly to the vm and not having implementations. This
+	 * differs from how java typically handles native (requires you to use some class loading stuff), but I believe it
+	 * to be a reasonable alternative for our purposes. Also, we do NOT support using native for any translations;
+	 * this is just for our internal libraries / java api.
+	 */
+	public void importNative(String cls) {
+		if (this.loadedNatives.contains(cls))
+			return;
+		
+		this.loadedNatives.add(cls);
+		
+		String cppFile = cls.replace(".", "/") + ".cpp";
+		String hFile = cls.replace(".", "/") + ".h";
+		
+		//first, we're going to attempt to find the .cpp and .h files that correspond with this class
+		this.appendFileToOutput(cppFile, JavaStatic.cpp);
+		this.appendFileToOutput(hFile, JavaStatic.h);
+	}
+	
+	/**
+	 * Given the pointer to a file, it outputs the contents of the file to the proper output file.
+	 *
+	 * @param f The file to read from.
+	 * @param printer The output to print to.
+	 */
+	private void appendFileToOutput(String f, CodePrinter printer) {
+		try {
+			Scanner file = new Scanner(JavaStatic.runtime.locate(f));
+			
+			while (file.hasNextLine())
+				printer.pln(file.nextLine());
+		} catch (FileNotFoundException e) { } //doesn't matter if we couldn't find the file, maybe they just didn't want to have it
+	}
+	
+	/**
 	 * Given a package file name, it does its best to import that package file and add it to the translation.
 	 *
 	 * @param file A string in the format java.lang.Object for the file to import.
-	 *
-	 * @TODO - handle * imports
 	 */
 	public JavaFile importFile(String file) {
 		if (this.fileExists(file))

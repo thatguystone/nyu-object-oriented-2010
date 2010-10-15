@@ -1,5 +1,3 @@
-#pragma once
-
 namespace java {
 	namespace lang {
 		class VMManager {
