@@ -40,6 +40,12 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * Points to a {@link JavaClass} because we're going to need the class for vtable resolution.
 	 */
 	private LinkedHashMap<String, JavaClass> vTable = new LinkedHashMap<String, JavaClass>();
+
+	/**
+	 * List of all fields in the class.
+	 * Field name -> Field Object
+	 */
+	private LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
 	
 	/**
 	 * Builds a class from a node.
@@ -183,6 +189,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	/**
 	 * Print out the VTable to the header.
 	 * This is just a jumbled mess...isn't there a neater way to do this?
+	 *
+	 * For one, you can let JavaMethod format itself to be printed and all you'd
+	 * need here is something like block.pln(jMeth.printMe());.
 	 */
 	protected void printHeader() {
 		CodeBlock block = this.hBlock("namespace " + this.pkg);
@@ -197,6 +206,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 						.block("__vptr(&__vtable)").close()
 					.pln("static Class __class();")
 		;
+
+					for (JavaField fld : this.fields.values())
+						block.pln(fld.printDec());
 		
 					//now, dump out all of our virtual
 					for (JavaMethod jMeth : this.vMethods.values())
@@ -249,6 +261,13 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 			.close()
 		.close()
 		;
+	}
+
+	/**
+	 * Add a field to our field list
+	 */
+	public void addField(JavaField field) {
+		this.fields.put(field.getName(), field);
 	}
 	
 	/**

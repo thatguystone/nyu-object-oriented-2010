@@ -64,6 +64,15 @@ abstract class JavaScope extends Visitor {
 	}
 	
 	/**
+	 * JavaField registers itself with its scope's field list because of the
+	 * multiple declaration problem.
+	 * All classes containing a field list must implement this.
+	 */
+	public void addField(JavaField field) {
+
+	}
+
+	/**
 	 * Tells the class to go take itself out back and print itself.
 	 */
 	public final void triggerPrint() {
@@ -115,8 +124,7 @@ abstract class JavaScope extends Visitor {
 	 * What it implies.
 	 */
 	public void visitFieldDeclaration(GNode n) {
-		JavaVariable jVar = new JavaVariable(this, n);
-		//this.variables.put(jVar.getName(), jVar);
+		JavaFieldDec temp = new JavaFieldDec(this, n);
 	}
 
 	/**
