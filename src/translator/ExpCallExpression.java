@@ -8,6 +8,9 @@ import xtc.tree.Visitor;
 
 class ExpCallExpression extends JavaExpression {
 
+	/**
+	 * Name of the variable calling this method, null means no caller or this
+	 */
 	String caller = null;
 
 	ExpCallExpression(JavaScope parent, Node n){
@@ -17,6 +20,9 @@ class ExpCallExpression extends JavaExpression {
 		this.dispatch(this.node);
 	}
 
+	/**
+	 * Does what is says.
+	 */
 	private void setCaller() {
 		if (this.node.get(0) != null) {
 			if (((GNode)this.node.get(0)).get(0) != null)
@@ -24,9 +30,13 @@ class ExpCallExpression extends JavaExpression {
 		}
 	}
 
+	/**
+	 * Prints the C++ code
+	 */
 	public String printMe() {
 		String temp = "";
 		if (this.caller != null) {
+			//uses its own scope and the scope of the class its caller belongs to
 			temp = temp + getCppScope(this.getScope(), ((JavaField)this.getField(caller)).getCls());
 		}
 		temp = temp + this.getName() + "(" +  myExpressions.remove(0).printMe();

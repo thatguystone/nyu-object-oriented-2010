@@ -314,6 +314,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		this.fields.put(field.getName(), field);
 	}
 
+	/**
+	 * Check if this class has this field.
+	 */
 	public boolean hasField(String field) {
 		if (this.fields.containsKey(field))
 			return true;

@@ -110,6 +110,9 @@ class JavaField extends ExpressionVisitor implements Nameable{
 		return this.type;
 	}
 
+	/**
+	 * Returns the class this field is a type of.
+	 */
 	public JavaClass getCls() {
 		return this.cls;
 	}

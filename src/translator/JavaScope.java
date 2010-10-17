@@ -205,10 +205,19 @@ abstract class JavaScope extends Visitor {
 
 	}
 
+	/**
+	 * Check if we have this field.
+	 * Objects that have populated field lists must implement this.
+	 */
 	public boolean hasField(String field) {
 		return false;
 	}
 
+	/**
+	 * Get the field from the field list. 
+	 * If we don't have the field, ask our parent scope.
+	 * This should never run all the way to the top because we're only translating working java.
+	 */
 	public JavaField getField(String field) {
 		if (!(this.hasField(field)))
 			return this.getScope().getField(field);
