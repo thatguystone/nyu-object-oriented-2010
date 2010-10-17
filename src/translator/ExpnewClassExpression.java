@@ -10,14 +10,26 @@ class ExpnewClassExpression extends JavaExpression {
 	
 	String name;
 
-	ExpnewClassExpression(Node n) {
+	JavaClass cls;
+
+	ExpnewClassExpression(JavaScope parent, Node n) {
 		this.node = n;
 		this.name = (String)n.get(2);
+		this.setScope(parent);
 		this.dispatch(this.node);
 	}
 
+	private void setType(String type) {	
+		this.getFile().getImport(type).activate();
+		this.cls = this.getFile().getImport(type);
+	}
+
+	public JavaFile getFile() {
+		return this.getScope().getFile();
+	}
+
 	public String printMe() {
-		String temp = "new " + name + "(" + myExpressions.remove(0).printMe();
+		String temp = "new " + this.getCppScope(this.getScope(), cls) + "(" + myExpressions.remove(0).printMe();
 		for (Object o : myExpressions) {
 			temp += ", " + ((JavaExpression)o).printMe();
 		}

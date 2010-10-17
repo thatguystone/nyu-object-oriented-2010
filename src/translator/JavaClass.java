@@ -49,8 +49,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	/**
 	 * List of all fields in the class.
 	 * Field name -> Field Object
+	 * Moved to JavaScope.
 	 */
-	private LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
+	//private LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
 	
 	/**
 	 * Builds a class from a node.
@@ -311,6 +312,12 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 */
 	public void addField(JavaField field) {
 		this.fields.put(field.getName(), field);
+	}
+
+	public boolean hasField(String field) {
+		if (this.fields.containsKey(field))
+			return true;
+		return false;
 	}
 	
 	/**

@@ -13,8 +13,9 @@ class ExpAssignmentExpression extends JavaExpression {
 
 	JavaExpression second;
 
-	ExpAssignmentExpression(Node n) {
+	ExpAssignmentExpression(JavaScope parent, Node n) {
 		this.node = n;
+		this.setScope(parent);
 		this.operator = (String)n.get(1);
 		this.dispatch(this.node);
 		this.first = (JavaExpression)this.myExpressions.get(0);

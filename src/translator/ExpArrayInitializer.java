@@ -9,8 +9,9 @@ import xtc.tree.Visitor;
  */
 class ExpArrayInitializer extends JavaExpression {
 
-	ExpArrayInitializer(Node n) {
+	ExpArrayInitializer(JavaScope parent, Node n) {
 		this.node = n;
+		this.setScope(parent);
 		this.dispatch(this.node);
 	}
 

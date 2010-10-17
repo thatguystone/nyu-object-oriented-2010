@@ -2,6 +2,7 @@ package translator;
 
 import java.util.Hashtable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import java.util.*;
 
@@ -25,6 +26,13 @@ abstract class JavaScope extends Visitor {
 	 * This is NOT the scope containing the object.
 	 */
 	protected JavaScope parentScope;
+
+	/**
+	 * List of all fields in this class.
+	 * Moved here for convenience.
+	 * Field name -> Field Object
+	 */
+	protected LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
 
 	/**
 	 * Instead of having blocks just print themselves, blocks will get added to the print queue
@@ -195,6 +203,16 @@ abstract class JavaScope extends Visitor {
 	 */
 	public void addField(JavaField field) {
 
+	}
+
+	public boolean hasField(String field) {
+		return false;
+	}
+
+	public JavaField getField(String field) {
+		if (!(this.hasField(field)))
+			return this.getScope().getField(field);
+		return this.fields.get(field);
 	}
 
 	/**

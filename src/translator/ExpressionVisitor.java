@@ -20,15 +20,15 @@ abstract class ExpressionVisitor extends JavaScope {
 	 * More to come in future versions!
 	 */
 	public void visitAdditiveExpression(GNode n) {
-		myExpressions.add(new ExpTwoPartExp(n));
+		myExpressions.add(new ExpTwoPartExp(this, n));
 	}
 
 	public void visitMultiplicativeExpression(GNode n) {
-		myExpressions.add(new ExpTwoPartExp(n));
+		myExpressions.add(new ExpTwoPartExp(this, n));
 	}
 
 	public void visitConditionalExpression(GNode n) {
-		myExpressions.add(new ExpTwoPartExp(n));
+		myExpressions.add(new ExpTwoPartExp(this, n));
 	}
 
 	public void visitIntegerLiteral(GNode n) {
@@ -40,18 +40,22 @@ abstract class ExpressionVisitor extends JavaScope {
 	}
 
 	public void visitArrayInitializer(GNode n) {
-		myExpressions.add(new ExpArrayInitializer(n));
+		myExpressions.add(new ExpArrayInitializer(this, n));
 	}
 
 	public void visitnewArrayExpression(GNode n) {
-		myExpressions.add(new ExpnewArrayExpression(n));
+		myExpressions.add(new ExpnewArrayExpression(this, n));
 	}
 
 	public void visitnewClassExpression(GNode n) {
-		myExpressions.add(new ExpnewClassExpression(n));
+		myExpressions.add(new ExpnewClassExpression(this, n));
 	}
 
 	public void visitExpression(GNode n) {
-		myExpressions.add(new ExpAssignmentExpression(n));
+		myExpressions.add(new ExpAssignmentExpression(this, n));
+	}
+
+	public void visitCallExpression(GNode n) {
+		myExpressions.add(new ExpCallExpression(this, n));
 	}
 }

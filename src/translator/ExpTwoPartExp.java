@@ -17,8 +17,9 @@ class ExpTwoPartExp extends JavaExpression {
 
 	JavaExpression second;
 
-	ExpTwoPartExp(Node n) {
+	ExpTwoPartExp(JavaScope parent, Node n) {
 		this.node = n;
+		this.setScope(parent);
 		this.operator = (String)n.get(1);
 		this.dispatch(this.node);
 		this.first = (JavaExpression)this.myExpressions.get(0);

@@ -11,8 +11,9 @@ class ExpnewArrayExpression extends JavaExpression {
 
 	String type;
 
-	ExpnewArrayExpression(Node n) {
+	ExpnewArrayExpression(JavaScope parent, Node n) {
 		this.node = n;
+		this.setScope(parent);
 		type = (String)n.get(0);
 		this.dispatch(this.node);
 	}

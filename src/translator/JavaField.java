@@ -110,25 +110,36 @@ class JavaField extends ExpressionVisitor implements Nameable{
 		return this.type;
 	}
 
+	public JavaClass getCls() {
+		return this.cls;
+	}
+
 	/**
 	 * Call this when you need to print the declaration
 	 */
 	public String printMe() {
 		if (hasExpression()) {
-			return getType() + " " + getName() + " = " + assignment.printMe() + ";"; 
+			return this.printpDec() + " = " + assignment.printMe() + ";"; 
 		}
-		return getType() + " " + getName() + ";";
+		return this.printpDec();
 	}
 
 	/**
 	 * Call this when you only want to print the declaration without assignment
 	 */
 	public String printDec() {
-		if (isObject)
-			return getCppScopeTypeless(this.getScope(), cls) + getType() + " " + getName() + ";";
-		return getType() + " " + getName() + ";";
+		return this.printpDec() + ";";
 	}
 	
+	/**
+	 * Some internal formatting
+	 */
+	private String printpDec() {
+		if (isObject)
+			return this.getCppScopeTypeless(this.getScope(), this.getCls()) + this.getType() + " " + this.getName();
+		return this.getType() + " " + this.getName();
+	}
+
 	/**
 	 * Call this when you only want to print the assignment without the declaration.
 	 * This will cause problems if there was no assignment, but that case shouldn't come up.
