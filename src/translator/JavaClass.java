@@ -24,6 +24,11 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	private JavaClass parent;
 
 	/**
+	 * keeps track of how many packages(namespaces) deep we are to know how many .close()'s to use.
+	 */
+	private int scopeDepth = 1;
+
+	/**
 	 * List of all virtual methods in this class (v is for virtual).
 	 * Method name -> Method object
 	 */
@@ -84,8 +89,11 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		//once we're sure we have a parent, then add all our inherited methods
 		this.setupVTable();
 
+		//find out how many packages deep we are
+		this.setDepth();
+
 		//add ourself to the print queue AFTER all dependencies have been activated/added
-		this.registerPrint("namespace " + this.pkg);
+		this.registerPrint(this.pkg);
 	}
 	
 	/**
@@ -132,6 +140,21 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		return null;
 	}
 	
+	/**
+	 * Set our package depth.
+	 * You may ask yourself "why is this here".
+	 * Only classes care about namespace declarations.
+	 */
+	private void setDepth() {
+		String temp = this.pkg;
+		while (temp.indexOf('.') != -1) {
+			String firstHalf = temp.substring(0, temp.indexOf('.'));
+			String secondHalf = temp.substring(temp.indexOf('.') + 1, temp.length());
+			temp = firstHalf + "::" + secondHalf;
+			this.scopeDepth++;
+		}
+	}
+
 	/**
 	 * Setup our parent.  Can only be run once, then everything is permanent.
 	 */
@@ -207,18 +230,18 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	protected void printHeader() {
 
 		//print the class prototypes and typedef
-		CodeBlock proto = getProto(this);
+		CodeBlock proto = getProto();
 		proto = proto
 			.pln("struct __" + this.getName(false))
 			.pln("struct __" + this.getName(false) + "_VT")
 			.pln()
-			.pln("typedef __" + this.getName(false) + "* " + this.getName(false) + ";")
-		.close();
+			.pln("typedef __" + this.getName(false) + "* " + this.getName(false) + ";");
+		for (int j = 0; j < scopeDepth; j++)
+			proto = proto.close();
 		
 		CodeBlock block = this.hBlock("namespace " + this.pkg);
 		
 		block = block
-			.pln()
 			.block("struct __" + this.getName(false))
 					.pln("__" + this.getName(false) + "_VT* __vptr;")
 					.pln()
@@ -278,9 +301,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		
 		block =
 				block.close()
-			.close()
-		.close()
-		;
+			.close();
+		for (int j = 0; j < scopeDepth; j++)
+			block = block.close();
 	}
 
 	/**

@@ -10,7 +10,9 @@ import xtc.tree.GNode;
 import xtc.tree.Visitor;
 
 abstract class JavaScope extends Visitor {
-	protected Hashtable<String, JavaVariable> variables = new Hashtable<String, JavaVariable>();
+
+	//not needed anymore
+	//protected Hashtable<String, JavaVariable> variables = new Hashtable<String, JavaVariable>();
 
 	/**
 	 * Each scope is going to need a pointer to its file so that it can activate classes when
@@ -158,6 +160,7 @@ abstract class JavaScope extends Visitor {
 		String refPath = refrencedLocation.getScopeString();
 
 		//god I hate Strings
+		//anyway this removes the parts of presentPath and refPath that are the same
 		while (presentPath.compareTo("") != 0 && refPath.compareTo("") != 0) {
 			if ( 0 != presentPath.substring(0, (presentPath.indexOf('.') == -1 ? presentPath.length() : presentPath.indexOf('.')))
 				.compareTo(refPath.substring(0, (refPath.indexOf('.') == -1 ? refPath.length() : refPath.indexOf('.')))))
@@ -173,6 +176,7 @@ abstract class JavaScope extends Visitor {
 		}
 
 		//omfg why doesn't replace let me replace chars with strings
+		//turn ref path into C++ code
 		while (refPath.indexOf('.') != -1) {
 			String firstHalf = refPath.substring(0, refPath.indexOf('.'));
 			String secondHalf = refPath.substring(refPath.indexOf('.') + 1, refPath.length());
@@ -207,8 +211,11 @@ abstract class JavaScope extends Visitor {
 		//JavaStatic.cpp.print(this.cppBlock);
 	}
 
+	/**
+	 * Print everything out after all code blocks have been constructed
+	 * and populated with C++ code.
+ 	 */
 	public static void printAll() {
-		//JavaStatic.h.print(protoBlock);
 		for (CodeBlock block : hProtoQueue)
 			JavaStatic.h.print(block);
 		for (CodeBlock block : hPrintQueue)
@@ -220,8 +227,8 @@ abstract class JavaScope extends Visitor {
 	/**
 	 * Get the prototype block
 	 */
-	protected final CodeBlock getProto(JavaScope scope) {
-		return protoBlock;
+	protected final CodeBlock getProto() {
+		return this.protoBlock;
 	}
 
 	/**
@@ -234,10 +241,10 @@ abstract class JavaScope extends Visitor {
 	 * print seamless for you.
 	 */
 	protected final CodeBlock hBlock(String header) {
-		if (!(this.hBlock instanceof CodeBlock)) {
+		//if (!(this.hBlock instanceof CodeBlock)) {
 			//now done in registerPrint()
 			//this.hBlock = new CodeBlock(header);
-		}
+		//}
 		return this.hBlock;
 	}
 	
@@ -251,10 +258,10 @@ abstract class JavaScope extends Visitor {
 	 * print seamless for you.
 	 */
 	protected final CodeBlock cppBlock(String header) {
-		if (!(this.cppBlock instanceof CodeBlock)) {
+		//if (!(this.cppBlock instanceof CodeBlock)) {
 			//now done in registerPrint()
 			//this.cppBlock = new CodeBlock(header);
-		}
+		//}
 		return this.cppBlock;
 	}
 
@@ -268,12 +275,94 @@ abstract class JavaScope extends Visitor {
 			hPrintQueue = new ArrayList<CodeBlock>();
 			cppPrintQueue = new ArrayList<CodeBlock>();
 		}
-		this.protoBlock = new CodeBlock(header);
-		this.hBlock = new CodeBlock(header);
-		this.cppBlock = new CodeBlock(header);
-		hProtoQueue.add(this.protoBlock);
-		hPrintQueue.add(this.hBlock);
+		setupProtoBlock(header);
+		setupHeaderBlock(header);
+		this.cppBlock = new CodeBlock("we can do everything here with the scope operator");
 		cppPrintQueue.add(this.cppBlock);
+	}
+
+	/**
+	 * Prepare the header block for use.
+ 	 */
+	protected final void setupHeaderBlock(String header) {
+		String namespace;
+		/*if (header.compareTo("") != 0) {
+			if (header.indexOf('.') != -1) {
+				namespace = header.substring(0, header.indexOf('.'));
+				header = header.substring(header.indexOf('.') + 1, header.length());
+			}
+			else {
+				namespace = header;
+				header = "";
+			}
+			this.hBlock = new CodeBlock("namespace " + namespace);
+		}
+		else
+			this.hBlock = new CodeBlock("Something has gone wrong");
+		hPrintQueue.add(this.hBlock);
+		*/
+		while (header.compareTo("") != 0) {
+			if (header.indexOf('.') != -1) {
+				namespace = header.substring(0, header.indexOf('.'));
+				header = header.substring(header.indexOf('.') + 1, header.length());
+			}
+			else {
+				namespace = header;
+				header = "";
+			}
+			if (!(this.hBlock instanceof CodeBlock)) {
+				this.hBlock = new CodeBlock("namespace " + namespace);
+				hPrintQueue.add(this.hBlock);
+			}
+			else
+				this.hBlock = this.hBlock.block("namespace " + namespace);
+		}
+		if (!(this.hBlock instanceof CodeBlock))
+			this.hBlock = new CodeBlock("Something has gone wrong");
+		//return this.hBlock;
+	}
+
+	/**
+	 * Prepare the prototype block for use.
+	 * Yes, this is very similar(identical) to the header block
+	 * but I couldn't use instanceof on a temporary code block.
+	 * May change in the future.
+ 	 */
+	protected final void setupProtoBlock(String header) {
+		String namespace;
+		/*if (header.compareTo("") != 0) {
+			if (header.indexOf('.') != -1) {
+				namespace = header.substring(0, header.indexOf('.'));
+				header = header.substring(header.indexOf('.') + 1, header.length());
+			}
+			else {
+				namespace = header;
+				header = "";
+			}
+			headerBlock = new CodeBlock("namespace " + namespace);
+		}
+		else
+			headerBlock = new CodeBlock("Something has gone wrong");
+		*/
+		while (header.compareTo("") != 0) {
+			if (header.indexOf('.') != -1) {
+				namespace = header.substring(0, header.indexOf('.'));
+				header = header.substring(header.indexOf('.') + 1, header.length());
+			}
+			else {
+				namespace = header;
+				header = "";
+			}
+			if (!(this.protoBlock instanceof CodeBlock)) {
+				this.protoBlock = new CodeBlock("namespace " + namespace);
+				hProtoQueue.add(this.protoBlock);
+			}
+			else
+				this.protoBlock = this.protoBlock.block("namespace " + namespace);
+		}
+		if (!(this.protoBlock instanceof CodeBlock))
+			this.protoBlock = new CodeBlock("Something has gone wrong");
+		//return this.protoBlock;
 	}
 	
 	/**
