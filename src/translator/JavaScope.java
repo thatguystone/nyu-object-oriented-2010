@@ -3,6 +3,8 @@ package translator;
 import java.util.Hashtable;
 import java.util.ArrayList;
 
+import java.util.*;
+
 import xtc.tree.Node;
 import xtc.tree.GNode;
 import xtc.tree.Visitor;
@@ -15,13 +17,18 @@ abstract class JavaScope extends Visitor {
 	 * they are run across.
 	 */
 	protected JavaFile file;
-	
-	/**
-	 * A block that contains all the class prototypes and typedefs.
-	 * Only one instance.
-	 */
-	protected CodeBlock protoBlock;
 
+	/**
+	 * Each scope needs a pointer to the JavaScope object it's contained in.
+	 * This is NOT the scope containing the object.
+	 */
+	protected JavaScope parentScope;
+
+	/**
+	 * Instead of having blocks just print themselves, blocks will get added to the print queue
+	 * and all blocks will be printed in one go.
+	 * The C++ header prototype and typedef print queue.
+	 */
 	protected static ArrayList<CodeBlock> hProtoQueue;
 
 	/**
@@ -37,6 +44,12 @@ abstract class JavaScope extends Visitor {
 	 * The C++ cpp print queue.
 	 */
 	protected static ArrayList<CodeBlock> cppPrintQueue;
+
+	/**
+	 * A block that contains all the class prototypes and typedefs.
+	 * Only one instance.
+	 */
+	protected CodeBlock protoBlock;
 
 	/**
 	 * Our block printer to the C++ cpp file.
@@ -84,6 +97,91 @@ abstract class JavaScope extends Visitor {
 	 */
 	public JavaFile getFile() {
 		return this.file;
+	}
+
+	/**
+	 * Every scope(not JavaScope) must implement this to return something.
+	 * Loops and such may simply return a number indicating which scope they are
+	 * in a particular code block.
+	 */
+	public String getName() {
+		return null;
+	}
+
+	/**
+	 * Sets the parent scope of this JavaScope.
+	 */
+	public void setScope(JavaScope scope) {
+		this.parentScope = scope;
+	}
+
+	/**
+	 * Gets the actual scope containing this object, not the JavaScope.
+	 */
+	public JavaScope getScope() {
+		return this.parentScope;
+	}
+	/**
+	 * Gets the scope represented as a string.
+	 * For example java.land.String.length would be the scope of the method length
+	 * in the class String in package java.lang.
+	 */
+	public String getScopeString() {
+		return this.getScope().getScopeString() + "." + this.getScope().getName();
+	}
+
+	/**
+	 * Gets the C++ namespace of a field declaration or method call.
+	 * For example ClassB myB; in PackageA.ClassA with PackageB.ClassB
+	 * will become PackageB::ClassB myB;.
+	 */
+	public String getCppScopeTypeless(JavaScope presentLocation, JavaScope refrencedLocation) {
+		String scopeString = getCppScope(presentLocation, refrencedLocation);
+		//rip off that last scope operator
+		scopeString = scopeString.substring(0, scopeString.lastIndexOf("::") == -1 ? 0 : scopeString.lastIndexOf("::"));
+		//and the next one, but this time with the class name as well
+		scopeString = scopeString.substring(0, scopeString.lastIndexOf("::") == -1 ? 0 : scopeString.lastIndexOf("::"));
+
+		if (scopeString.compareTo("") == 0)
+			return "";
+		//now lets re-add that last scope operator... I wonder if any extra work got done here?
+		return scopeString + "::";
+	}
+
+	/**
+	 * Gets the C++ namespace of a field declaration or method call with the class name.
+	 * For example ClassB myB; in PackageA.ClassA with PackageB.ClassB
+	 * will become PackageB::ClassB myB;.
+	 */
+	public String getCppScope(JavaScope presentLocation, JavaScope refrencedLocation) {
+		String presentPath = presentLocation.getScopeString();
+		String refPath = refrencedLocation.getScopeString();
+
+		//god I hate Strings
+		while (presentPath.compareTo("") != 0 && refPath.compareTo("") != 0) {
+			if ( 0 != presentPath.substring(0, (presentPath.indexOf('.') == -1 ? presentPath.length() : presentPath.indexOf('.')))
+				.compareTo(refPath.substring(0, (refPath.indexOf('.') == -1 ? refPath.length() : refPath.indexOf('.')))))
+				break;
+			if (presentPath.indexOf('.') == -1)
+				presentPath = "";
+			else
+				presentPath = presentPath.substring(presentPath.indexOf('.') + 1, presentPath.length());
+			if (refPath.indexOf('.') == -1)
+				refPath = "";
+			else
+				refPath = refPath.substring(refPath.indexOf('.') + 1, refPath.length());
+		}
+
+		//omfg why doesn't replace let me replace chars with strings
+		while (refPath.indexOf('.') != -1) {
+			String firstHalf = refPath.substring(0, refPath.indexOf('.'));
+			String secondHalf = refPath.substring(refPath.indexOf('.') + 1, refPath.length());
+			refPath = firstHalf + "::" + secondHalf;	
+		}
+
+		if (refPath.compareTo("") == 0)
+			return "";
+		return refPath + "::";
 	}
 	
 	/**
@@ -187,7 +285,7 @@ abstract class JavaScope extends Visitor {
 	 * What it implies.
 	 */
 	public void visitFieldDeclaration(GNode n) {
-		JavaFieldDec temp = new JavaFieldDec(this, n);
+		JavaFieldDec temp = new JavaFieldDec(this, this.getFile(), n);
 	}
 
 	/**

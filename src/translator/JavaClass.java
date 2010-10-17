@@ -58,6 +58,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		this.pkg = pkg;
 		this.name = (String)n.get(1);
 		this.setFile(file);
+		this.setScope(file);
 		this.setup(n);
 		
 		//and register ourself with JavaPackages
@@ -103,7 +104,14 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	public String getName(boolean withPackage) {
 		return (withPackage ? this.pkg + "." : "") + this.name;
 	}
-	
+
+	/**
+	 * Classes need to implement this themselves because the scope hierarchy terminates here.
+	 */	
+	public String getScopeString() {
+		return this.getName();
+	}
+
 	/**
 	 * Gets the name of the package this class is contained in.
 	 */
@@ -312,7 +320,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * Take in a method.  Adds the method to our method table with its signature.
 	 */
 	public void visitMethodDeclaration(GNode n) {
-		JavaMethod jMethod = new JavaMethod(n, this);
+		JavaMethod jMethod = new JavaMethod(n, this.getFile(), this);
 		
 		if (jMethod.isNative())
 			JavaStatic.pkgs.importNative(this.getName());

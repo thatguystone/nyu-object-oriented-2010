@@ -42,8 +42,10 @@ class JavaMethod extends JavaScope implements Nameable {
 	/**
 	 * Runs the dispatcher on the node.
 	 */
-	JavaMethod(GNode n, JavaClass parent) {
+	JavaMethod(GNode n, JavaFile file, JavaClass parent) {
 		this.parent = parent;
+		this.setScope(parent);
+		this.setFile(file);
 		this.setProperties(n);
 		this.setFile(parent.getFile());
 		

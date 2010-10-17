@@ -16,18 +16,18 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	/**
 	 * Is this declaration static?
 	 */
-	private boolean isStatic = false;
+	private boolean isStatic;
 
 	/**
 	 * Is it an object?
 	 */
-	private boolean isObject = false;
+	private boolean isObject;
 
 	/**
 	 * Is this declaration final.
 	 * We don't care.
 	 */
-	private boolean isFinal = true;
+	private boolean isFinal;
 
 	/**
 	 * Number of array dimensions, 0 means not an array.
@@ -47,12 +47,7 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	/**
 	 * This is used for testing if type is primitive
 	 */
-	private static ArrayList<String[]> primitives = new ArrayList<String[]>();
-
-	/**
-	 * Scope of the field
-	 */
-	private JavaScope scope;
+	private static ArrayList<String> primitives;
 
 	/**
 	 * Assignment statement associated with this field declaration.
@@ -60,39 +55,39 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	 */
 	private JavaExpression assignment = null;
 
-	JavaField(boolean isStatic, boolean isFinal, String type, int dimensions, JavaScope scope, Node n) {
+	JavaField(boolean isStatic, boolean isFinal, String type, int dimensions, JavaScope scope, JavaFile file, Node n) {
 		setPrimitives();
 		this.name = (String)n.get(0);
 		this.isStatic = isStatic;
 		this.isFinal = isFinal;
+		this.setScope(scope);
 		this.type = type;
-		setType(type);
 		this.dimensions = dimensions;
-		this.scope = scope;
+		this.setFile(file);
 		this.node = n;
-		this.scope.addField(this);
+		this.getScope().addField(this);
+		setType(type);
 		this.dispatch(this.node);
 
 		if(this.myExpressions.size() > 0) assignment = this.myExpressions.get(0);
 	}
 
 	private static void setPrimitives() {
-		String[] p = {"byte", "short", "int", "long", "float", "double", "char", "boolean"};
-		primitives.add(p);
+		if (!(primitives instanceof ArrayList)) {
+			primitives = new ArrayList<String>();
+			String[] p = {"byte", "short", "int", "long", "float", "double", "char", "boolean"};
+			for(int i = 0; i < 8; i++)
+				primitives.add(p[i]);
+		}
 	}
 
 	//doesn't really do anything right now
 	private void setType(String type) {
-		if (!(primitives.contains(type))) {
-			//this.scope.getFile().getImport(type).activate();
-			//removed because of null ptr exception
-			//this.cls = this.scope.getFile().getImport(type);
+		if (!(primitives.contains(type))) {	
+			this.getFile().getImport(type).activate();
+			this.cls = this.getFile().getImport(type);
 			this.isObject = true;
 		}
-	}
-
-	public JavaScope getScope() {
-		return this.scope;
 	}
 
 	public String getName() {
@@ -129,6 +124,8 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	 * Call this when you only want to print the declaration without assignment
 	 */
 	public String printDec() {
+		if (isObject)
+			return getCppScopeTypeless(this.getScope(), cls) + getType() + " " + getName() + ";";
 		return getType() + " " + getName() + ";";
 	}
 	

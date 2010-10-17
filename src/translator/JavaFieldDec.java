@@ -1,5 +1,7 @@
 package translator;
 
+import java.util.ArrayList;
+
 import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
@@ -42,10 +44,16 @@ class JavaFieldDec extends Visitor {
 	private JavaScope scope;
 
 	/**
+	 * file containing the field
+	 */
+	private JavaFile file;
+
+	/**
 	 * Constructor for class declarations.
 	 */
-	JavaFieldDec(JavaScope scope, Node n) {
+	JavaFieldDec(JavaScope scope, JavaFile file, Node n) {
 		this.scope = scope;
+		this.file = file;
 		this.dispatch(n);
 	}
 
@@ -61,7 +69,11 @@ class JavaFieldDec extends Visitor {
 
 	public void visitType(GNode n) {
 		type = ((GNode)n.get(0)).get(0).toString();
-		this.scope.getFile().getImport(type).activate();
+		/*if (!(primitives.contains(type))) {
+			this.scope.getFile().getImport(type).activate();
+			this.cls = this.scope.getFile().getImport(type);
+			this.isObject = true;
+		}*/
 		//type = this.typeList.get((String)((GNode)n.get(0)).get(0));
 		//counting the number of childern in a Dimensions node
 		/*if (n.get(2) != null) {
@@ -78,7 +90,7 @@ class JavaFieldDec extends Visitor {
 
 	public void visitDeclarator(GNode n) {
 	//Declarators always come after Modifiers and Type in our java AST
-		JavaField field = new JavaField(this.isStatic, this.isFinal, this.type, this.dimensions, this.scope, (Node)n);
+		JavaField field = new JavaField(this.isStatic, this.isFinal, this.type, this.dimensions, this.scope, this.file, (Node)n);
 			
 	}
 
