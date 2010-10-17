@@ -187,6 +187,8 @@ class JavaPackages {
 	public void print() {
 		for (JavaFile f : this.files.values())
 			f.triggerPrint();
+
+		JavaScope.printAll();
 	}
 	
 	/**

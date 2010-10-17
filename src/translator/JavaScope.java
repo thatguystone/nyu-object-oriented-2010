@@ -1,6 +1,7 @@
 package translator;
 
 import java.util.Hashtable;
+import java.util.ArrayList;
 
 import xtc.tree.Node;
 import xtc.tree.GNode;
@@ -15,6 +16,28 @@ abstract class JavaScope extends Visitor {
 	 */
 	protected JavaFile file;
 	
+	/**
+	 * A block that contains all the class prototypes and typedefs.
+	 * Only one instance.
+	 */
+	protected CodeBlock protoBlock;
+
+	protected static ArrayList<CodeBlock> hProtoQueue;
+
+	/**
+	 * Instead of having blocks just print themselves, blocks will get added to the print queue
+	 * and all blocks will be printed in one go.
+	 * The C++ header print queue.
+	 */
+	protected static ArrayList<CodeBlock> hPrintQueue;
+
+	/**
+	 * Instead of having blocks just print themselves, blocks will get added to the print queue
+	 * and all blocks will be printed in one go.
+	 * The C++ cpp print queue.
+	 */
+	protected static ArrayList<CodeBlock> cppPrintQueue;
+
 	/**
 	 * Our block printer to the C++ cpp file.
 	 */
@@ -80,11 +103,29 @@ abstract class JavaScope extends Visitor {
 		this.printHeader();
 		this.printImplementation();
 		
+		//printing moved to printAll()
 		//and instruct our output to...well, output
-		JavaStatic.h.print(this.hBlock);
-		JavaStatic.cpp.print(this.cppBlock);
+		//JavaStatic.h.print(this.hBlock);
+		//JavaStatic.cpp.print(this.cppBlock);
+	}
+
+	public static void printAll() {
+		//JavaStatic.h.print(protoBlock);
+		for (CodeBlock block : hProtoQueue)
+			JavaStatic.h.print(block);
+		for (CodeBlock block : hPrintQueue)
+			JavaStatic.h.print(block);
+		for (CodeBlock block : cppPrintQueue)
+			JavaStatic.cpp.print(block);
 	}
 	
+	/**
+	 * Get the prototype block
+	 */
+	protected final CodeBlock getProto(JavaScope scope) {
+		return protoBlock;
+	}
+
 	/**
 	 * Sets up a cpp block for printing to the header.
 	 *
@@ -95,8 +136,10 @@ abstract class JavaScope extends Visitor {
 	 * print seamless for you.
 	 */
 	protected final CodeBlock hBlock(String header) {
-		if (!(this.hBlock instanceof CodeBlock))
-			this.hBlock = new CodeBlock(header);
+		if (!(this.hBlock instanceof CodeBlock)) {
+			//now done in registerPrint()
+			//this.hBlock = new CodeBlock(header);
+		}
 		return this.hBlock;
 	}
 	
@@ -110,9 +153,29 @@ abstract class JavaScope extends Visitor {
 	 * print seamless for you.
 	 */
 	protected final CodeBlock cppBlock(String header) {
-		if (!(this.cppBlock instanceof CodeBlock))
-			this.cppBlock = new CodeBlock(header);
+		if (!(this.cppBlock instanceof CodeBlock)) {
+			//now done in registerPrint()
+			//this.cppBlock = new CodeBlock(header);
+		}
 		return this.cppBlock;
+	}
+
+	/**
+	 * Add ourself to the print queue and setup our blocks
+	 */
+	protected final void registerPrint(String header) {
+		//initialize lists if they don't exist
+		if (!(hPrintQueue instanceof ArrayList)) {
+			hProtoQueue = new ArrayList<CodeBlock>();
+			hPrintQueue = new ArrayList<CodeBlock>();
+			cppPrintQueue = new ArrayList<CodeBlock>();
+		}
+		this.protoBlock = new CodeBlock(header);
+		this.hBlock = new CodeBlock(header);
+		this.cppBlock = new CodeBlock(header);
+		hProtoQueue.add(this.protoBlock);
+		hPrintQueue.add(this.hBlock);
+		cppPrintQueue.add(this.cppBlock);
 	}
 	
 	/**

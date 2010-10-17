@@ -82,6 +82,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		
 		//once we're sure we have a parent, then add all our inherited methods
 		this.setupVTable();
+
+		//add ourself to the print queue AFTER all dependencies have been activated/added
+		this.registerPrint("namespace " + this.pkg);
 	}
 	
 	/**
@@ -194,10 +197,19 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * need here is something like block.pln(jMeth.printMe());.
 	 */
 	protected void printHeader() {
+
+		//print the class prototypes and typedef
+		CodeBlock proto = getProto(this);
+		proto = proto
+			.pln("struct __" + this.getName(false))
+			.pln("struct __" + this.getName(false) + "_VT")
+			.pln()
+			.pln("typedef __" + this.getName(false) + "* " + this.getName(false) + ";")
+		.close();
+		
 		CodeBlock block = this.hBlock("namespace " + this.pkg);
 		
 		block = block
-			.pln("typedef __" + this.getName(false) + "* " + this.getName(false) + ";")
 			.pln()
 			.block("struct __" + this.getName(false))
 					.pln("__" + this.getName(false) + "_VT* __vptr;")
