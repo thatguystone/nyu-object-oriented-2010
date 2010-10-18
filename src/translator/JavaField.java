@@ -157,7 +157,7 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	 * Call this when you only want to print the declaration without assignment
 	 */
 	public String printDec() {
-		return this.printpDec() + ";";
+		return this.printpDec();
 	}
 
 	/**
@@ -168,6 +168,12 @@ class JavaField extends ExpressionVisitor implements Nameable{
 			return this.getCppScopeTypeless(this.getScope(), this.getCls()) + this.getType();
 		return this.getType();
 	}
+
+	public String printFullType(JavaClass cls) {
+		if (isObject)
+			return this.getCppScopeTypeless(cls, this.getCls()) + this.getType();
+		return this.getType();
+	}	
 
 	/**
 	 * Some internal formatting

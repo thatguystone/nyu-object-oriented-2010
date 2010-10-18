@@ -122,8 +122,12 @@ class JavaMethod extends JavaScope implements Nameable {
 	 *
 	 * @param cls The name of the class to use for __this.
 	 */
-	public String getCMethodCast(String cls) {
+	/*public String getCMethodCast(String cls) {
 	    return "(" + this.getCReturnType() + "(*)(" + this.getCMethodParameters(cls) + "))";
+	}*/
+
+	public String getCMethodCast(JavaClass cls) {
+		return "(" + this.getCReturnType() + "(*)(" + this.getParameterTypes(cls) + "))";
 	}
 	
 	/**
@@ -131,8 +135,12 @@ class JavaMethod extends JavaScope implements Nameable {
 	 *
 	 * @param cls The name of the class to use for __this.
 	 */
-	public String getCMethodType(String cls) {
+	/*public String getCMethodType(String cls) {
 	    return "(*" + this.getName() + ")(" + this.getCMethodParameters(cls) + ")";
+	}*/
+
+	public String getCMethodType(JavaClass cls) {
+		return "(*" + this.getName() + ")(" + getParameterTypes(cls) + ")";
 	}
 	
 	/**
@@ -217,6 +225,13 @@ class JavaMethod extends JavaScope implements Nameable {
 		String temp = this.getParent().getName(false);
 		for (JavaField fld : this.fields.values())
 			temp = temp + ", " + fld.printFullType();
+		return temp;
+	}
+
+	public String getParameterTypes(JavaClass cls) {
+		String temp = cls.getName(false);
+		for (JavaField fld : this.fields.values())
+			temp = temp + ", " + fld.printFullType(cls);
 		return temp;
 	}
 

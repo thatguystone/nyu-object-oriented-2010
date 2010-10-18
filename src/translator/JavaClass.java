@@ -261,7 +261,8 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		
 					//and now for those static and private methods
 					for (JavaMethod jMeth : this.pMethods.values())
-						block.pln("static " + jMeth.getMethodHeader() /*jMeth.getCReturnType() + " " + jMeth.getCMethodSignature(this.getName(false)) + ";"*/);
+						if (jMeth.getName().compareTo("main") != 0)
+							block.pln("static " + jMeth.getMethodHeader() /*jMeth.getCReturnType() + " " + jMeth.getCMethodSignature(this.getName(false)) + ";"*/);
 		
 		block =
 			block.close()
@@ -272,7 +273,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 				//print out the methods in the vtable
 				for (String meth : this.vTable.keySet()) {
 					JavaMethod jMeth = this.vTable.get(meth).getMethod(meth);
-					block.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodType(this.getName(false)) + ";");
+					block.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodType(/*this.getName(false))*/this) + ";");
 				}
 				
 				//and now print the vtable constructor
@@ -293,8 +294,8 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 						block.pln(jMeth.getName() + "(&__" + this.getName(false) + "::" + jMeth.getName() + ")" + (i == len ? " {" : ","));
 					} else { //nope, we're looking at inheritance, so cast
 						block.pln(
-							jMeth.getName() + "(" + jMeth.getCMethodCast(this.getName(false)) +
-							"&__" + cls.getName(false) + "::" + jMeth.getName() + ")" + (i == len ? " {" : ",")
+							jMeth.getName() + "(" + jMeth.getCMethodCast(/*this.getName(false)*/this) +
+							this.getCppScopeTypeless(this,cls) + "&__" + cls.getName(false) + "::" + jMeth.getName() + ")" + (i == len ? " {" : ",")
 						);
 					}
 				
@@ -319,9 +320,10 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		//let each method attach it's own block onto our block
 		for (JavaMethod jMeth : this.vMethods.values())
 			jMeth.getMethodBlock(block);
-		//now for the rest
+		//now for the rest, except main
 		for (JavaMethod jMeth : this.pMethods.values())
-			jMeth.getMethodBlock(block);
+			if (jMeth.getName().compareTo("main") != 0)
+				jMeth.getMethodBlock(block);
 
 		//close our namespaces
 		for (int j = 0; j < scopeDepth; j++)
