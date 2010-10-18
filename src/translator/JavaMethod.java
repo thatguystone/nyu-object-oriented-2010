@@ -1,9 +1,12 @@
 package translator;
 
+import java.util.ArrayList;
+
 import xtc.tree.Node;
 import xtc.tree.GNode;
 
-class JavaMethod extends JavaScope implements Nameable {
+class JavaMethod extends JavaScope implements Nameable {	
+
 	/**
 	 * The class we are a part of.  This is helpful for determing if we're a constructor, and etc.
 	 */
@@ -38,11 +41,18 @@ class JavaMethod extends JavaScope implements Nameable {
 	 * If we are looking at a native method.
 	 */
 	private boolean isNative = false;
+
+	/**
+	 * This is used for testing if type is primitive.
+	 * This really has to become a global.
+	 */
+	private static ArrayList<String> primitives;
 	
 	/**
 	 * Runs the dispatcher on the node.
 	 */
 	JavaMethod(GNode n, JavaFile file, JavaClass parent) {
+		this.setPrimitives();
 		this.parent = parent;
 		this.setScope(parent);
 		this.setFile(file);
@@ -52,6 +62,15 @@ class JavaMethod extends JavaScope implements Nameable {
 		this.dispatch(n);
 	}
 	
+	private static void setPrimitives() {
+		if (!(primitives instanceof ArrayList)) {
+			primitives = new ArrayList<String>();
+			String[] p = {"byte", "short", "int", "long", "float", "double", "char", "boolean"};
+			for(int i = 0; i < 8; i++)
+				primitives.add(p[i]);
+		}
+	}
+
 	/**
 	 * Dumps out the format of the method GNode.
 	 */
@@ -164,6 +183,13 @@ class JavaMethod extends JavaScope implements Nameable {
 	 * Find and return the C type value.
 	 */
 	public String getCReturnType() {
+		//NOTE: we have to remove Class because we don't yet have java.lang.Class
+		if (!(primitives.contains(this.returnType)) && this.returnType.compareTo("void") != 0 && this.returnType.compareTo("Class") != 0) {	
+			this.getFile().getImport(returnType).activate();
+			//this.getParent() = this.getFile().getImport(returnType);
+			return this.getCppScopeTypeless(this.getScope(), this.getFile().getImport(returnType)) + this.returnType;
+			//return this.returnType;
+		}
 		return this.returnType;
 	}
 	
@@ -172,6 +198,50 @@ class JavaMethod extends JavaScope implements Nameable {
 	 */
 	public void printImplementation() {
 		//CodeBlock block = this.hBlock("private void something(String something)");
+	}
+
+	/**
+	 * Get the method's parameters for printing.
+	 */
+	public String getParameters() {
+		String temp = this.getParent().getName(false) + " __this";
+		for (JavaField fld : this.fields.values())
+			temp = temp + ", " + fld.printDec();
+		return temp;
+	}
+
+	/**
+	 * Get only the types of the parameters for printing.
+	 */
+	public String getParameterTypes() {
+		String temp = this.getParent().getName(false);
+		for (JavaField fld : this.fields.values())
+			temp = temp + ", " + fld.printFullType();
+		return temp;
+	}
+
+	/**
+	 * Get the method header to be placed in the class's struct
+	 */
+	public String getMethodHeader() {
+		return this.getCReturnType() + " " + this.getName() + "(" + this.getParameterTypes() + ");";
+	}
+
+	/**
+	 * Needs Implementation!
+	 */
+	public String getVTHeader() {
+		return null;
+	}
+
+	/**
+	 * Print out the translation. printImplementation() is not in use.
+	 */
+	public CodeBlock getMethodBlock(CodeBlock block) {
+		block = block.block(this.getCReturnType()  + " " + this.getParent().getName(false) + "::" + this.getName() + "(" + this.getParameters() + ")")
+			.close();
+
+		return block;
 	}
 	
 	/**
@@ -201,6 +271,17 @@ class JavaMethod extends JavaScope implements Nameable {
 			
 			this.signature = this.signature.substring(1);
 		}
+		visit(n);
+	}
+
+	/**
+	 * Visit our formal parameters and add them to our list of fields.
+	 * We're using this to take advantage of the scope searching already implemented
+	 * in fields.
+	 * JavaFieldDec isn't needed here because we can't pass multiple fields with the same type declaration.
+	 */
+	public void visitFormalParameter(GNode n) {
+		JavaField field = new JavaField((String)((GNode)((GNode)n.get(1)).get(0)).get(0), this, this.getFile(), n);
 	}
 	
 	/**

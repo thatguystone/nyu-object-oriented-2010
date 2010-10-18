@@ -253,14 +253,15 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 
 					for (JavaField fld : this.fields.values())
 						block.pln(fld.printDec());
+					block.pln();
 		
 					//now, dump out all of our virtual
 					for (JavaMethod jMeth : this.vMethods.values())
-						block.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodSignature(this.getName(false)) + ";");
+						block.pln("static " + jMeth.getMethodHeader() /*jMeth.getCReturnType() + " " + jMeth.getCMethodSignature(this.getName(false)) + ";"*/);
 		
 					//and now for those static and private methods
 					for (JavaMethod jMeth : this.pMethods.values())
-						block.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodSignature(this.getName(false)) + ";");
+						block.pln("static " + jMeth.getMethodHeader() /*jMeth.getCReturnType() + " " + jMeth.getCMethodSignature(this.getName(false)) + ";"*/);
 		
 		block =
 			block.close()
@@ -303,16 +304,37 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		block =
 				block.close()
 			.close();
+		//close our namespaces
 		for (int j = 0; j < scopeDepth; j++)
 			block = block.close();
 	}
 
 	/**
+	 * Print the cpp file implementation.
+	 * Really just opens a namespace and gets its methods to print their implementation.
+	 */
+	protected void printImplementation() {
+		CodeBlock block = this.cppBlock;
+
+		//let each method attach it's own block onto our block
+		for (JavaMethod jMeth : this.vMethods.values())
+			jMeth.getMethodBlock(block);
+		//now for the rest
+		for (JavaMethod jMeth : this.pMethods.values())
+			jMeth.getMethodBlock(block);
+
+		//close our namespaces
+		for (int j = 0; j < scopeDepth; j++)
+			block = block.close();
+
+	}
+
+	/**
 	 * Add a field to our field list
 	 */
-	public void addField(JavaField field) {
+	/*public void addField(JavaField field) {
 		this.fields.put(field.getName(), field);
-	}
+	}*/
 
 	/**
 	 * Check if this class has this field.

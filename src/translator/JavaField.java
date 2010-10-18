@@ -55,6 +55,9 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	 */
 	private JavaExpression assignment = null;
 
+	/**
+	 * This constructor is for standard field declarations
+	 */
 	JavaField(boolean isStatic, boolean isFinal, String type, int dimensions, JavaScope scope, JavaFile file, Node n) {
 		setPrimitives();
 		this.name = (String)n.get(0);
@@ -66,10 +69,28 @@ class JavaField extends ExpressionVisitor implements Nameable{
 		this.setFile(file);
 		this.node = n;
 		this.getScope().addField(this);
-		setType(type);
+		this.setType(type);
 		this.dispatch(this.node);
 
 		if(this.myExpressions.size() > 0) assignment = this.myExpressions.get(0);
+	}
+
+	/**
+	 * This constructor is for method parameters
+	 */
+	JavaField(String type, JavaScope scope, JavaFile file, Node n) {
+		setPrimitives();
+		this.name = (String)n.get(3);
+		this.isStatic = false;
+		this.isFinal = false;
+		this.setScope(scope);
+		this.type = type;
+		this.dimensions = 0;
+		this.setFile(file);
+		this.node = n;
+		this.getScope().addField(this);
+		this.setType(type);
+		this.dispatch(this.node);
 	}
 
 	private static void setPrimitives() {
@@ -81,7 +102,9 @@ class JavaField extends ExpressionVisitor implements Nameable{
 		}
 	}
 
-	//doesn't really do anything right now
+	/**
+	 * If the type of this field is an object, point to it.
+	 */
 	private void setType(String type) {
 		if (!(primitives.contains(type))) {	
 			this.getFile().getImport(type).activate();
@@ -90,6 +113,9 @@ class JavaField extends ExpressionVisitor implements Nameable{
 		}
 	}
 
+	/**
+	 * Gets the name.
+	 */
 	public String getName() {
 		return this.name;
 	}
@@ -133,7 +159,16 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	public String printDec() {
 		return this.printpDec() + ";";
 	}
-	
+
+	/**
+	 * Get the field's type for method headers
+	 */	
+	public String printFullType() {
+		if (isObject)
+			return this.getCppScopeTypeless(this.getScope(), this.getCls()) + this.getType();
+		return this.getType();
+	}
+
 	/**
 	 * Some internal formatting
 	 */

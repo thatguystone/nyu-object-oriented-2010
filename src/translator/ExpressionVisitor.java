@@ -27,8 +27,12 @@ abstract class ExpressionVisitor extends JavaScope {
 		myExpressions.add(new ExpTwoPartExp(this, n));
 	}
 
-	public void visitConditionalExpression(GNode n) {
+	public void visitRelationalExpression(GNode n) {
 		myExpressions.add(new ExpTwoPartExp(this, n));
+	}
+
+	public void visitConditionalExpression(GNode n) {
+		myExpressions.add(new ExpConditionalExpression(this, n));
 	}
 
 	public void visitIntegerLiteral(GNode n) {
@@ -57,5 +61,9 @@ abstract class ExpressionVisitor extends JavaScope {
 
 	public void visitCallExpression(GNode n) {
 		myExpressions.add(new ExpCallExpression(this, n));
+	}
+
+	public void visitCastExpression(GNode n) {
+		myExpressions.add(new ExpCastExpression(this, n));
 	}
 }

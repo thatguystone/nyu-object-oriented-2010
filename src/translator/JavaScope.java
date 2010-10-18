@@ -202,7 +202,7 @@ abstract class JavaScope extends Visitor {
 	 * All classes containing a field list must implement this.
 	 */
 	public void addField(JavaField field) {
-
+		this.fields.put(field.getName(), field);
 	}
 
 	/**
@@ -304,8 +304,8 @@ abstract class JavaScope extends Visitor {
 		}
 		setupProtoBlock(header);
 		setupHeaderBlock(header);
-		this.cppBlock = new CodeBlock("we can do everything here with the scope operator");
-		cppPrintQueue.add(this.cppBlock);
+		setupCppBlock(header);
+		//cppPrintQueue.add(this.cppBlock);
 	}
 
 	/**
@@ -389,6 +389,47 @@ abstract class JavaScope extends Visitor {
 		}
 		if (!(this.protoBlock instanceof CodeBlock))
 			this.protoBlock = new CodeBlock("Something has gone wrong");
+		//return this.protoBlock;
+	}
+
+	/**
+	 * ok... so all three of these methods are the same, I'll switch to the single method version later
+	 * but for now I can just use a copy paste. I need to do other stuff anyway.
+	 */
+	protected final void setupCppBlock(String header) {
+		String namespace;
+		/*if (header.compareTo("") != 0) {
+			if (header.indexOf('.') != -1) {
+				namespace = header.substring(0, header.indexOf('.'));
+				header = header.substring(header.indexOf('.') + 1, header.length());
+			}
+			else {
+				namespace = header;
+				header = "";
+			}
+			headerBlock = new CodeBlock("namespace " + namespace);
+		}
+		else
+			headerBlock = new CodeBlock("Something has gone wrong");
+		*/
+		while (header.compareTo("") != 0) {
+			if (header.indexOf('.') != -1) {
+				namespace = header.substring(0, header.indexOf('.'));
+				header = header.substring(header.indexOf('.') + 1, header.length());
+			}
+			else {
+				namespace = header;
+				header = "";
+			}
+			if (!(this.cppBlock instanceof CodeBlock)) {
+				this.cppBlock = new CodeBlock("namespace " + namespace);
+				cppPrintQueue.add(this.cppBlock);
+			}
+			else
+				this.cppBlock = this.cppBlock.block("namespace " + namespace);
+		}
+		if (!(this.cppBlock instanceof CodeBlock))
+			this.cppBlock = new CodeBlock("Something has gone wrong");
 		//return this.protoBlock;
 	}
 	

@@ -35,10 +35,11 @@ class ExpCallExpression extends JavaExpression {
 	 */
 	public String printMe() {
 		String temp = "";
-		if (this.caller != null) {
+		if (this.caller != null)
 			//uses its own scope and the scope of the class its caller belongs to
-			temp = temp + getCppScope(this.getScope(), ((JavaField)this.getField(caller)).getCls());
-		}
+			temp = temp + this.caller + "->" + getCppScope(this.getScope(), ((JavaField)this.getField(caller)).getCls());
+		else
+			temp = "__this->";
 		temp = temp + this.getName() + "(" +  myExpressions.remove(0).printMe();
 		for (JavaExpression exp : myExpressions)
 			temp = temp + ", " + myExpressions.remove(0).printMe();
