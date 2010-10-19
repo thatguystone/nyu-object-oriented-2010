@@ -58,7 +58,7 @@ class CodeBlock {
 	 */
 	public CodeBlock close() {
 		this.indent--;
-		this.pln("}\n");
+		this.pln("};\n");
 		
 		//if we have a parent, append our code to him
 		if (this.parent != null)

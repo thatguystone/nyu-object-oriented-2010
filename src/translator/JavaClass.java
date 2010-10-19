@@ -233,8 +233,8 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		//print the class prototypes and typedef
 		CodeBlock proto = getProto();
 		proto = proto
-			.pln("struct __" + this.getName(false))
-			.pln("struct __" + this.getName(false) + "_VT")
+			.pln("struct __" + this.getName(false) + ";")
+			.pln("struct __" + this.getName(false) + "_VT;")
 			.pln()
 			.pln("typedef __" + this.getName(false) + "* " + this.getName(false) + ";");
 		for (int j = 0; j < scopeDepth; j++)
