@@ -26,11 +26,13 @@ public class add extends test implements test1 {
 	}
 	
 	public String som() {
+		System.out.println();
 		return "add";
 	} 
 		
 	public static void main(String args[]) {
 		char a;
+		System.out.println();
 	}
 }
 
