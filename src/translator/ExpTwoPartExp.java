@@ -21,12 +21,18 @@ class ExpTwoPartExp extends JavaExpression {
 		this.node = n;
 		this.setScope(parent);
 		this.operator = (String)n.get(1);
-		this.dispatch(this.node);
-		this.first = (JavaExpression)this.myExpressions.get(0);
-		this.second = (JavaExpression)this.myExpressions.get(1);
+		this.visit(this.node);
+		if (myExpressions.size() > 0)
+			this.first = (JavaExpression)this.myExpressions.get(0);
+		if (myExpressions.size() > 1)
+			this.second = (JavaExpression)this.myExpressions.get(1);
 	}
 
 	public String printMe() {
-		return "(" + first.printMe() + this.operator + second.printMe() + ")";
+		if (myExpressions.size() > 1)
+			return "(" + first.printMe() + this.operator + second.printMe() + ")";
+		if (myExpressions.size() > 0)
+			return "(" + first.printMe() + this.operator + " not yet handled " + ")";
+		return "ExpTwoPartExp not yet handled";
 	}
 }

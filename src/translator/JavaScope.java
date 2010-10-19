@@ -433,6 +433,10 @@ abstract class JavaScope extends Visitor {
 		//return this.protoBlock;
 	}
 	
+	public String printMe() {
+		return null;	
+	}
+
 	/**
 	 * ==================================================================================================
 	 * Visitor Methods

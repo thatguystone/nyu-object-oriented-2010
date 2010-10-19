@@ -5,16 +5,13 @@ import java.util.ArrayList;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
 
-/**
- * A simple expression that appears in a code block.
- */
-class JavaExpressionStatement extends ExpressionVisitor {
-
+class JavaReturnStatement extends ExpressionVisitor {
+	
 	JavaScope scope;
 
 	JavaExpression expression;
 	
-	JavaExpressionStatement(JavaScope scope, Node n) {
+	JavaReturnStatement(JavaScope scope, Node n) {
 		this.scope = scope;
 		this.node = n;
 		this.dispatch(this.node);
@@ -22,12 +19,10 @@ class JavaExpressionStatement extends ExpressionVisitor {
 			expression = (JavaExpression)myExpressions.get(0);
 	}
 
-	/**
-	 * Print the expression.
-	 */
 	public String printMe() {
 		if (myExpressions.size() > 0)
-			return this.expression.printMe() + ";";
-		return "ExpressionStatement not yet handled";
+			return "return " + this.expression.printMe() + ";";
+		return "ReturnStatement not yet handled";
 	}
+
 }

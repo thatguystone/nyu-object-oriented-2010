@@ -1,6 +1,7 @@
 package translator;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import xtc.tree.Node;
 import xtc.tree.GNode;
@@ -47,6 +48,17 @@ class JavaMethod extends JavaScope implements Nameable {
 	 * This really has to become a global.
 	 */
 	private static ArrayList<String> primitives;
+
+	/**
+	 * This method's code block.
+	 */
+	private JavaBlock codeBlock;
+
+	/**
+	 * List of all formal paraneters of this method.
+	 * Parameter name -> Field Object
+	 */
+	protected LinkedHashMap<String, JavaField> parameters = new LinkedHashMap<String, JavaField>();
 	
 	/**
 	 * Runs the dispatcher on the node.
@@ -213,7 +225,7 @@ class JavaMethod extends JavaScope implements Nameable {
 	 */
 	public String getParameters() {
 		String temp = this.getParent().getName(false) + " __this";
-		for (JavaField fld : this.fields.values())
+		for (JavaField fld : this.parameters.values())
 			temp = temp + ", " + fld.printDec();
 		return temp;
 	}
@@ -223,14 +235,14 @@ class JavaMethod extends JavaScope implements Nameable {
 	 */
 	public String getParameterTypes() {
 		String temp = this.getParent().getName(false);
-		for (JavaField fld : this.fields.values())
+		for (JavaField fld : this.parameters.values())
 			temp = temp + ", " + fld.printFullType();
 		return temp;
 	}
 
 	public String getParameterTypes(JavaClass cls) {
 		String temp = cls.getName(false);
-		for (JavaField fld : this.fields.values())
+		for (JavaField fld : this.parameters.values())
 			temp = temp + ", " + fld.printFullType(cls);
 		return temp;
 	}
@@ -253,8 +265,11 @@ class JavaMethod extends JavaScope implements Nameable {
 	 * Print out the translation. printImplementation() is not in use.
 	 */
 	public CodeBlock getMethodBlock(CodeBlock block) {
-		block = block.block(this.getCReturnType()  + " " + this.getParent().getName(false) + "::" + this.getName() + "(" + this.getParameters() + ")")
-			.close();
+		//block = block.block(this.getCReturnType()  + " " + this.getParent().getName(false) + "::" + this.getName() + "(" + this.getParameters() + ")")
+			
+			//.close();
+
+		block = this.codeBlock.printBlock(block, this.getCReturnType()  + " " + this.getParent().getName(false) + "::" + this.getName() + "(" + this.getParameters() + ")");
 
 		return block;
 	}
@@ -271,6 +286,7 @@ class JavaMethod extends JavaScope implements Nameable {
 		/**
 		 * @TODO Implement!
 		 */
+		this.codeBlock = new JavaBlock(this, n);
 	}
 	
 	/**
@@ -297,6 +313,7 @@ class JavaMethod extends JavaScope implements Nameable {
 	 */
 	public void visitFormalParameter(GNode n) {
 		JavaField field = new JavaField((String)((GNode)((GNode)n.get(1)).get(0)).get(0), this, this.getFile(), n);
+		this.parameters.put(field.getName(), field);
 	}
 	
 	/**

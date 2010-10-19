@@ -16,7 +16,7 @@ class ExpnewClassExpression extends JavaExpression {
 		this.node = n;
 		this.name = (String)n.get(2);
 		this.setScope(parent);
-		this.dispatch(this.node);
+		this.visit(this.node);
 	}
 
 	private void setType(String type) {	

@@ -17,9 +17,10 @@ class ExpAssignmentExpression extends JavaExpression {
 		this.node = n;
 		this.setScope(parent);
 		this.operator = (String)n.get(1);
-		this.dispatch(this.node);
+		this.visit(this.node);
 		this.first = (JavaExpression)this.myExpressions.get(0);
 		this.second = (JavaExpression)this.myExpressions.get(1);
+		
 	}
 
 	public String printMe() {

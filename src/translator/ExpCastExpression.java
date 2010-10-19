@@ -26,7 +26,7 @@ class ExpCastExpression extends JavaExpression {
 		this.node = n;
 		this.setScope(parent);
 		this.setup();
-		this.dispatch(this.node);
+		this.visit(this.node);
 	}
 
 	private static void setPrimitives() {
