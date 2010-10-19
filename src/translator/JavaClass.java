@@ -246,8 +246,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 			.block("struct __" + this.getName(false))
 					.pln("__" + this.getName(false) + "_VT* __vptr;")
 					.pln()
-					.pln("__" + this.getName(false) + "() :")
-						.block("__vptr(&__vtable)").close()
+					.block("__" + this.getName(false) + "() :", false)
+						.pln("__vptr(&__vtable) {")
+					.close()
 					.pln("static Class __class();")
 		;
 
@@ -257,12 +258,12 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		
 					//now, dump out all of our virtual
 					for (JavaMethod jMeth : this.vMethods.values())
-						block.pln("static " + jMeth.getMethodHeader() /*jMeth.getCReturnType() + " " + jMeth.getCMethodSignature(this.getName(false)) + ";"*/);
+						block.pln("static " + jMeth.getMethodHeader());
 		
 					//and now for those static and private methods
 					for (JavaMethod jMeth : this.pMethods.values())
 						if (jMeth.getName().compareTo("main") != 0)
-							block.pln("static " + jMeth.getMethodHeader() /*jMeth.getCReturnType() + " " + jMeth.getCMethodSignature(this.getName(false)) + ";"*/);
+							block.pln("static " + jMeth.getMethodHeader());
 		
 		block =
 			block.close()
@@ -273,13 +274,13 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 				//print out the methods in the vtable
 				for (String meth : this.vTable.keySet()) {
 					JavaMethod jMeth = this.vTable.get(meth).getMethod(meth);
-					block.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodType(/*this.getName(false))*/this) + ";");
+					block.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodType(this) + ";");
 				}
 				
 				//and now print the vtable constructor
 				block = block
 					.pln()
-					.block("__" + this.getName(false) + "_VT() :")
+					.block("__" + this.getName(false) + "_VT() :", false)
 					.pln("__isa(__" + this.getName(false) + "::__class()),")
 				;
 				
@@ -294,7 +295,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 						block.pln(jMeth.getName() + "(&__" + this.getName(false) + "::" + jMeth.getName() + ")" + (i == len ? " {" : ","));
 					} else { //nope, we're looking at inheritance, so cast
 						block.pln(
-							jMeth.getName() + "(" + jMeth.getCMethodCast(/*this.getName(false)*/this) +
+							jMeth.getName() + "(" + jMeth.getCMethodCast(this) +
 							this.getCppScopeTypeless(this,cls) + "&__" + cls.getName(false) + "::" + jMeth.getName() + ")" + (i == len ? " {" : ",")
 						);
 					}

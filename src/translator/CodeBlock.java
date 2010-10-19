@@ -29,24 +29,28 @@ class CodeBlock {
 	 * Constructor...
 	 */
 	CodeBlock(String header) {
-		this(null, header);
+		this(null, header, true);
 	}
 	
 	/**
 	 * The constructor that indents blocks.  If we're given a parent, we match his indentation
 	 * for our header, then we indent further.
 	 */
-	CodeBlock(CodeBlock parent, String header) {
+	CodeBlock(CodeBlock parent, String header, boolean withBrace) {
 		if (parent != null) {
 			this.parent = parent;
 			this.indent = parent.indent;
 		}
-		this.pln(header + " {");
+		this.pln(header + (withBrace ? " {" : ""));
 		this.indent++;
 	}
 	
 	public CodeBlock block(String header) {
-		return new CodeBlock(this, header);
+		return this.block(header, true);
+	}
+	
+	public CodeBlock block(String header, boolean withBrace) {
+		return new CodeBlock(this, header, withBrace);
 	}
 	
 	/**
