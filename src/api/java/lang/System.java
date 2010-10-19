@@ -1,5 +1,5 @@
 package java.lang;
 
-public class String {
+public class System {
 	public static native void println();
 }
