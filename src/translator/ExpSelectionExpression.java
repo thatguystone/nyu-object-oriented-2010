@@ -16,7 +16,7 @@ class ExpSelectionExpression extends JavaExpression {
 
 	public String printMe() {
 		if (myExpressions.size() > 0)
-			return expression.printMe() + "::" + (String)this.node.get(1) + ".";
+			return expression.printMe() + "::" + (String)this.node.get(1);
 		return "I hate my life";
 	}
 }

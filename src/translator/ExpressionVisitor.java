@@ -99,5 +99,9 @@ abstract class ExpressionVisitor extends JavaScope {
 		myExpressions.add(new ExpBasicCastExpression(this, n));
 	}
 
+	public void visitSelectionExpression(GNode n) {
+		myExpressions.add(new ExpSelectionExpression(this, n));
+	}
+
 }
 
