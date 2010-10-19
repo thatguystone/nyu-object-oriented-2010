@@ -66,4 +66,16 @@ abstract class ExpressionVisitor extends JavaScope {
 	public void visitCastExpression(GNode n) {
 		myExpressions.add(new ExpCastExpression(this, n));
 	}
+
+    	public void visitForStatement(GNode n) {
+    		myExpressions.add(new ExpForStatement(this, n));
+    	}
+
+    	public void visitWhileStatement(GNode n) {
+    		myExpressions.add(new ExpWhileStatement(this, n));
+    	}
+
+    	public void visitDoWhileStatement(GNode n) {
+   		myExpressions.add(new ExpDoWhileStatement(this, n));
+    	}
 }
