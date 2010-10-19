@@ -174,9 +174,11 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 			//first, check our local classes
 			if (this.classes.containsKey(cls))
 				return this.classes.get(cls);
-	
-			if (this.imports.containsKey(cls))
+			
+			if (this.imports.containsKey(cls)) {
+				System.out.println("From imports: " + this.imports.get(cls));
 				return JavaStatic.pkgs.getClass(this.imports.get(cls));
+			}
 		}
 		
 		//wtf? error...

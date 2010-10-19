@@ -91,7 +91,6 @@ class JavaFieldDec extends Visitor {
 	public void visitDeclarator(GNode n) {
 	//Declarators always come after Modifiers and Type in our java AST
 		JavaField field = new JavaField(this.isStatic, this.isFinal, this.type, this.dimensions, this.scope, this.file, (Node)n);
-			
 	}
 
 	public void visit(Node n) {
