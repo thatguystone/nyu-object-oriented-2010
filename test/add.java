@@ -15,10 +15,13 @@ class test {
 public class add extends test implements test1 {
 	private static String something;
 	private add j;
+	private int x;
 
 	public static int add(int a, int b) {
-		int i = 1;
+		int i = 1 > 3?1:5;
 		Object o = new Object();
+		i = 3;
+		double v = (double)i;
 		return a + b;
 	}
 	
@@ -27,6 +30,7 @@ public class add extends test implements test1 {
 	} 
 		
 	public static void main(String args[]) {
-		add.add(1, 2);
+		char a;
 	}
 }
+

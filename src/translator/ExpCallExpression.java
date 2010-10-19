@@ -17,7 +17,7 @@ class ExpCallExpression extends JavaExpression {
 		this.node = n;
 		this.setScope(parent);
 		this.setCaller();
-		this.dispatch(this.node);
+		this.visit(this.node);
 	}
 
 	/**
@@ -35,14 +35,17 @@ class ExpCallExpression extends JavaExpression {
 	 */
 	public String printMe() {
 		String temp = "";
-		if (this.caller != null)
+		if (this.caller != null && this.caller.compareTo("this") != 0)
 			//uses its own scope and the scope of the class its caller belongs to
 			temp = temp + this.caller + "->" + getCppScope(this.getScope(), ((JavaField)this.getField(caller)).getCls());
 		else
 			temp = "__this->";
-		temp = temp + this.getName() + "(" +  myExpressions.remove(0).printMe();
-		for (JavaExpression exp : myExpressions)
-			temp = temp + ", " + myExpressions.remove(0).printMe();
+		if (myExpressions.size() > 0)
+			temp = temp + this.getName() + "(" +  myExpressions.get(0).printMe();
+		else
+			temp = temp + " I'm Broken! ";
+		for (int i = 1; i < myExpressions.size() ; i++)
+			temp = temp + ", " + myExpressions.get(i).printMe();
 		return temp;
 	}
 }

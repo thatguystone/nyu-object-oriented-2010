@@ -20,7 +20,7 @@ class ExpConditionalExpression extends JavaExpression {
 	ExpConditionalExpression(JavaScope parent, Node n) {
 		this.node = n;
 		this.setScope(parent);
-		this.dispatch(this.node);
+		this.visit(this.node);
 		this.first = (JavaExpression)this.myExpressions.get(0);
 		this.second = (JavaExpression)this.myExpressions.get(1);
 		this.third = (JavaExpression)this.myExpressions.get(2);

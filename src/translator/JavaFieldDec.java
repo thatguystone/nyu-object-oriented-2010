@@ -49,12 +49,21 @@ class JavaFieldDec extends Visitor {
 	private JavaFile file;
 
 	/**
+	 * Damn you JavaBlock for making me add this.
+	 */
+	private ArrayList<JavaField> fields = new ArrayList<JavaField>();
+
+	/**
 	 * Constructor for class declarations.
 	 */
 	JavaFieldDec(JavaScope scope, JavaFile file, Node n) {
 		this.scope = scope;
 		this.file = file;
 		this.dispatch(n);
+	}
+
+	public ArrayList<JavaField> getFields() {
+		return this.fields;
 	}
 
 	/**
@@ -91,6 +100,7 @@ class JavaFieldDec extends Visitor {
 	public void visitDeclarator(GNode n) {
 	//Declarators always come after Modifiers and Type in our java AST
 		JavaField field = new JavaField(this.isStatic, this.isFinal, this.type, this.dimensions, this.scope, this.file, (Node)n);
+		this.fields.add(field);
 	}
 
 	public void visit(Node n) {

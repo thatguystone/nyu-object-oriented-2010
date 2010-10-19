@@ -12,7 +12,7 @@ class ExpArrayInitializer extends JavaExpression {
 	ExpArrayInitializer(JavaScope parent, Node n) {
 		this.node = n;
 		this.setScope(parent);
-		this.dispatch(this.node);
+		this.visit(this.node);
 	}
 
 	public void visit(GNode n) {

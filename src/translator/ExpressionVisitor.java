@@ -31,15 +31,43 @@ abstract class ExpressionVisitor extends JavaScope {
 		myExpressions.add(new ExpTwoPartExp(this, n));
 	}
 
+	public void visitEqualityExpression(GNode n) {
+		myExpressions.add(new ExpTwoPartExp(this, n));
+	}
+
 	public void visitConditionalExpression(GNode n) {
 		myExpressions.add(new ExpConditionalExpression(this, n));
+	}
+
+	public void visitNullLiteral(GNode n){
+		myExpressions.add(new ExpNullLiteral(n));
+	}
+
+	public void visitBooleanLiteral(GNode n){
+		myExpressions.add(new ExpIdentifier(n));
 	}
 
 	public void visitIntegerLiteral(GNode n) {
 		myExpressions.add(new ExpIdentifier(n));
 	}
 
+	public void visitCharacterLiteral(GNode n){
+		myExpressions.add(new ExpIdentifier(n));
+	}
+
+	public void visitPrimaryIdentifier(GNode n) {
+		myExpressions.add(new ExpIdentifier(n));
+	}
+
 	public void visitQualifiedIdentifier(GNode n) {
+		myExpressions.add(new ExpIdentifier(n));
+	}
+
+	public void visitThisExpression(GNode n) {
+		myExpressions.add(new ExpThisExpression(n));
+	}
+
+	public void visitStringLiteral(GNode n) {
 		myExpressions.add(new ExpIdentifier(n));
 	}
 
@@ -66,4 +94,10 @@ abstract class ExpressionVisitor extends JavaScope {
 	public void visitCastExpression(GNode n) {
 		myExpressions.add(new ExpCastExpression(this, n));
 	}
+
+	public void visitBasicCastExpression(GNode n) {
+		myExpressions.add(new ExpBasicCastExpression(this, n));
+	}
+
 }
+

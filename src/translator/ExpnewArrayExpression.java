@@ -15,7 +15,7 @@ class ExpnewArrayExpression extends JavaExpression {
 		this.node = n;
 		this.setScope(parent);
 		type = (String)n.get(0);
-		this.dispatch(this.node);
+		this.visit(this.node);
 	}
 
 	public void visit(GNode n) {
