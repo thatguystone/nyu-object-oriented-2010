@@ -94,7 +94,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		this.setDepth();
 
 		//add ourself to the print queue AFTER all dependencies have been activated/added
-		this.registerPrint(this.pkg);
+		this.registerPrint(this.getCPackageName());
 	}
 	
 	/**
@@ -126,6 +126,10 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 */
 	public String getPackageName() {
 		return this.pkg;
+	}
+	
+	public String getCPackageName() {
+		return (this.pkg.equals("default") ? "defaultPkg" : this.pkg);
 	}
 	
 	/**
@@ -240,7 +244,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		for (int j = 0; j < scopeDepth; j++)
 			proto = proto.close();
 		
-		CodeBlock block = this.hBlock("namespace " + this.pkg);
+		CodeBlock block = this.hBlock("namespace " + this.getCPackageName());
 		
 		block = block
 			.block("struct __" + this.getName(false))
@@ -264,6 +268,12 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 					for (JavaMethod jMeth : this.pMethods.values())
 						if (jMeth.getName().compareTo("main") != 0)
 							block.pln("static " + jMeth.getMethodHeader());
+					
+					block
+					.pln()
+					.pln("private:")
+					.pln("static __" + this.getName(false) + "_VT __vtable;")
+					;
 		
 		block =
 			block.close()
