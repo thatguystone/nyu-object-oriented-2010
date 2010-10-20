@@ -19,12 +19,17 @@ abstract class JavaExpression extends ExpressionVisitor {
 
 	public boolean isStatic() {
 		//why am I getting called????
-		return true;
+		System.out.println("effff");
+		return false;
 	}
 
 	public JavaClass getMyType() {
 
 		return null;
+	}
+
+	public boolean isClass() {
+		return false;
 	}
 
 	/**

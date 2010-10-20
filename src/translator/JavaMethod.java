@@ -73,6 +73,10 @@ class JavaMethod extends JavaScope implements Nameable {
 		
 		this.dispatch(n);
 	}
+
+	/*public void activateMe() {
+		this.dispatch(n);
+	}*/
 	
 	private static void setPrimitives() {
 		if (!(primitives instanceof ArrayList)) {

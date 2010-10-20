@@ -24,6 +24,21 @@ class ExpIdentifier extends JavaExpression {
 			this.getScope().getFile().getImport(value).activate();
 	}
 
+	public boolean isStatic() {
+		if (this.getField(this.value) != null)
+			return this.getField(value).isStatic();
+		return true;
+	}
+
+	public boolean isClass() {
+		if (this.getField(this.value) == null) {
+			this.getScope().getFile().getImport((String)this.node.get(0)).activate();
+			if (this.getScope().getFile().getImport((String)this.node.get(0)) != null)
+				return true;
+		}
+		return false;
+	}
+
 	public JavaClass getType() {
 		return this.getMyType();
 	}

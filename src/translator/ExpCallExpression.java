@@ -18,9 +18,13 @@ class ExpCallExpression extends JavaExpression {
 
 	boolean isStatic;
 
+	boolean isClass;
+
 	boolean isVirtual;
 
 	JavaExpression caller;
+
+	boolean prepared = false;
 
 	JavaClass type;
 
@@ -30,36 +34,50 @@ class ExpCallExpression extends JavaExpression {
 		this.node = n;
 		this.setScope(parent);
 		this.visit(this.node);
-		this.setup();
+		//this.setup();
 		//this.visit(this.node);
 		//this.getInfo();
 	}
 
-	private void setup() {
-		this.methName = this.node.get(2).toString();
-		if (this.node.get(0) != null) {
-			hasCallee = true;
-			caller = myExpressions.get(0);
-			this.type = caller.getType();
-			this.isStatic = caller.isStatic();
-			//should never be null, but is.
-			if (this.type.getMeth(methName) != null)
+	private void preparePrint() {
+		if (!(prepared)) {
+			this.methName = this.node.get(2).toString();
+			if (this.node.get(0) != null) {
+				hasCallee = true;
+				caller = myExpressions.get(0);
+				this.type = caller.getType();
+				System.out.print(methName + " ");
+				this.isStatic = caller.isStatic();
+				this.isClass = caller.isClass();
+				//should never be null, but is.
+				if (this.type.getMeth(methName) != null) {
+					System.out.println("correct");
+					this.isVirtual = this.type.getMeth(methName).isVirtual();
+				}
+				else {
+					System.out.println("broken");
+					this.isVirtual = false;
+				}
+			}
+			else {
+				this.type = this.getCls();
+				//this is just wrong.
+				System.out.println("Who's here?" + methName);
+				this.isStatic = false;
+				this.isClass = false;
 				this.isVirtual = this.type.getMeth(methName).isVirtual();
-			this.isVirtual = false;
+			}
 		}
-		else {
-			this.type = this.getCls();
-			//this is just wrong.
-			this.isStatic = false;
-			this.isVirtual = this.getCls().getMeth(methName).isVirtual();
-		}
+		this.prepared = true;
 	}
 
 	public JavaClass getType() {
+		this.preparePrint();
 		return this.type.getMeth(methName).getReturnType();
 	}
 
 	public boolean isStatic() {
+		
 		return false;
 	}
 
@@ -92,6 +110,7 @@ class ExpCallExpression extends JavaExpression {
 	 * Prints the C++ code
 	 */
 	public String printMe() {
+		this.preparePrint();
 		String temp = "";
 		/*
 		if (this.hasCallee) {
@@ -124,8 +143,8 @@ class ExpCallExpression extends JavaExpression {
 			temp = temp + myExpressions.get(0).printMe();
 		else
 			temp = temp + "__this";
-		if (this.isStatic)
-			temp = temp + ".";
+		if (this.isClass)
+			temp = temp + "::";
 		else
 			temp = temp + "->";
 		if (this.isVirtual)

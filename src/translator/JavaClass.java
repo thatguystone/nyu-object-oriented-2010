@@ -142,12 +142,16 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	}
 
 	public JavaMethod getMeth(String name) {
+		for (String s : methods.keySet())
+			System.out.println("*" + s + "*");
 		if (this.methods.containsKey(name)) {
+			System.out.println("AM I HERE?");
 			if (getMethod(this.methods.get(name)) != null)
 				return getMethod(this.methods.get(name));
 			if (this.vTable.containsKey(this.methods.get(name)))
 				return this.vTable.get(this.methods.get(name)).getMeth(name);
 		}
+		System.out.println("did I fail?");
 		return null;
 		
 	}
