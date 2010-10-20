@@ -16,7 +16,7 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	/**
 	 * Is this declaration static?
 	 */
-	private boolean isStatic;
+	private boolean isStatic = false;
 
 	/**
 	 * Is it an object?

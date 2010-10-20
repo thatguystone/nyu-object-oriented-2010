@@ -145,8 +145,8 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		if (this.methods.containsKey(name)) {
 			if (getMethod(this.methods.get(name)) != null)
 				return getMethod(this.methods.get(name));
-			//if (this.vTable.containsKey(this.methods.get(name)))
-				//return this.vTable.get(this.methods.get(name));
+			if (this.vTable.containsKey(this.methods.get(name)))
+				return this.vTable.get(this.methods.get(name)).getMeth(name);
 		}
 		return null;
 		
@@ -230,7 +230,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 					this.vTable.put(sig, this.vMethods.get(sig).getParent());
 				else {
 					this.vTable.put(sig, this.parent.vTable.get(sig));
-					//this.methods.put(this.parent.vTable.keys().get(sig).getName(), sig);
+					this.methods.put(this.parent.vTable.get(sig).getMethod(sig).getName(), sig);
 				}
 			}
 		}

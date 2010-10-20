@@ -13,6 +13,7 @@ class ExpIdentifier extends JavaExpression {
 	String value;
 	
 	ExpIdentifier(JavaScope scope, Node n) {
+		this.node = n;
 		this.value = (String)n.get(0);
 		this.setScope(scope);
 		this.setup();
@@ -21,6 +22,15 @@ class ExpIdentifier extends JavaExpression {
 	private void setup(){
 		if(this.getField(this.value) == null)
 			this.getScope().getFile().getImport(value).activate();
+	}
+
+	public JavaClass getType() {
+		return this.getMyType();
+	}
+
+	public JavaClass getMyType() {
+		this.getScope().getFile().getImport((String)this.node.get(0)).activate();
+		return this.getCls().getFile().getImport((String)this.node.get(0));
 	}
 
 	public String printMe() {

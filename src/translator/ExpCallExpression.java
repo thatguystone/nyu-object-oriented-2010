@@ -42,11 +42,14 @@ class ExpCallExpression extends JavaExpression {
 			caller = myExpressions.get(0);
 			this.type = caller.getType();
 			this.isStatic = caller.isStatic();
-			//this.isVirtual = this.type.getMeth(methName).isVirtual();
+			//should never be null, but is.
+			if (this.type.getMeth(methName) != null)
+				this.isVirtual = this.type.getMeth(methName).isVirtual();
 			this.isVirtual = false;
 		}
 		else {
 			this.type = this.getCls();
+			//this is just wrong.
 			this.isStatic = false;
 			this.isVirtual = this.getCls().getMeth(methName).isVirtual();
 		}

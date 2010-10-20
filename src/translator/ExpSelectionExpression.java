@@ -42,8 +42,9 @@ class ExpSelectionExpression extends JavaExpression {
 	}
 
 	public boolean isStatic() {
-		//return this.getType().getField((String)this.node.get(1)).isStatic();
-		return false;
+		//if (this.getType().getField((String)this.node.get(1)) != null)
+			//return this.getType().getField((String)this.node.get(1)).isStatic();
+		return true;
 	}
 
 	public String printMe() {
