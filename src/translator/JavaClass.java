@@ -56,13 +56,6 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	private Hashtable<String, String> methods = new Hashtable<String, String>();
 
 	/**
-	 * List of all fields in the class.
-	 * Field name -> Field Object
-	 * Moved to JavaScope.
-	 */
-	//private LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
-	
-	/**
 	 * Builds a class from a node.
 	 *
 	 * @param file The file that contains this class (the "parent file").
@@ -96,14 +89,24 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		//check if we have a parent; if we don't, then java.lang.Object is our parent
 		this.setParent("java.lang.Object");
 		
+		/*
+		System.out.println("Setting up vtable for " + this.getName());
+		
+		for (StackTraceElement e : Thread.currentThread().getStackTrace())
+			System.out.println(e.toString());
+		
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		//*/
+		
 		//once we're sure we have a parent, then add all our inherited methods
+		//and, once the VTable is setup, go ahead and activate the methods
 		this.setupVTable();
-
+		
 		//find out how many packages deep we are
 		this.setDepth();
-
-		//add ourself to the print queue AFTER all dependencies have been activated/added
-		this.registerPrint(this.getCPackageName());
 	}
 	
 	/**
@@ -143,15 +146,15 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 
 	public JavaMethod getMeth(String name) {
 		for (String s : methods.keySet())
-			System.out.println("*" + s + "*");
+			;//System.out.println("*" + s + "*");
 		if (this.methods.containsKey(name)) {
-			System.out.println("AM I HERE?");
+			//System.out.println("AM I HERE?");
 			if (getMethod(this.methods.get(name)) != null)
 				return getMethod(this.methods.get(name));
 			if (this.vTable.containsKey(this.methods.get(name)))
 				return this.vTable.get(this.methods.get(name)).getMeth(name);
 		}
-		System.out.println("did I fail?");
+		//System.out.println("did I fail?");
 		return null;
 		
 	}
@@ -205,10 +208,12 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		if (this.parent == null) {
 			if (JavaStatic.runtime.test("debug"))
 				System.out.println(this.getName() + " extends " + this.file.getImport(parent).getName());
-		
+			
 			//set our parent from its name in import
 			this.parent = this.file.getImport(parent);
-		
+			
+			System.out.println("Telling " + this.parent.getName() + " to activate.");
+			
 			//with the extension, we need to activate it (ie. process it) before we can use it
 			this.parent.activate();
 		}
@@ -220,9 +225,8 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * see if we override them (they'll be set in either this.pMethods or this.vMethods), if we don't, then add
 	 * them, otherwise, ignore.
 	 * 
-	 * We can be assured that the parent's virtual methods will be propogated before we call this as, when we activate
-	 * the class, the parent's class must finish its activation before we can continue, and as this is part of activation,
-	 * we can be sure it will be ready.
+	 * Since we know that there are problems with VTable resolution from parents, we're going to first add our methods
+	 * to our vtable and grab our parents, then we're going to activate our methods so that they translate.
 	 */
 	private void setupVTable() {
 		//only do this if we have a parent...otherwise, there will be no methods to add
@@ -258,6 +262,12 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 			
 			System.out.println();
 		}
+		
+		//and go ahead and activate our methods
+		for (JavaMethod jMeth : this.vMethods.values())
+			jMeth.activate();
+		for (JavaMethod jMeth : this.pMethods.values())
+			jMeth.activate();
 	}
 	
 	/**
@@ -268,27 +278,23 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * need here is something like block.pln(jMeth.printMe());.
 	 */
 	protected void printHeader() {
-
-		//print the class prototypes and typedef
-		CodeBlock proto = getProto();
-		proto = proto
+		CodeBlock block;
+		
+		this.setupBlock(prototypePrintQueue, this.getCPackageName())
 			.pln("struct __" + this.getName(false) + ";")
 			.pln("struct __" + this.getName(false) + "_VT;")
 			.pln()
-			.pln("typedef __" + this.getName(false) + "* " + this.getName(false) + ";");
-		for (int j = 0; j < scopeDepth; j++)
-			proto = proto.close();
+			.pln("typedef __" + this.getName(false) + "* " + this.getName(false) + ";")
+		.closeAll();
 		
-		CodeBlock block = this.hBlock("namespace " + this.getCPackageName());
-		
-		block = block
+		block = this.setupBlock(hPrintQueue, this.getCPackageName())
 			.block("struct __" + this.getName(false))
 					.pln("__" + this.getName(false) + "_VT* __vptr;")
 					.pln()
 					.block("__" + this.getName(false) + "() :", false)
 						.pln("__vptr(&__vtable) {")
 					.close()
-					.pln("static Class __class();")
+					.pln("static java::lang::Class __class();")
 		;
 
 					for (JavaField fld : this.fields.values())
@@ -308,18 +314,17 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 					.pln()
 					.pln("private:")
 					.pln("static __" + this.getName(false) + "_VT __vtable;")
-					;
+		.closeAll();
 		
-		block =
-			block.close()
+		block = this.setupBlock(vTablePrintQueue, this.getCPackageName())
 			.block("struct __" + this.getName(false) + "_VT")
-				.pln("Class __isa;")
+				.pln("java::lang::Class __isa;")
 		;
 				
 				//print out the methods in the vtable
 				for (String meth : this.vTable.keySet()) {
 					JavaMethod jMeth = this.vTable.get(meth).getMethod(meth);
-					block.pln("static " + jMeth.getCReturnType() + " " + jMeth.getCMethodType(this) + ";");
+					block.pln(jMeth.getCReturnType() + " " + jMeth.getCMethodType(this) + ";");
 				}
 				
 				//and now print the vtable constructor
@@ -341,19 +346,17 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 					} else { //nope, we're looking at inheritance, so cast
 						block.pln(
 							jMeth.getName() + "(" + jMeth.getCMethodCast(this) +
-							this.getCppScopeTypeless(this,cls) + "&__" + cls.getName(false) + "::" + jMeth.getName() + ")" + (i == len ? " {" : ",")
+							this.getCppReferenceScope(cls) + "&__" + cls.getName(false) + "::" + jMeth.getName() + ")" + (i == len ? " {" : ",")
 						);
 					}
 				
 					i++;
 				}
 		
-		block =
 				block.close()
-			.close();
-		//close our namespaces
-		for (int j = 0; j < scopeDepth; j++)
-			block = block.close();
+			.close()
+		.closeAll()
+		;
 	}
 
 	/**
@@ -361,7 +364,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * Really just opens a namespace and gets its methods to print their implementation.
 	 */
 	protected void printImplementation() {
-		CodeBlock block = this.cppBlock;
+		CodeBlock block = this.setupBlock(cppPrintQueue, this.getCPackageName());
 
 		//let each method attach it's own block onto our block
 		for (JavaMethod jMeth : this.vMethods.values())
@@ -371,10 +374,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 			if (jMeth.getName().compareTo("main") != 0)
 				jMeth.getMethodBlock(block);
 
-		//close our namespaces
-		for (int j = 0; j < scopeDepth; j++)
-			block = block.close();
-
+		block.closeAll();
 	}
 
 	/**

@@ -29,6 +29,11 @@ class JavaStatic {
 	public static CodePrinter cpp;
 	
 	/**
+	 * A block that is used to print #includes to the header file.
+	 */
+	public static CodePrinter hInclude;
+	
+	/**
 	 * The header file printer.
 	 */
 	public static CodePrinter h;

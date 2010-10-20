@@ -78,16 +78,6 @@ class JavaFieldDec extends Visitor {
 
 	public void visitType(GNode n) {
 		type = ((GNode)n.get(0)).get(0).toString();
-		/*if (!(primitives.contains(type))) {
-			this.scope.getFile().getImport(type).activate();
-			this.cls = this.scope.getFile().getImport(type);
-			this.isObject = true;
-		}*/
-		//type = this.typeList.get((String)((GNode)n.get(0)).get(0));
-		//counting the number of childern in a Dimensions node
-		/*if (n.get(2) != null) {
-			for (Object o : (Node)n.get(2)) dimensions++;
-		}*/
 		visit(n);
 	}
 

@@ -29,7 +29,7 @@ class ExpnewClassExpression extends JavaExpression {
 	}
 
 	public String printMe() {
-		String temp = "new " + this.getCppScope(this.getScope(), cls) + "(" + myExpressions.remove(0).printMe();
+		String temp = "new " + this.getCppReferenceScope(cls) + "(" + myExpressions.remove(0).printMe();
 		for (Object o : myExpressions) {
 			temp += ", " + ((JavaExpression)o).printMe();
 		}

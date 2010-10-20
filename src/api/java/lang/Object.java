@@ -14,6 +14,6 @@ public class Object {
 	}
 	
 	public String toString() {
-		return getClass().getName() + '@' + hashCode();
+		return getClass().getName() + "@" + hashCode();
 	}
 }

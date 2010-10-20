@@ -6,7 +6,16 @@ import java.util.LinkedHashMap;
 import xtc.tree.Node;
 import xtc.tree.GNode;
 
-class JavaMethod extends JavaScope implements Nameable {	
+/**
+ * JavaMethod is activatable so that it does not begin to process its internals before the class (and all its parents)
+ * have been processed.  The problem with allowing it to activate on instantiation is that, while translating the method
+ * bodies, they were running into classes that needed to be activated and were then being activated; normally, this would
+ * not be a problem, but consider java.lang.Object: it depends on VMManager, and VMManager extends Object.  Thus, during
+ * the translation, VMManager was being translated before any of java.lang.Object's methods were fully processed, so
+ * VMManager didn't have any of its inherited methods.  We're now activating these methods after the parent methods have
+ * been added to the VTables so that this no longer occurs.
+ */
+class JavaMethod extends ActivatableVisitor implements Nameable {	
 
 	/**
 	 * The class we are a part of.  This is helpful for determing if we're a constructor, and etc.
@@ -44,12 +53,6 @@ class JavaMethod extends JavaScope implements Nameable {
 	private boolean isNative = false;
 
 	/**
-	 * This is used for testing if type is primitive.
-	 * This really has to become a global.
-	 */
-	private static ArrayList<String> primitives;
-
-	/**
 	 * This method's code block.
 	 */
 	private JavaBlock codeBlock;
@@ -70,21 +73,12 @@ class JavaMethod extends JavaScope implements Nameable {
 		this.setFile(file);
 		this.setProperties(n);
 		this.setFile(parent.getFile());
-		
+		this.setup(n);
 		this.dispatch(n);
 	}
-
-	/*public void activateMe() {
-		this.dispatch(n);
-	}*/
 	
-	private static void setPrimitives() {
-		if (!(primitives instanceof ArrayList)) {
-			primitives = new ArrayList<String>();
-			String[] p = {"byte", "short", "int", "long", "float", "double", "char", "boolean"};
-			for(int i = 0; i < 8; i++)
-				primitives.add(p[i]);
-		}
+	public void process() {
+		this.dispatch(this.node);
 	}
 
 	/**
@@ -141,15 +135,6 @@ class JavaMethod extends JavaScope implements Nameable {
 		return cls + (this.signature.length() > 0 ? "," : "") + this.signature;
 	}
 	
-	/**
-	 * Gets the function type for C++.
-	 *
-	 * @param cls The name of the class to use for __this.
-	 */
-	/*public String getCMethodCast(String cls) {
-	    return "(" + this.getCReturnType() + "(*)(" + this.getCMethodParameters(cls) + "))";
-	}*/
-
 	public String getCMethodCast(JavaClass cls) {
 		return "(" + this.getCReturnType() + "(*)(" + this.getParameterTypes(cls) + "))";
 	}
@@ -215,14 +200,14 @@ class JavaMethod extends JavaScope implements Nameable {
 	 * Find and return the C type value.
 	 */
 	public String getCReturnType() {
-		//NOTE: we have to remove Class because we don't yet have java.lang.Class
-		if (!(primitives.contains(this.returnType)) && this.returnType.compareTo("void") != 0 && this.returnType.compareTo("Class") != 0) {	
-			this.getFile().getImport(returnType).activate();
-			//this.getParent() = this.getFile().getImport(returnType);
-			return this.getCppScopeTypeless(this.getScope(), this.getFile().getImport(returnType)) + this.returnType;
-			//return this.returnType;
-		}
-		return this.returnType;
+		String type;
+		
+		if (primitives.containsKey(this.returnType))
+			type = primitives.get(this.returnType);
+		else
+			type = this.getCppReferenceScope(this.getFile().getImport(this.returnType));
+		
+		return type;
 	}
 	
 	/**
@@ -277,13 +262,9 @@ class JavaMethod extends JavaScope implements Nameable {
 	 * Print out the translation. printImplementation() is not in use.
 	 */
 	public CodeBlock getMethodBlock(CodeBlock block) {
-		//block = block.block(this.getCReturnType()  + " " + this.getParent().getName(false) + "::" + this.getName() + "(" + this.getParameters() + ")")
-			
-			//.close();
-
-		block = this.codeBlock.printBlock(block, this.getCReturnType()  + " " + this.getParent().getName(false) + "::" + this.getName() + "(" + this.getParameters() + ")");
-
-		return block;
+		if (this.codeBlock != null)
+			return this.codeBlock.printBlock(block, this.getCReturnType()  + " " + this.getParent().getName(false) + "::" + this.getName() + "(" + this.getParameters() + ")");
+		return null;
 	}
 	
 	/**
@@ -295,10 +276,8 @@ class JavaMethod extends JavaScope implements Nameable {
 	 * Translates the method body.
 	 */
 	public void visitBlock(GNode n) {
-		/**
-		 * @TODO Implement!
-		 */
-		this.codeBlock = new JavaBlock(this, n);
+		if (this.activated)
+			this.codeBlock = new JavaBlock(this, n);
 	}
 	
 	/**
@@ -333,6 +312,8 @@ class JavaMethod extends JavaScope implements Nameable {
 	 */
 	public void visitType(GNode n) {
 		this.returnType = ((GNode)n.get(0)).get(0).toString();
+		if (!primitives.containsKey(this.returnType))
+			this.file.getImport(this.returnType).activate();
 	}
 	
 	/**

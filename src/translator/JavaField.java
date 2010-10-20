@@ -45,11 +45,6 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	private String type;
 
 	/**
-	 * This is used for testing if type is primitive
-	 */
-	private static ArrayList<String> primitives;
-
-	/**
 	 * Assignment statement associated with this field declaration.
 	 * May not exist.
 	 */
@@ -80,11 +75,11 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	 */
 	JavaField(String type, JavaScope scope, JavaFile file, Node n) {
 		setPrimitives();
+		this.type = type;
 		this.name = (String)n.get(3);
 		this.isStatic = false;
 		this.isFinal = false;
 		this.setScope(scope);
-		this.type = type;
 		this.dimensions = 0;
 		this.setFile(file);
 		this.node = n;
@@ -93,20 +88,13 @@ class JavaField extends ExpressionVisitor implements Nameable{
 		this.dispatch(this.node);
 	}
 
-	private static void setPrimitives() {
-		if (!(primitives instanceof ArrayList)) {
-			primitives = new ArrayList<String>();
-			String[] p = {"byte", "short", "int", "long", "float", "double", "char", "boolean"};
-			for(int i = 0; i < 8; i++)
-				primitives.add(p[i]);
-		}
-	}
-
 	/**
 	 * If the type of this field is an object, point to it.
 	 */
 	private void setType(String type) {
-		if (!(primitives.contains(type))) {	
+		if (primitives.containsKey(type)) {	
+			this.type = primitives.get(type);
+		} else {
 			this.getFile().getImport(type).activate();
 			this.cls = this.getFile().getImport(type);
 			this.isObject = true;
@@ -169,13 +157,13 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	 */	
 	public String printFullType() {
 		if (isObject)
-			return this.getCppScopeTypeless(this.getScope(), this.getCls()) + this.getType();
+			return this.getCppReferenceScope(this.getCls());
 		return this.getType();
 	}
 
 	public String printFullType(JavaClass cls) {
 		if (isObject)
-			return this.getCppScopeTypeless(cls, this.getCls()) + this.getType();
+			return this.getCppReferenceScope(this.getCls());
 		return this.getType();
 	}	
 
@@ -184,8 +172,8 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	 */
 	private String printpDec() {
 		if (isObject)
-			return this.getCppScopeTypeless(this.getScope(), this.getCls()) + this.getType() + " " + this.getName();
-		return this.getType() + " " + this.getName();
+			return this.getCppReferenceScope(this.getCls()) + " " + this.getName() + ";";
+		return this.getType() + " " + this.getName() + ";";
 	}
 
 	/**
