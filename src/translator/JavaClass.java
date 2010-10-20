@@ -47,6 +47,15 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	private LinkedHashMap<String, JavaClass> vTable = new LinkedHashMap<String, JavaClass>();
 
 	/**
+	 * List of all methods WITHOUT their signature
+	 * I'm adding this because we don't need overloading atm
+	 * and this is much easier than having a method call
+	 figure out the type of its arguments.
+	 * Method name -> Method name with sig
+	 */
+	private Hashtable<String, String> methods = new Hashtable<String, String>();
+
+	/**
 	 * List of all fields in the class.
 	 * Field name -> Field Object
 	 * Moved to JavaScope.
@@ -131,6 +140,17 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	public String getCPackageName() {
 		return (this.pkg.equals("default") ? "defaultPkg" : this.pkg);
 	}
+
+	public JavaMethod getMeth(String name) {
+		if (this.methods.containsKey(name)) {
+			if (getMethod(this.methods.get(name)) != null)
+				return getMethod(this.methods.get(name));
+			//if (this.vTable.containsKey(this.methods.get(name)))
+				//return this.vTable.get(this.methods.get(name));
+		}
+		return null;
+		
+	}
 	
 	/**
 	 * Gets the method from its signature.
@@ -142,6 +162,15 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		if (this.pMethods.containsKey(sig))
 			return this.pMethods.get(sig);
 		
+		return null;
+	}
+
+	/**
+	 * Gets the field if we have it, returns null if we don't.
+	 */
+	public JavaField getField(String field) {
+		if (this.hasField(field))
+			return this.fields.get(field);
 		return null;
 	}
 	
@@ -199,8 +228,10 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 			for (String sig : this.parent.vTable.keySet()) {
 				if (this.vMethods.containsKey(sig)) //we're overriding a parent method, use ours
 					this.vTable.put(sig, this.vMethods.get(sig).getParent());
-				else
+				else {
 					this.vTable.put(sig, this.parent.vTable.get(sig));
+					//this.methods.put(this.parent.vTable.keys().get(sig).getName(), sig);
+				}
 			}
 		}
 
@@ -352,11 +383,11 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	/**
 	 * Check if this class has this field.
 	 */
-	public boolean hasField(String field) {
+	/*public boolean hasField(String field) {
 		if (this.fields.containsKey(field))
 			return true;
 		return false;
-	}
+	}*/
 	
 	/**
 	 * ==================================================================================================
@@ -392,9 +423,13 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		
 		if (jMethod.isNative())
 			JavaStatic.pkgs.importNative(this.getName());
-		else if (jMethod.isVirtual())
+		else if (jMethod.isVirtual()) {
 			this.vMethods.put(jMethod.getMethodSignature(), jMethod);
-		else
+			this.methods.put(jMethod.getName(), jMethod.getMethodSignature());
+		}
+		else {
 			this.pMethods.put(jMethod.getMethodSignature(), jMethod);
+			this.methods.put(jMethod.getName(), jMethod.getMethodSignature());
+		}
 	}
 }

@@ -16,6 +16,7 @@ class JavaExpressionStatement extends ExpressionVisitor {
 	
 	JavaExpressionStatement(JavaScope scope, Node n) {
 		this.scope = scope;
+		this.setScope(scope);
 		this.node = n;
 		this.dispatch(this.node);
 		if (myExpressions.size() > 0)

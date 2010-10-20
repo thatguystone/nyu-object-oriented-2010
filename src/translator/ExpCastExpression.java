@@ -38,6 +38,14 @@ class ExpCastExpression extends JavaExpression {
 		}
 	}
 
+	public JavaClass getType() {
+		return this.cls;
+	}
+
+	public boolean isStatic() {
+		return this.myExpressions.get(0).isStatic();
+	}
+
 	private void setup() {
 		this.cast = (String)((GNode)((GNode)this.node.get(0)).get(0)).get(0);
 		if (!(primitives.contains(this.cast))) {

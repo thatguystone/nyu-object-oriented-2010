@@ -125,6 +125,10 @@ abstract class JavaScope extends Visitor {
 		this.parentScope = scope;
 	}
 
+	public JavaClass getCls() {
+		return this.getScope().getCls();
+	}
+
 	/**
 	 * Gets the actual scope containing this object, not the JavaScope.
 	 */
@@ -206,17 +210,19 @@ abstract class JavaScope extends Visitor {
 	}
 
 	/**
-	 * Check if we have this field.
-	 * Objects that have populated field lists must implement this.
+	 * Check if this scope has this field.
 	 */
 	public boolean hasField(String field) {
+		if (this.fields.containsKey(field))
+			return true;
 		return false;
 	}
 
 	/**
 	 * Get the field from the field list. 
 	 * If we don't have the field, ask our parent scope.
-	 * This should never run all the way to the top because we're only translating working java.
+	 * Terminates at the class level.
+	 * Returns null if the field is outside our scope hierarchy.
 	 */
 	public JavaField getField(String field) {
 		if (!(this.hasField(field)))

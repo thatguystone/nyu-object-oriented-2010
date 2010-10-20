@@ -8,19 +8,12 @@ import xtc.tree.Visitor;
  * I can't believe I'm actually making this a class.... meh.
  * It holds a literal or a variable name, that's it.
  */
-class ExpIdentifier extends JavaExpression {
+class ExpLiteral extends JavaExpression {
 	
 	String value;
 	
-	ExpIdentifier(JavaScope scope, Node n) {
+	ExpLiteral(Node n) {
 		this.value = (String)n.get(0);
-		this.setScope(scope);
-		this.setup();
-	}
-
-	private void setup(){
-		if(this.getField(this.value) == null)
-			this.getScope().getFile().getImport(value).activate();
 	}
 
 	public String printMe() {

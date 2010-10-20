@@ -113,6 +113,14 @@ class JavaMethod extends JavaScope implements Nameable {
 		return this.parent;
 	}
 	
+	public JavaClass getCls() {
+		return this.parent;
+	}
+
+	public JavaClass getReturnType() {
+		return this.getFile().getImport(this.returnType);
+	}
+
 	/**
 	 * Gets the method with its signature intact.
 	 */
@@ -177,7 +185,7 @@ class JavaMethod extends JavaScope implements Nameable {
 	public boolean isConstructor() {
 		return this.isConstructor;
 	}
-	
+
 	/**
 	 * Set the method as not being virtual.
 	 */

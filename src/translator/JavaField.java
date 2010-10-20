@@ -128,6 +128,10 @@ class JavaField extends ExpressionVisitor implements Nameable{
 		return true;
 	}
 
+	public boolean isStatic() {
+		return this.isStatic;
+	}
+
 	/**
 	 * Returns just the data type.
 	 * int x and int[] y both return int.

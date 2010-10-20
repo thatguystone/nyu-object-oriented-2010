@@ -44,23 +44,23 @@ abstract class ExpressionVisitor extends JavaScope {
 	}
 
 	public void visitBooleanLiteral(GNode n){
-		myExpressions.add(new ExpIdentifier(n));
+		myExpressions.add(new ExpLiteral(n));
 	}
 
 	public void visitIntegerLiteral(GNode n) {
-		myExpressions.add(new ExpIdentifier(n));
+		myExpressions.add(new ExpLiteral(n));
 	}
 
 	public void visitCharacterLiteral(GNode n){
-		myExpressions.add(new ExpIdentifier(n));
+		myExpressions.add(new ExpLiteral(n));
 	}
 
 	public void visitPrimaryIdentifier(GNode n) {
-		myExpressions.add(new ExpIdentifier(n));
+		myExpressions.add(new ExpIdentifier(this, n));
 	}
 
 	public void visitQualifiedIdentifier(GNode n) {
-		myExpressions.add(new ExpIdentifier(n));
+		myExpressions.add(new ExpIdentifier(this, n));
 	}
 
 	public void visitThisExpression(GNode n) {
@@ -68,7 +68,7 @@ abstract class ExpressionVisitor extends JavaScope {
 	}
 
 	public void visitStringLiteral(GNode n) {
-		myExpressions.add(new ExpIdentifier(n));
+		myExpressions.add(new ExpLiteral(n));
 	}
 
 	public void visitArrayInitializer(GNode n) {
