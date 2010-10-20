@@ -177,6 +177,19 @@ class JavaPackages {
 	}
 	
 	/**
+	 * Test to see if a given package has a class.
+	 *
+	 * @param pkg The name of the package.
+	 * @param cls The name of the class.
+	 */
+	public boolean classInPackage(String pkg, String cls) {
+		if (this.packages.containsKey(pkg))
+			return this.packages.get(pkg).contains(cls);
+		
+		return false;
+	}
+	
+	/**
 	 * =============================================================================================
 	 * The printer.
 	 */

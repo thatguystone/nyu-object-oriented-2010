@@ -31,6 +31,7 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	
 	/**
 	 * The list of classes that are imported and ready for use in this file.
+	 * Local name of class -> full name of class (Object -> java.lang.Object)
 	 */
 	private Hashtable<String, String> imports = new Hashtable<String, String>();
 	
@@ -87,7 +88,7 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 	private void defaultImports() {
 		this.importFile("java.lang.Object");
 		this.importFile("java.lang.String");
-		//this.importFile("java.lang.System");
+		this.importFile("java.lang.System");
 	}
 	
 	/**
@@ -177,6 +178,10 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 			
 			if (this.imports.containsKey(cls))
 				return JavaStatic.pkgs.getClass(this.imports.get(cls));
+				
+			//well, we didn't find it anywhere else, so give the current package a shot
+			if (JavaStatic.pkgs.classInPackage(this.pkg, cls))
+				return JavaStatic.pkgs.getClass(this.pkg + "." + cls);
 		}
 		
 		//wtf? error...
