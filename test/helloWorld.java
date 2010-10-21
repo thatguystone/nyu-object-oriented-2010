@@ -1,5 +1,7 @@
 class test {
-	public void test() {
+	public static int m = 1;
+
+	test() {
 		System.out.println("Hello from Mr. Test");
 	}
 	
@@ -13,6 +15,26 @@ class test {
 	
 	public int passArg(int i) {
 		return i;
+	}
+	
+	public static void staticSomething() {
+		System.out.println("Call from static!");
+	}
+	
+	public static void staticSomethingWithArgs(char a) {
+		System.out.println(a);
+	}
+	
+	public static char staticSomethingReturnWithArgs(char a) {
+		return a;
+	}
+	
+	public static int staticSomethingReturnWith2Args(int a, int b) {
+		return a + b;
+	}
+	
+	public static int staticSomethingReturnWith5Args(int a, int b, int c, int d, int e) {
+		return (a * b) + c + d + e;
 	}
 }
 
@@ -41,6 +63,12 @@ public class helloWorld {
 		}
 		System.out.println(x);
 		h.hello();
+		
+		test.staticSomething();
+		test.staticSomethingWithArgs('a');
+		System.out.println(test.staticSomethingReturnWithArgs('b'));
+		System.out.println(test.staticSomethingReturnWith2Args(1, 2));
+		System.out.println(test.staticSomethingReturnWith5Args(1, 2, 4, 5, 6));
 	}
 
 	public void hello() {
@@ -48,7 +76,7 @@ public class helloWorld {
 		System.out.println("hello world");
 		
 		test t = new test();
-		t.test();
+		//t.test();
 		System.out.println(t.ret());
 		System.out.println(t.intRet());
 		
