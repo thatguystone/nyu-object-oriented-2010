@@ -62,7 +62,6 @@ class ExpIdentifier extends JavaExpression {
 	}
 	
 	public String printMe(boolean forStaticFunctionCall) {
-		System.out.println("printMe: " + forStaticFunctionCall + " -- "  + this.getMyType().getName());
 		if (!forStaticFunctionCall) {
 			if (this.isClass())
 				return this.getCppReferenceScope(this.getScope().getFile().getImport(value));

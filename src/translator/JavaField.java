@@ -171,7 +171,7 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	public String printpDec(boolean withSemicolon) {
 		if (isObject)
 			return this.getCppReferenceScope(this.getCls()) + " " + this.getName() + (withSemicolon ? ";" : "");
-		return this.getType() + " " + this.getName() + ";";
+		return this.getType() + " " + this.getName() + (withSemicolon ? ";" : "");
 	}
 
 	/**

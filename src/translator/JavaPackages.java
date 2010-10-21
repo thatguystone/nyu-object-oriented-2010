@@ -217,22 +217,13 @@ class JavaPackages {
 		
 		CodeBlock block = new CodeBlock("int main()");
 		block
-			.pln(cls.getCppReferenceScope(cls, true) + "::main();") //defaultPkg::__helloWorld::main();
+			.pln(cls.getCppReferenceScope(cls, true) + "::main();")
 			.pln()
 			.pln("return 0;")
 		.close()
 		;
+		
 		JavaStatic.cpp.print(block);
-		
-		/*
-		for (String cls : this.classes.keySet()) {
-			System.out.println("JavaPackges Class: " + cls + " -- " + this.classes.get(cls).getName());
-		}
-		
-		for (String f : this.files.keySet()) {
-			System.out.println("JavaPackges File: " + f + " -- " + this.files.get(f).getName());
-		}
-		//*/
 	}
 	
 	/**

@@ -106,11 +106,16 @@ class ExpCallExpression extends JavaExpression {
 		if (this.hasCallee) {
 			temp += (this.isStatic ? "" : this.caller.printMe());
 			
-			if (myExpressions.size() > 1)
-				temp = temp + myExpressions.get(1).printMe();
+			if (!this.isStatic && myExpressions.size() > 1)
+				temp += ", "; 
 			
-			for (int i = 2; i < myExpressions.size() - 1; i++)
-				temp = temp + ", " + myExpressions.get(i).printMe();
+			if (myExpressions.size() > 1) {
+				temp += myExpressions.get(1).printMe();
+			}
+			
+			for (int i = 2; i < myExpressions.size() - 1; i++) {
+				temp += ", " + myExpressions.get(i).printMe();
+			}
 		} else {
 			temp += (this.isStatic ? "" : "__this");
 			
