@@ -24,7 +24,7 @@ class JavaConditionalStatement extends ExpressionVisitor implements Nameable {
 	}
 	
 	public CodeBlock printBlk(CodeBlock block) {
-		block = this.codeBlock.printBlock(block, condition.printMe());
+		block = this.codeBlock.printBlock(block,"if("+ condition.printMe() +")");
 		
 		return block;
 	}	
