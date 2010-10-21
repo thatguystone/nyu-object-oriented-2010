@@ -179,7 +179,7 @@ namespace java {
 			va_start(args, value);
 	
 			// variables used for calculating dimension conversion
-			int32_t offset = __this->lengths.size();	
+			int32_t offset = __this->lengths.size() - 1;	
 			int32_t converted = __this->lengths.at(offset);
 			int32_t dim;
 			
@@ -213,7 +213,7 @@ namespace java {
 		 */
 		template <typename T>
 		static T get(__JavaArray<T>* __this, ...) {
-
+			
 			// keeps track of our iterations
 			int32_t turn = 0;
 			int32_t element = 0;
@@ -256,7 +256,7 @@ namespace java {
       			
 	        	// check the index(indices) against our vector of lenghts
 	        	vector<int32_t>::iterator it;
-			for (it=__this->lengths.end(); it > __this->lengths.begin(); it++) {
+			for (it=__this->lengths.end() - 1; it >= __this->lengths.begin(); it--) {
 				length = va_arg(args, int32_t);
 				if (0 > length || length >= *it) {
 	          			throw ArrayIndexOutOfBoundsException();
