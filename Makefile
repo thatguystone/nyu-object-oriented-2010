@@ -18,12 +18,19 @@ doc:
 src:
 	$(MAKE) -C src
 	
-test:
-	$(MAKE) -C test
-
 run: src
 	$(MAKE) -C test run
-	
+
+test: src
+	$(MAKE) -C test run args="-outputFile $(TRANSROOT)/out.cpp" > /dev/null 2>&1
+	@echo "Running the Java:\n"
+	@javac -sourcepath $(TESTPATH) test/$(file).java
+	java -classpath $(TESTPATH) $(file)
+	#sleep 3
+	@echo "\n\n\n\nRunning the C++:\n"
+	g++ $(TRANSROOT)/out.h $(TRANSROOT)/out.cpp
+	./a.out
+
 clean:
 	$(MAKE) -C src clean
 	$(MAKE) -C test clean
