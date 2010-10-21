@@ -383,8 +383,12 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		
 		//Print our static field assignments
 		for(JavaField jField : this.fields.values()){
-			if(jField.isStatic() && jField.hasExpression())
-				block.pln(jField.getType() + " __" + this.getName(false) + "::" + jField.PrintAssignment());
+			if(jField.isStatic()) {
+				if (jField.hasExpression())
+					block.pln(jField.getType() + " __" + this.getName(false) + "::" + jField.PrintAssignment());
+				else
+					block.pln(jField.getType() + " __" + this.getName(false) + "::" + jField.getName() + " = NULL;");
+			}
 		}
 		
 		if (constructor != null) {
