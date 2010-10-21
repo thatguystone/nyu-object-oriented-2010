@@ -13,8 +13,12 @@ class JavaBlock extends JavaScope {
 		this.setScope(scope);
 		this.dispatch(n);
 	}
-
+	
 	public CodeBlock printBlock(CodeBlock block, String header) {
+		return this.printBlock(block, header, true);
+	}
+
+	public CodeBlock printBlock(CodeBlock block, String header, boolean withTrailingSemicolon) {
 		block = block.block(header);
 		
 			if (this.getScope() instanceof JavaMethod) {
@@ -48,7 +52,7 @@ class JavaBlock extends JavaScope {
 				else 
 					block = statement.printBlk(block);
 			}
-		block = block.close();
+		block = block.close(withTrailingSemicolon);
 		return block;
 	}
 

@@ -53,12 +53,16 @@ class CodeBlock {
 		return new CodeBlock(this, header, withBrace);
 	}
 	
+	public CodeBlock close() {
+		return this.close(true);
+	}
+	
 	/**
 	 * When we're done with the block, be sure to close it.
 	 */
-	public CodeBlock close() {
+	public CodeBlock close(boolean withSemicolon) {
 		this.indent--;
-		this.pln("};\n");
+		this.pln("}" + (withSemicolon ? ";" : "") + "\n");
 		
 		//if we have a parent, append our code to him
 		if (this.parent != null)
