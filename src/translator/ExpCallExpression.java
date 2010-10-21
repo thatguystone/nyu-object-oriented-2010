@@ -92,7 +92,7 @@ class ExpCallExpression extends JavaExpression {
 			temp += "__this";
 		}
 		
-		if (this.type.getName().equals("java.lang.System"))
+		if (this.type.getName().equals("java.lang.System")) //oh no he didn't! (oh yes i did!)
 			temp += "->";
 		else if (this.isClass && this.type.getField(this.methName) == null)
 			temp += "::";
@@ -113,17 +113,20 @@ class ExpCallExpression extends JavaExpression {
 				temp += myExpressions.get(1).printMe();
 			}
 			
-			for (int i = 2; i < myExpressions.size() - 1; i++) {
+			for (int i = 2; i <= myExpressions.size() - 1; i++) {
 				temp += ", " + myExpressions.get(i).printMe();
 			}
 		} else {
 			temp += (this.isStatic ? "" : "__this");
 			
-			if (myExpressions.size() > 0)
-				temp = temp +  myExpressions.get(0).printMe();
+			if (!this.isStatic && myExpressions.size() > 1)
+				temp += ", "; 
+			
+			if (myExpressions.size() > 1)
+				temp += myExpressions.get(1).printMe();
 
-			for (int i = 1; i < myExpressions.size() - 1; i++)
-				temp = temp + ", " + myExpressions.get(i).printMe();
+			for (int i = 2; i <= myExpressions.size() - 1; i++)
+				temp += ", " + myExpressions.get(i).printMe();
 		}
 		
 		return temp + ")";

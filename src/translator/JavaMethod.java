@@ -262,6 +262,10 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 		if(this.isConstructor() && temp.length() > 0)
 			temp = temp.substring(1);
 		
+		//remove the extra ", " if we're static
+		if (this.isStatic() && temp.length() > 0)
+			temp = temp.substring(2);
+		
 		return temp;
 	}
 
@@ -278,7 +282,7 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 			temp = this.getCppReferenceScope(cls, false);
 		
 		for (JavaField fld : this.parameters.values())
-			temp = temp + ", " + fld.printFullType();
+			temp += ", " + fld.printFullType();
 		
 		//remove the extra ", " if we're static
 		if (this.isStatic() && temp.length() > 0)
