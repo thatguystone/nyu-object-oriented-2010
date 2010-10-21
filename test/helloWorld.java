@@ -22,7 +22,12 @@ public class helloWorld {
 		int i;
 		int x = 1;
 		for (i = 0; i < 10; i++) {	
-			x = x*2;
+			if (i > 4) {
+				x = x*2;
+				System.out.print(i);
+				System.out.print(" -- ");
+				System.out.println(x);
+			}
 		}
 		boolean hh = true;
 		if(hh){

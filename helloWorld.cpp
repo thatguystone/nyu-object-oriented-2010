@@ -55,7 +55,13 @@ namespace defaultPkg {
 		int32_t i;
 		int32_t x = 1;
 		for(i=0;(i<10);(i++)) {
-			x=(x*2);
+			if((i>4)) {
+				x=(x*2);
+				java::lang::__System::out->print(i);
+				java::lang::__System::out->print(" -- ");
+				java::lang::__System::out->println(x);
+			};
+
 		};
 
 		bool hh = true;
