@@ -16,8 +16,12 @@ class JavaBlock extends JavaScope {
 
 	public CodeBlock printBlock(CodeBlock block, String header) {
 		block = block.block(header);
-			for (JavaScope statement : this.statements)
-				block.pln(statement.printMe());
+			for (JavaScope statement : this.statements) {
+				if (!statement.hasBlock())
+					block.pln(statement.printMe());
+				else 
+					block = statement.printBlk(block);
+			}
 		block = block.close();
 		return block;
 	}
@@ -36,5 +40,12 @@ class JavaBlock extends JavaScope {
 	public void visitReturnStatement(GNode n) {
 		this.statements.add(new JavaReturnStatement(this.getScope(), n));
 	}
+	
+	public void visitConditionalStatement(GNode n) {
+		this.statements.add(new JavaConditionalStatement(this.getScope(), n));
+	}
 
 }
+
+
+

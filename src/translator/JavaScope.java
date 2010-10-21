@@ -130,6 +130,14 @@ abstract class JavaScope extends Visitor {
 	public JavaClass getCls() {
 		return this.getScope().getCls();
 	}
+	
+	public boolean hasBlock() {
+		return false;
+	}
+	
+	public CodeBlock printBlk(CodeBlock block) {
+		return null;
+	}
 
 	/**
 	 * Gets the actual scope containing this object, not the JavaScope.

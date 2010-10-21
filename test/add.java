@@ -27,6 +27,9 @@ public class add extends test implements test1 {
 	
 	public String som() {
 		System.out.println();
+		if(true){
+			return "stuff";
+		}
 		return "add";
 	} 
 		
