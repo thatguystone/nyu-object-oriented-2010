@@ -19,7 +19,6 @@ abstract class JavaExpression extends ExpressionVisitor {
 
 	public boolean isStatic() {
 		//why am I getting called????
-		System.out.println("effff");
 		return false;
 	}
 

@@ -165,7 +165,7 @@ abstract class JavaScope extends Visitor {
 			primitives.put("double", "double");
 			primitives.put("boolean", "bool");
 			primitives.put("void", "void");
-			primitives.put("String", "std::string");
+			primitives.put("String", "std::string"); //no one should know about this....
 		}
 	}
 
@@ -305,7 +305,6 @@ abstract class JavaScope extends Visitor {
 		}
 		if (!(this.cppBlock instanceof CodeBlock))
 			this.cppBlock = new CodeBlock("Something has gone wrong");
-		//return this.protoBlock;
 	}
 	
 	public String printMe() {
@@ -321,7 +320,6 @@ abstract class JavaScope extends Visitor {
 	 * What it implies.
 	 */
 	public void visitFieldDeclaration(GNode n) {
-		System.out.println("=====================CREATING A FIELD : " + this.getName());
 		JavaFieldDec temp = new JavaFieldDec(this, this.getFile(), n);
 	}
 

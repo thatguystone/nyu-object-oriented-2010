@@ -104,8 +104,6 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		
 		System.out.println();
 		System.out.println();
-		System.out.println();
-		System.out.println();
 		//*/
 		
 		//once we're sure we have a parent, then add all our inherited methods
@@ -157,7 +155,6 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 */
 	public JavaMethod getMeth(String name) {
 		if (this.methods.containsKey(name)) {
-			System.out.println("---------------" + this.getName() + " ==> " + name + " ==> " + this.getMethod(this.methods.get(name)));
 			if (this.getMethod(this.methods.get(name)) != null)
 				return this.getMethod(this.methods.get(name));
 			
@@ -220,8 +217,6 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 			
 			//set our parent from its name in import
 			this.parent = this.file.getImport(parent);
-			
-			System.out.println("Telling " + this.parent.getName() + " to activate.");
 			
 			//with the extension, we need to activate it (ie. process it) before we can use it
 			this.parent.activate();
@@ -319,7 +314,6 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		
 					//and now for those static and private methods
 					for (JavaMethod jMeth : this.pMethods.values())
-						//if (jMeth.getName().compareTo("main") != 0)
 						block.pln("static " + jMeth.getMethodHeader());
 					
 					block
@@ -392,7 +386,6 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		}
 		
 		if (constructor != null) {
-			System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 			constructor.getMethodBlock(block);
 		}
 
@@ -401,12 +394,10 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 			jMeth.getMethodBlock(block);
 		//now for the rest, except main
 		for (JavaMethod jMeth : this.pMethods.values())
-			//if (jMeth.getName().compareTo("main") != 0)
 			jMeth.getMethodBlock(block);
 			
 		// Internal accessor for java.lang.Object's class.
     	block.block("java::lang::Class __" + this.getName(false) + "::__class()")
-    		//.pln("static Class k = new __Class((std::string)\"test\", 0, false);")
     		.pln("static java::lang::Class k = new java::lang::__Class(\"" + this.getCPackageName() + "." + this.getName(false) + "\", NULL, 0);;")
       		.pln("return k;")
       	.close();
@@ -416,22 +407,6 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		block.closeAll();
 	}
 
-	/**
-	 * Add a field to our field list
-	 */
-	/*public void addField(JavaField field) {
-		this.fields.put(field.getName(), field);
-	}*/
-
-	/**
-	 * Check if this class has this field.
-	 */
-	/*public boolean hasField(String field) {
-		if (this.fields.containsKey(field))
-			return true;
-		return false;
-	}*/
-	
 	/**
 	 * ==================================================================================================
 	 * Visitor Methods

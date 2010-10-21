@@ -22,16 +22,4 @@ class JavaBasicForControl extends ExpressionVisitor implements Nameable {
 	public String printMe() {
 		return myExpressions.get(0).printMe() + ";" + myExpressions.get(1).printMe() + ";" + myExpressions.get(2).printMe();
 	}
-	
-	/*public void visitDeclarators(GNode n) {
-	
-	}*/
-	
-	/*public void visitDeclarator(GNode n) {
-			System.out.println("--------Did I Make It Here!!---------");
-			type = myExpressions.get(0);
-			System.out.println("000000000000000000000000000");
-			JavaField field = new JavaField(this.myExpressions.get(0).printMe(), this.getScope(), this.getScope().getFile(), n);
-	}*/
-	
 }

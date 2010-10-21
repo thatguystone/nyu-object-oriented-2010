@@ -11,7 +11,7 @@ What you need to know:
 
 A good start:
 	1) Do a test run. Nothing special.
-		Command: ./make run args="-printJavaAST" file=add
+		Command: ./make run args="-printJavaAST" file=test1
 	2) Do a test run and output the translation to a file.
 		Command: ./make run file=add ARGS="-outputFile /home/andi/Dev/NYU/OO/translator/out.cpp"
 	

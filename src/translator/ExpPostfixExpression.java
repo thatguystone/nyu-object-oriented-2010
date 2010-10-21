@@ -19,8 +19,6 @@ class ExpPostfixExpression extends JavaExpression {
 		this.node = n;
 		this.setScope(parent);
 		this.operator = (String)n.get(1);
-		//System.out.println(".................................."+(String)n.get(1));
-		//System.out.println(".................................."+(String)n.get(0));
 		this.visit(this.node);
 		if (myExpressions.size() > 0)
 			this.first = (JavaExpression)this.myExpressions.get(0);

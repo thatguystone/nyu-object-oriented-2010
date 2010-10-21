@@ -13,9 +13,7 @@ class JavaForStatement extends JavaScope implements Nameable {
 	JavaBlock codeBlock;
 	
 	JavaForStatement(JavaScope scope, Node n) {
-		System.out.println("################FOR STATEMENT###########");
 		this.setScope(scope);
-		//this.node = n;
 		this.dispatch(n);
 	}
 	
@@ -39,9 +37,6 @@ class JavaForStatement extends JavaScope implements Nameable {
 	}
 	
 	public void visitBlock(GNode n) {
-		/**
-		 * @TODO Implement!
-		 */
 		this.codeBlock = new JavaBlock(this, n);
 	}
 }

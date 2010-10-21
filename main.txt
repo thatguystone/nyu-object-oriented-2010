@@ -1,1 +1,0 @@
-Pointer to main method in whatever class passed in for translation.

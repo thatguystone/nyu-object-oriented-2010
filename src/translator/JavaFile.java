@@ -185,12 +185,10 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 				return JavaStatic.pkgs.getClass(this.pkg + "." + cls);
 		}
 		
-		//*/
+		/*/
 		for (StackTraceElement e : Thread.currentThread().getStackTrace())
 			System.out.println(e.toString());
 		
-		System.out.println();
-		System.out.println();
 		System.out.println();
 		System.out.println();
 		//*/

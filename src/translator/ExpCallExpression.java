@@ -47,17 +47,13 @@ class ExpCallExpression extends JavaExpression {
 				
 				//should never be null, but is.
 				if (this.type.getMeth(methName) != null) {
-					System.out.println("correct");
 					this.isVirtual = this.type.getMeth(methName).isVirtual();
 				} else {
-					System.out.println(methName + " ---- broken");
 					this.isVirtual = false;
 				}
 			}
 			else {
 				this.type = this.getCls();
-				//this is just wrong.
-				System.out.println("Who's here?" + methName);
 				this.isStatic = false;
 				this.isClass = false;
 				this.isVirtual = this.type.getMeth(methName).isVirtual();

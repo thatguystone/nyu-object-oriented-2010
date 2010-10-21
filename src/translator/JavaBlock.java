@@ -23,9 +23,7 @@ class JavaBlock extends JavaScope {
 		
 			if (this.getScope() instanceof JavaMethod) {
 				if (((JavaMethod)this.getScope()).isConstructor()) {
-					System.out.println("------------CONSTRUCTOR TIME-----------" + this.getCls().getName());
 					for (JavaField fld : this.getCls().fields.values()) {
-						System.out.println(fld.getName() + " ------------------ Static : " + (fld.isStatic()?"yes":"no") + "    " + "Expression : " + (fld.hasExpression()?"yes":"no"));
 						if (!fld.isStatic() && fld.hasExpression()) {
 							block.pln("this->" + fld.PrintAssignment());
 						}

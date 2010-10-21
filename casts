@@ -1,4 +1,0 @@
-Object o = Class.class;
-Class k = (Class)o;
-
-Object o = new Class();
