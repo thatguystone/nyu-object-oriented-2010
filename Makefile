@@ -34,6 +34,10 @@ test: src
 clean:
 	$(MAKE) -C src clean
 	$(MAKE) -C test clean
+	rm -f *.cpp
+	rm -f *.h
+	rm -f *.out
+	rm -f *.h.gch
 
 help: src
 	java -classpath $(RUNCLASSPATH) translator.Translator

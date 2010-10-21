@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 class CodePrinter extends Printer {
 	/**
-	 * Java doesn't like it when two things share Sysetm.out for stream writing,
+	 * Java doesn't like it when two things share System.out for stream writing,
 	 * or something like that (only one stream was printing), so use a static guy
 	 * to share it if the file can't be found.
 	 */

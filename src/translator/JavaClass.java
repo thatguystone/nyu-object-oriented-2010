@@ -30,6 +30,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 
 	/**
 	 * keeps track of how many packages(namespaces) deep we are to know how many .close()'s to use.
+	 * @deprecated
 	 */
 	private int scopeDepth = 1;
 	
