@@ -64,7 +64,7 @@ abstract class ExpressionVisitor extends JavaScope {
 	}
 
 	public void visitThisExpression(GNode n) {
-		myExpressions.add(new ExpThisExpression(n));
+		myExpressions.add(new ExpThisExpression(this, n));
 	}
 
 	public void visitStringLiteral(GNode n) {

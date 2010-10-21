@@ -10,7 +10,12 @@ import xtc.tree.Visitor;
  */
 class ExpThisExpression extends JavaExpression {
 	
-	ExpThisExpression(Node n) {
+	ExpThisExpression(JavaScope scope, Node n) {
+		this.setScope(scope);
+	}
+	
+	public JavaClass getType() {
+		return this.getCls();
 	}
 
 	public String printMe() {
