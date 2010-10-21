@@ -25,8 +25,10 @@ class ExpAssignmentExpression extends JavaExpression {
 
 	public String printMe() {
 		String ret = "";
-		if (this.getScope().getCls().getField(first.printMe()) != null)
-			ret += "__this->";
+		if (this.getScope().getCls().getField(first.printMe()) != null) {
+			if (!this.getScope().getCls().getField(first.printMe()).isStatic())
+				ret += "__this->";
+		}
 		
 		ret += first.printMe();
 		
