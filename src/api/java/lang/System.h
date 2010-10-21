@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <stdlib.h>
 
 namespace java {
 	namespace lang {
@@ -18,7 +19,7 @@ namespace java {
 				}
 		};
 		
-		class System {
+		class __System {
 			public:
 				static SystemOut out;
 		};

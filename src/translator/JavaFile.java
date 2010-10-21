@@ -184,6 +184,16 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 				return JavaStatic.pkgs.getClass(this.pkg + "." + cls);
 		}
 		
+		//*/
+		for (StackTraceElement e : Thread.currentThread().getStackTrace())
+			System.out.println(e.toString());
+		
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		//*/
+		
 		//wtf? error...
 		JavaStatic.runtime.error("Class could not be found for import (in JavaFile.getImport): " + cls);
 		JavaStatic.runtime.exit(); //abort, we can't possibly go any further

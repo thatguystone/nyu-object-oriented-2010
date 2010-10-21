@@ -68,6 +68,15 @@ class CodeBlock {
 	}
 	
 	/**
+	 * Closes all the blocks from the current location.
+	 */
+	public void closeAll() {
+		this.close();
+		if (this.parent != null)
+			this.parent.closeAll();
+	}
+	
+	/**
 	 * For printing out empty lines.
 	 */
 	public CodeBlock pln() {

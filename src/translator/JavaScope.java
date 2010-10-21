@@ -37,29 +37,31 @@ abstract class JavaScope extends Visitor {
 	/**
 	 * Instead of having blocks just print themselves, blocks will get added to the print queue
 	 * and all blocks will be printed in one go.
-	 * The C++ header prototype and typedef print queue.
-	 */
-	protected static ArrayList<CodeBlock> hProtoQueue;
-
-	/**
-	 * Instead of having blocks just print themselves, blocks will get added to the print queue
-	 * and all blocks will be printed in one go.
 	 * The C++ header print queue.
 	 */
-	protected static ArrayList<CodeBlock> hPrintQueue;
+	protected static ArrayList<CodeBlock> hPrintQueue = new ArrayList<CodeBlock>();
+	
+	/**
+	 * Print out all the vTables after we have the prototypes.
+	 */
+	protected static ArrayList<CodeBlock> vTablePrintQueue = new ArrayList<CodeBlock>();
+	
+	/**
+	 * Print out all the vTables after we have the prototypes.
+	 */
+	protected static ArrayList<CodeBlock> prototypePrintQueue = new ArrayList<CodeBlock>();
 
 	/**
 	 * Instead of having blocks just print themselves, blocks will get added to the print queue
 	 * and all blocks will be printed in one go.
 	 * The C++ cpp print queue.
 	 */
-	protected static ArrayList<CodeBlock> cppPrintQueue;
-
+	protected static ArrayList<CodeBlock> cppPrintQueue = new ArrayList<CodeBlock>();
+	
 	/**
-	 * A block that contains all the class prototypes and typedefs.
-	 * Only one instance.
+	 * This is used for testing if type is primitive
 	 */
-	protected CodeBlock protoBlock;
+	protected static Hashtable<String, String> primitives = new Hashtable<String, String>(); 
 
 	/**
 	 * Our block printer to the C++ cpp file.
@@ -149,7 +151,21 @@ abstract class JavaScope extends Visitor {
 	 * in the class String in package java.lang.
 	 */
 	public String getScopeString() {
-		return this.getScope().getScopeString() + "." + this.getScope().getName();
+		return this.getScope().getScopeString();
+	}
+	
+	protected static void setPrimitives() {
+		if (primitives.size() == 0) {
+			primitives.put("char", "char");
+			primitives.put("byte", "int8_t");
+			primitives.put("short", "int16_t");
+			primitives.put("int", "int32_t");
+			primitives.put("long", "int64_t");
+			primitives.put("float", "float");
+			primitives.put("double", "double");
+			primitives.put("boolean", "bool");
+			primitives.put("void", "void");
+		}
 	}
 
 	/**
@@ -157,57 +173,25 @@ abstract class JavaScope extends Visitor {
 	 * For example ClassB myB; in PackageA.ClassA with PackageB.ClassB
 	 * will become PackageB::ClassB myB;.
 	 */
-	public String getCppScopeTypeless(JavaScope presentLocation, JavaScope refrencedLocation) {
-		String scopeString = getCppScope(presentLocation, refrencedLocation);
-		//rip off that last scope operator
-		scopeString = scopeString.substring(0, scopeString.lastIndexOf("::") == -1 ? 0 : scopeString.lastIndexOf("::"));
-		//and the next one, but this time with the class name as well
-		scopeString = scopeString.substring(0, scopeString.lastIndexOf("::") == -1 ? 0 : scopeString.lastIndexOf("::"));
-
-		if (scopeString.compareTo("") == 0)
-			return "";
-		//now lets re-add that last scope operator... I wonder if any extra work got done here?
-		return scopeString + "::";
+	public String getCppReferenceScope(JavaScope refrencedLocation) {
+		String scopeString = "";
+		String remaining = refrencedLocation.getScopeString();
+		
+		while (remaining.length() > 0) {
+			int i = remaining.indexOf(".");
+			
+			if (i == -1) {
+				scopeString += remaining;
+				remaining = "";
+			} else {
+				scopeString += remaining.substring(0, i) + "::";
+				remaining = remaining.substring(i + 1);
+			}
+		}
+		
+		return scopeString;
 	}
 
-	/**
-	 * Gets the C++ namespace of a field declaration or method call with the class name.
-	 * For example ClassB myB; in PackageA.ClassA with PackageB.ClassB
-	 * will become PackageB::ClassB myB;.
-	 */
-	public String getCppScope(JavaScope presentLocation, JavaScope refrencedLocation) {
-		String presentPath = presentLocation.getScopeString();
-		String refPath = refrencedLocation.getScopeString();
-
-		//god I hate Strings
-		//anyway this removes the parts of presentPath and refPath that are the same
-		while (presentPath.compareTo("") != 0 && refPath.compareTo("") != 0) {
-			if ( 0 != presentPath.substring(0, (presentPath.indexOf('.') == -1 ? presentPath.length() : presentPath.indexOf('.')))
-				.compareTo(refPath.substring(0, (refPath.indexOf('.') == -1 ? refPath.length() : refPath.indexOf('.')))))
-				break;
-			if (presentPath.indexOf('.') == -1)
-				presentPath = "";
-			else
-				presentPath = presentPath.substring(presentPath.indexOf('.') + 1, presentPath.length());
-			if (refPath.indexOf('.') == -1)
-				refPath = "";
-			else
-				refPath = refPath.substring(refPath.indexOf('.') + 1, refPath.length());
-		}
-
-		//omfg why doesn't replace let me replace chars with strings
-		//turn ref path into C++ code
-		while (refPath.indexOf('.') != -1) {
-			String firstHalf = refPath.substring(0, refPath.indexOf('.'));
-			String secondHalf = refPath.substring(refPath.indexOf('.') + 1, refPath.length());
-			refPath = firstHalf + "::" + secondHalf;	
-		}
-
-		if (refPath.compareTo("") == 0)
-			return "";
-		return refPath + "::";
-	}
-	
 	/**
 	 * JavaField registers itself with its scope's field list because of the
 	 * multiple declaration problem.
@@ -245,11 +229,6 @@ abstract class JavaScope extends Visitor {
 		//make the guy print himself
 		this.printHeader();
 		this.printImplementation();
-		
-		//printing moved to printAll()
-		//and instruct our output to...well, output
-		//JavaStatic.h.print(this.hBlock);
-		//JavaStatic.cpp.print(this.cppBlock);
 	}
 
 	/**
@@ -257,153 +236,44 @@ abstract class JavaScope extends Visitor {
 	 * and populated with C++ code.
  	 */
 	public static void printAll() {
-		for (CodeBlock block : hProtoQueue)
+		for (CodeBlock block : prototypePrintQueue)
 			JavaStatic.h.print(block);
 		for (CodeBlock block : hPrintQueue)
 			JavaStatic.h.print(block);
+		for (CodeBlock leBlocky : vTablePrintQueue)
+			JavaStatic.h.print(leBlocky);
 		for (CodeBlock block : cppPrintQueue)
 			JavaStatic.cpp.print(block);
 	}
 	
 	/**
-	 * Get the prototype block
-	 */
-	protected final CodeBlock getProto() {
-		return this.protoBlock;
-	}
-
-	/**
-	 * Sets up a cpp block for printing to the header.
-	 *
-	 * This function is provided here, rather than in a constructor, because you need
-	 * to know the header information before you begin to print.  That is, you need
-	 * to know what goes on the line before the "{" before you can start a code block,
-	 * so this just helps with that.  This also does some work in the background to make
-	 * print seamless for you.
-	 */
-	protected final CodeBlock hBlock(String header) {
-		//if (!(this.hBlock instanceof CodeBlock)) {
-			//now done in registerPrint()
-			//this.hBlock = new CodeBlock(header);
-		//}
-		return this.hBlock;
-	}
-	
-	/**
-	 * Sets up a cpp block for printing to the cpp file.
-	 *
-	 * This function is provided here, rather than in a constructor, because you need
-	 * to know the header information before you begin to print.  That is, you need
-	 * to know what goes on the line before the "{" before you can start a code block,
-	 * so this just helps with that.  This also does some work in the background to make
-	 * print seamless for you.
-	 */
-	protected final CodeBlock cppBlock(String header) {
-		//if (!(this.cppBlock instanceof CodeBlock)) {
-			//now done in registerPrint()
-			//this.cppBlock = new CodeBlock(header);
-		//}
-		return this.cppBlock;
-	}
-
-	/**
-	 * Add ourself to the print queue and setup our blocks
-	 */
-	protected final void registerPrint(String header) {
-		//initialize lists if they don't exist
-		if (!(hPrintQueue instanceof ArrayList)) {
-			hProtoQueue = new ArrayList<CodeBlock>();
-			hPrintQueue = new ArrayList<CodeBlock>();
-			cppPrintQueue = new ArrayList<CodeBlock>();
-		}
-		setupProtoBlock(header);
-		setupHeaderBlock(header);
-		setupCppBlock(header);
-		//cppPrintQueue.add(this.cppBlock);
-	}
-
-	/**
 	 * Prepare the header block for use.
  	 */
-	protected final void setupHeaderBlock(String header) {
-		String namespace;
-		/*if (header.compareTo("") != 0) {
-			if (header.indexOf('.') != -1) {
-				namespace = header.substring(0, header.indexOf('.'));
-				header = header.substring(header.indexOf('.') + 1, header.length());
-			}
-			else {
-				namespace = header;
-				header = "";
-			}
-			this.hBlock = new CodeBlock("namespace " + namespace);
-		}
-		else
-			this.hBlock = new CodeBlock("Something has gone wrong");
-		hPrintQueue.add(this.hBlock);
-		*/
-		while (header.compareTo("") != 0) {
-			if (header.indexOf('.') != -1) {
-				namespace = header.substring(0, header.indexOf('.'));
-				header = header.substring(header.indexOf('.') + 1, header.length());
-			}
-			else {
-				namespace = header;
-				header = "";
-			}
-			if (!(this.hBlock instanceof CodeBlock)) {
-				this.hBlock = new CodeBlock("namespace " + namespace);
-				hPrintQueue.add(this.hBlock);
-			}
+	protected final CodeBlock setupBlock(ArrayList<CodeBlock> q, String namespace) {
+		CodeBlock parentBlock = null;
+		CodeBlock block = null;
+		int index;
+		
+		do {
+			index = namespace.indexOf('.');
+			
+			String name = "namespace ";
+			if (index == -1)
+				name += namespace;
 			else
-				this.hBlock = this.hBlock.block("namespace " + namespace);
-		}
-		if (!(this.hBlock instanceof CodeBlock))
-			this.hBlock = new CodeBlock("Something has gone wrong");
-		//return this.hBlock;
-	}
-
-	/**
-	 * Prepare the prototype block for use.
-	 * Yes, this is very similar(identical) to the header block
-	 * but I couldn't use instanceof on a temporary code block.
-	 * May change in the future.
- 	 */
-	protected final void setupProtoBlock(String header) {
-		String namespace;
-		/*if (header.compareTo("") != 0) {
-			if (header.indexOf('.') != -1) {
-				namespace = header.substring(0, header.indexOf('.'));
-				header = header.substring(header.indexOf('.') + 1, header.length());
-			}
-			else {
-				namespace = header;
-				header = "";
-			}
-			headerBlock = new CodeBlock("namespace " + namespace);
-		}
-		else
-			headerBlock = new CodeBlock("Something has gone wrong");
-		*/
-		while (header.compareTo("") != 0) {
-			if (header.indexOf('.') != -1) {
-				namespace = header.substring(0, header.indexOf('.'));
-				header = header.substring(header.indexOf('.') + 1, header.length());
-			}
-			else {
-				namespace = header;
-				header = "";
-			}
-			if (!(this.protoBlock instanceof CodeBlock)) {
-				this.protoBlock = new CodeBlock("namespace " + namespace);
-				hProtoQueue.add(this.protoBlock);
-			}
+			 	name += namespace.substring(0, index);
+			
+			if (block == null)
+				block = parentBlock = new CodeBlock(name);
 			else
-				this.protoBlock = this.protoBlock.block("namespace " + namespace);
-		}
-		if (!(this.protoBlock instanceof CodeBlock))
-			this.protoBlock = new CodeBlock("Something has gone wrong");
-		//return this.protoBlock;
+				block = block.block(name);
+			
+			namespace = namespace.substring(index + 1); 
+		} while (index > 0);
+		
+		q.add(parentBlock);
+		
+		return block;
 	}
 
 	/**
@@ -412,20 +282,6 @@ abstract class JavaScope extends Visitor {
 	 */
 	protected final void setupCppBlock(String header) {
 		String namespace;
-		/*if (header.compareTo("") != 0) {
-			if (header.indexOf('.') != -1) {
-				namespace = header.substring(0, header.indexOf('.'));
-				header = header.substring(header.indexOf('.') + 1, header.length());
-			}
-			else {
-				namespace = header;
-				header = "";
-			}
-			headerBlock = new CodeBlock("namespace " + namespace);
-		}
-		else
-			headerBlock = new CodeBlock("Something has gone wrong");
-		*/
 		while (header.compareTo("") != 0) {
 			if (header.indexOf('.') != -1) {
 				namespace = header.substring(0, header.indexOf('.'));

@@ -221,7 +221,7 @@ class JavaPackages {
 		for (String f : this.files.keySet()) {
 			System.out.println("JavaPackges File: " + f + " -- " + this.files.get(f).getName());
 		}
-		*/
+		//*/
 	}
 	
 	/**
@@ -256,8 +256,15 @@ class JavaPackages {
 		try {
 			Scanner file = new Scanner(JavaStatic.runtime.locate(f));
 			
-			while (file.hasNextLine())
-				printer.pln(file.nextLine());
+			while (file.hasNextLine()) {
+				String line = file.nextLine();
+				
+				if (line.startsWith("#include")) {
+					printer.b_pln(line);
+				} else {
+					printer.pln(line);
+				}
+			}
 		} catch (FileNotFoundException e) { } //doesn't matter if we couldn't find the file, maybe they just didn't want to have it
 	}
 	

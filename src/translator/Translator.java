@@ -85,6 +85,12 @@ public class Translator extends Tool {
 		//setup our output file
 		JavaStatic.cpp = CodePrinter.factory("cpp");
 		JavaStatic.h = CodePrinter.factory("h");
+		
+		JavaStatic.h.pln("#include <stdint.h>");
+		
+		JavaStatic.cpp.pln("#include \"" + JavaStatic.h.getBaseName() + "\"");
+		
+		JavaStatic.pkgs.importFile("java.lang.Class").activate();
 	}
 	
 	public void wrapUp() {

@@ -3,6 +3,7 @@ package translator;
 import xtc.Constants;
 import xtc.tree.Printer;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.io.BufferedWriter;
@@ -21,10 +22,22 @@ class CodePrinter extends Printer {
 	private static OutputStreamWriter systemOutWriter;
 
 	/**
+	 * The full path to the file, including the name.
+	 */
+	private String filePath;
+	
+	/**
+	 * The name of the file we are writing to.
+	 */
+	private String fileName;
+
+	/**
 	 * This is not too important, because we're extending printer, but only allow construct from the factory method.
 	 */
-	private CodePrinter(Writer w) {
+	private CodePrinter(Writer w, String fileName) {
 		super(w);
+		this.filePath = fileName;
+		this.fileName = new File(fileName).getName();
 	}
 
 	/**
@@ -61,8 +74,25 @@ class CodePrinter extends Printer {
 		}
 		
 		//set our printer to our writer
-		return new CodePrinter(writer);
+		return new CodePrinter(writer, name);
 	}
+	
+	public String getBaseName() {
+		return this.fileName;
+	}
+	
+	/**
+	 * Prints a line to the beginning of the file. (Useful for #includes)
+	 */
+	public CodePrinter b_pln(String l) {
+		long line = this.line();
+		
+		this.line(1);
+		this.pln(l);
+		this.line(line + 1);
+		return this;
+	}
+	
 	
 	/**
 	 * Given a block, adds it to the output.

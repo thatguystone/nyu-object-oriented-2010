@@ -16,26 +16,12 @@ class ExpCastExpression extends JavaExpression {
 
 	int dimensions = 0;
 
-	/**
-	 * More primitives! I should make these global....
-	 */
-	private static ArrayList<String> primitives;
-
 	ExpCastExpression(JavaScope parent, Node n) {
 		setPrimitives();
 		this.node = n;
 		this.setScope(parent);
 		this.setup();
 		this.visit(this.node);
-	}
-
-	private static void setPrimitives() {
-		if (!(primitives instanceof ArrayList)) {
-			primitives = new ArrayList<String>();
-			String[] p = {"byte", "short", "int", "long", "float", "double", "char", "boolean"};
-			for(int i = 0; i < 8; i++)
-				primitives.add(p[i]);
-		}
 	}
 
 	public JavaClass getType() {
@@ -57,7 +43,7 @@ class ExpCastExpression extends JavaExpression {
 
 	public String printMe() {
 		if (this.isClassCast)
-			return "((" + this.getCppScope(this.getScope(), cls) + ")" + this.myExpressions.get(0).printMe() + ")";
+			return "((" + this.getCppReferenceScope(cls) + ")" + this.myExpressions.get(0).printMe() + ")";
 		return "((" + cast + ")" + this.myExpressions.get(0).printMe() + ")";
 	}
 
