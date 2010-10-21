@@ -310,7 +310,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		;
 
 					for (JavaField fld : this.fields.values())
-						block.pln(fld.printDec());
+						block.pln((fld.isStatic()? "static ":"") + fld.printDec());
 					block.pln();
 		
 					//now, dump out all of our virtual
