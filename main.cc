@@ -30,8 +30,8 @@ int main(void) {
   __JavaArray<int32_t>* a = new __JavaArray<int32_t>(3, 5, 6, 7);
   std::cout << get(a, 1, 1, 1) << std::endl;
   set(a,3,1,1,1);
-  std::cout << get(a, 1, 1, 1) << std::endl;
-  checkIndex(a, 1, 1, 1);
+  std::cout << get(a, 5, 1, 1) << std::endl;
+  //checkIndex(a, 1, 1, 1);
   
   //std::cout << "a[2]  : " << a->__data[2] << std::endl;
 

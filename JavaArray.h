@@ -177,15 +177,26 @@ namespace java {
 			// used for variable length arguments
 			va_list args; 
 			va_start(args, value);
+			
+			// get a copy of the parameters
+			vector<int32_t> parameters;
+			vector<int32_t>::iterator it;
+			for (it = __this->lengths.begin(); it < __this->lengths.end(); it++) {
+				parameters.push_back(va_arg(args, int32_t));
+			}
+			
+			// check out of bounds
+			checkIndex(__this, parameters);
 	
 			// variables used for calculating dimension conversion
 			int32_t offset = __this->lengths.size() - 1;	
+			int32_t end = parameters.size() - 1;
 			int32_t converted = __this->lengths.at(offset);
 			int32_t dim;
 			
 			// using offset conversion, set the array at an index(indices)
 			while(turn < offset) {
-				dim = va_arg(args, int32_t);
+				dim = parameters.at(end);
 				if (turn == 0)
 					element += (dim + 1) * 1;
 				else
@@ -195,6 +206,7 @@ namespace java {
 				offset--;
 				converted *= __this->lengths.at(offset);
 				turn++;
+				end--;
 			}
 			__this->__data[element] = value;
 		}
@@ -221,15 +233,26 @@ namespace java {
 			// used for variable length arguments
 			va_list args; 
 			va_start(args, __this);
+			
+			// get a copy of the parameters
+			vector<int32_t> parameters;
+			vector<int32_t>::iterator it;
+			for (it = __this->lengths.begin(); it < __this->lengths.end(); it++) {
+				parameters.push_back(va_arg(args, int32_t));
+			}
+			
+			// check out of bounds
+			checkIndex(__this, parameters);
 	
 			// variables used for calculating dimension conversion
 			int32_t offset = __this->lengths.size() - 1;	
+			int32_t end = parameters.size() - 1;
 			int32_t converted = __this->lengths.at(offset);
 			int32_t dim;
 			
 			// using offset conversion, set the array at an index(indices)
 			while(turn < offset) {
-				dim = va_arg(args, int32_t);
+				dim = parameters.at(end);
 				if (turn == 0)
 					element += (dim + 1) * 1;
 				else
@@ -239,6 +262,7 @@ namespace java {
 				offset--;
 				converted *= __this->lengths.at(offset);
 				turn++;
+				end--;
 			}
 			return __this->__data[element];
 		}
@@ -247,20 +271,19 @@ namespace java {
 		 * Template function to check if an index is out of bounds
 		 */
 		template <typename T>
-	      	static void checkIndex(__JavaArray<T>* __this, ...) {
+	      	static void checkIndex(__JavaArray<T>* __this, vector<int32_t> parameters) {
 	        	
-	        	// used for variable length arguments
-			va_list args; 
-			va_start(args, __this);
       			int32_t length;
-      			
-	        	// check the index(indices) against our vector of lenghts
+			int32_t i = 0;
+	      			
+	        	// check the index(indices) against our vector of lengths
 	        	vector<int32_t>::iterator it;
-			for (it=__this->lengths.end() - 1; it >= __this->lengths.begin(); it--) {
-				length = va_arg(args, int32_t);
+			for (it= __this->lengths.begin(); it < __this->lengths.end(); it++){
+				length = parameters.at(i);
 				if (0 > length || length >= *it) {
 	          			throw ArrayIndexOutOfBoundsException();
 	        		}	
+	        		i++;
 			}
 	      	}
     
