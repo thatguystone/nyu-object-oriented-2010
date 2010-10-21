@@ -14,7 +14,7 @@ class ExpnewArrayExpression extends JavaExpression {
 	ExpnewArrayExpression(JavaScope parent, Node n) {
 		this.node = n;
 		this.setScope(parent);
-		type = (String)n.get(0);
+		//type = (String)n.get(0);
 		this.visit(this.node);
 	}
 
@@ -25,5 +25,12 @@ class ExpnewArrayExpression extends JavaExpression {
 		}
 	}
 
-	public String printMe() {return null;};
+	public String printMe() {
+		int size = myExpressions.size();
+		String temp = " = new JavaArray(" + size;
+		for (int i = 0; i < myExpressions.size(); i++)
+			temp +=", " + myExpressions.get(i).printMe();
+	
+		return temp + ");";
+	};
 }

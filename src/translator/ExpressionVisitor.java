@@ -75,7 +75,7 @@ abstract class ExpressionVisitor extends JavaScope {
 		myExpressions.add(new ExpArrayInitializer(this, n));
 	}
 
-	public void visitnewArrayExpression(GNode n) {
+	public void visitNewArrayExpression(GNode n) {
 		myExpressions.add(new ExpnewArrayExpression(this, n));
 	}
 

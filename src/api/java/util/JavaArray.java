@@ -22,5 +22,5 @@ public class Array<T> {
 	/**
 	* Checks if types are compatible with Array type (objects only)
 	*/
-	public native void checkArrayStore(T object);
+	public native void checkType(T object);
 }
