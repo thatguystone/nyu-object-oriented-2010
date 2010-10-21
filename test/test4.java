@@ -6,11 +6,11 @@ public class test4 {
 			while (i%10 != i/10) {
 				if ((i%2) == 1) {
 					System.out.print(i);
-					System.out.println(" is even");
+					System.out.println(" is odd");
 				}
 				else {
 					System.out.print(i);
-					System.out.println(" is odd");
+					System.out.println(" is even");
 				}
 				i = i+1;
 			}
