@@ -139,10 +139,18 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	 * Call this when you need to print the declaration
 	 */
 	public String printMe() {
+		if (this.dimensions > 0)
+			return printMeArray();
 		if (hasExpression()) {
 			return this.printpDec(false) + " = " + assignment.printMe() + ";"; 
 		}
 		return this.printpDec();
+	}
+	
+	public String printMeArray() {
+		if (isObject)
+			return "JavaArray<" + this.getCppReferenceScope(this.getCls()) + ">* " + this.name + (assignment==null?"":assignment.printMe());
+		return "JavaArray<" + this.type + ">* " + this.name + (assignment==null?"":assignment.printMe());
 	}
 
 	/**
