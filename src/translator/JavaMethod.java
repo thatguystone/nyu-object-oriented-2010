@@ -81,12 +81,17 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 		this.setup(n);
 		this.dispatch(n);
 		
-		if (this.name.equals("main"))
+		if (this.name.equals("main")) {
+			this.parameters.clear();
 			JavaClass.mainMethod = this;
+		}
 	}
 	
 	public void process() {
 		this.dispatch(this.node);
+		if (this.name.equals("main")) {
+			this.parameters.clear();
+		}
 	}
 
 	/**

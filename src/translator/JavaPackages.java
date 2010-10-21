@@ -213,17 +213,19 @@ class JavaPackages {
 	 * Stuff to execute when we're done translating.
 	 */
 	public void wrapUp() {
-		JavaClass cls = JavaClass.mainMethod.getParent();
+		if (JavaClass.mainMethod instanceof JavaMethod) {
+			JavaClass cls = JavaClass.mainMethod.getParent();
 		
-		CodeBlock block = new CodeBlock("int main()");
-		block
-			.pln(cls.getCppReferenceScope(cls, true) + "::main();")
-			.pln()
-			.pln("return 0;")
-		.close()
-		;
+			CodeBlock block = new CodeBlock("int main()");
+			block
+				.pln(cls.getCppReferenceScope(cls, true) + "::main();")
+				.pln()
+				.pln("return 0;")
+			.close()
+			;
 		
-		JavaStatic.cpp.print(block);
+			JavaStatic.cpp.print(block);
+		}
 	}
 	
 	/**

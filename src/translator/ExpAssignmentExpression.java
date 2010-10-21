@@ -24,6 +24,22 @@ class ExpAssignmentExpression extends JavaExpression {
 	}
 
 	public String printMe() {
-		return first.printMe() + this.operator + second.printMe();
+		String ret = "";
+		if (this.getScope().getCls().getField(first.printMe()) != null)
+			ret += "__this->";
+		
+		ret += first.printMe();
+		
+		ret += this.operator;
+		
+		//this is going to need to be updated to take into account local assignment overriding parent / class assignment.
+		if (this.getScope().getField(second.printMe()) == null) {
+			if (this.getScope().getCls().getField(second.printMe()) != null)
+				ret += "__this->";
+		}
+		
+		ret += second.printMe();
+		
+		return ret;
 	}
 }
