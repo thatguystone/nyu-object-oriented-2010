@@ -10,6 +10,7 @@ class test {
 	
 	public String ret() {
 		n = 2;
+		this.n = this.n + 2;
 		return "Hey sexy.";
 	}
 	
@@ -40,10 +41,18 @@ class test {
 	public static int staticSomethingReturnWith5Args(int a, int b, int c, int d, int e) {
 		return (a * b) + c + d + e;
 	}
+	
+	public static void printM() {
+		System.out.println(m);
+	}
+	
+	public void printN() {
+		System.out.println(n);
+	}
 }
 
 public class helloWorld {
-	public static void main() {
+	public static void main(String[] args) {
 		helloWorld h = new helloWorld();
 		int i;
 		int x = 1;
@@ -83,6 +92,12 @@ public class helloWorld {
 		//t.test();
 		System.out.println(t.ret());
 		System.out.println(t.intRet());
+		
+		System.out.print("n from test: ");
+		t.printN();
+		
+		System.out.print("m from test: ");
+		test.printM();
 		
 		System.out.println(t.passArg(1));
 	}

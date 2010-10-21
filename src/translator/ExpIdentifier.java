@@ -65,15 +65,27 @@ class ExpIdentifier extends JavaExpression {
 	
 	public String printMe(boolean forStaticFunctionCall) {
 		if (!forStaticFunctionCall) {
-			if (this.isClass())
+			if (this.isClass()) {
 				return this.getCppReferenceScope(this.getScope().getFile().getImport(value));
-			else
-				return value;
+			} else {
+				String ret = "";
+				if (this.getScope().getField(value) == null) {
+					ret += "__this->";
+				}
+					
+				return ret + value;
+			}
 		} else {
-			if (this.getScope().getField(value) != null)
-				return value;
-			else
+			if (this.getScope().getField(value) != null) {
+				String ret = "";
+				if (this.getScope().getField(value) == null) {
+					ret += "__this->";
+				}
+					
+				return ret + value;
+			} else {
 				return this.getCppReferenceScope(this.getScope().getFile().getImport(value), true);
+			}
 		}
 	}
 }

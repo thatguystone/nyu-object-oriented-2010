@@ -110,10 +110,17 @@ class ExpCallExpression extends JavaExpression {
 				temp += ", "; 
 			
 			if (myExpressions.size() > 1) {
+				JavaField feld = this.getScope().getCls().getField(myExpressions.get(1).printMe());
+				if (feld != null && !feld.isStatic())
+					temp += "__this->";
+				
 				temp += myExpressions.get(1).printMe();
 			}
 			
 			for (int i = 2; i <= myExpressions.size() - 1; i++) {
+				JavaField feld = this.getScope().getCls().getField(myExpressions.get(1).printMe());
+				if (feld != null && !feld.isStatic())
+					temp += "__this->";
 				temp += ", " + myExpressions.get(i).printMe();
 			}
 		} else {
@@ -122,11 +129,21 @@ class ExpCallExpression extends JavaExpression {
 			if (!this.isStatic && myExpressions.size() > 1)
 				temp += ", "; 
 			
-			if (myExpressions.size() > 1)
+			if (myExpressions.size() > 1) {
+				JavaField feld = this.getScope().getCls().getField(myExpressions.get(1).printMe());
+				if (feld != null && !feld.isStatic())
+					temp += "__this->";
+				
 				temp += myExpressions.get(1).printMe();
+			}
 
-			for (int i = 2; i <= myExpressions.size() - 1; i++)
+			for (int i = 2; i <= myExpressions.size() - 1; i++) {
+				JavaField feld = this.getScope().getCls().getField(myExpressions.get(1).printMe());
+				if (feld != null && !feld.isStatic())
+					temp += "__this->";
+					
 				temp += ", " + myExpressions.get(i).printMe();
+			}
 		}
 		
 		return temp + ")";
