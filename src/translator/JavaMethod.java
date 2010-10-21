@@ -102,7 +102,11 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 	private void setProperties(GNode n) {
 		this.name = n.get(3).toString();
 		
-		this.isConstructor = (this.name == this.parent.getName());
+		this.isConstructor = n.getName().equals("ConstructorDeclaration");
+		if (this.isConstructor) {
+			this.name = n.get(2).toString();
+			this.returnType = "";	
+		}
 	}
 
 	/**
@@ -223,12 +227,16 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 	 * Find and return the C type value.
 	 */
 	public String getCReturnType() {
-		String type;
+		String type = "";
+		if (!isConstructor) {
+			if (primitives.containsKey(this.returnType))
+				type = primitives.get(this.returnType);
+			else
+				type = this.getCppReferenceScope(this.getFile().getImport(this.returnType));
+		}
 		
-		if (primitives.containsKey(this.returnType))
-			type = primitives.get(this.returnType);
-		else
-			type = this.getCppReferenceScope(this.getFile().getImport(this.returnType));
+		if (this.isConstructor)
+			type = "";
 		
 		return type;
 	}
@@ -245,11 +253,14 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 	 */
 	public String getParameters() {
 		String temp = "";
-		if (!this.isStatic())
+		if (!this.isStatic() && !this.isConstructor())
 			temp = this.getCppReferenceScope(this.getParent()) + " __this";
 		
 		for (JavaField fld : this.parameters.values())
 			temp = temp + ", " + fld.printpDec(false);
+			
+		if(this.isConstructor() && temp.length() > 0)
+			temp = temp.substring(1);
 		
 		return temp;
 	}
@@ -297,7 +308,8 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 		if (this.codeBlock != null) {
 			return this.codeBlock.printBlock(block,
 				this.getCReturnType()  + " __" +
-				this.getParent().getName(false) + "::" + this.getName() + "(" + this.getParameters() + ")"
+				this.getParent().getName(false) + "::" + (this.isConstructor()?"__":"") + this.getName() + "(" + this.getParameters() + ")" +
+				(this.isConstructor()?" : __vptr(&__vtable)":"")
 			);
 		}
 		

@@ -1,5 +1,11 @@
 class test {
-	public void test() {
+
+	public static int m = 1;
+	
+	public String ss = "hi";	
+		
+	
+	test() {
 		System.out.println("Hello from Mr. Test");
 	}
 	
@@ -48,7 +54,7 @@ public class helloWorld {
 		System.out.println("hello world");
 		
 		test t = new test();
-		t.test();
+		//t.test();
 		System.out.println(t.ret());
 		System.out.println(t.intRet());
 		

@@ -72,13 +72,20 @@ namespace java {
 
 namespace java {
 	namespace lang {
+		struct __String;
+		struct __String_VT;
+		
+		typedef __String* String;
+	};
+
+};
+
+namespace java {
+	namespace lang {
 		struct __Class {
 			__Class_VT* __vptr;
 			
-			__Class() :
-				__vptr(&__vtable) {
-			};
-
+			__Class( std::string name, java::lang::Class parent, bool prim);
 			static java::lang::Class __class();
 			std::string name;
 			java::lang::Class parent;
@@ -98,10 +105,7 @@ namespace defaultPkg {
 	struct __helloWorld {
 		__helloWorld_VT* __vptr;
 		
-		__helloWorld() :
-			__vptr(&__vtable) {
-		};
-
+		__helloWorld() : __vptr(&__vtable) {};
 		static java::lang::Class __class();
 		
 		static void hello(defaultPkg::helloWorld);
@@ -117,13 +121,11 @@ namespace defaultPkg {
 	struct __test {
 		__test_VT* __vptr;
 		
-		__test() :
-			__vptr(&__vtable) {
-		};
-
+		__test();
 		static java::lang::Class __class();
+		static int32_t m;
+		std::string ss;
 		
-		static void test(defaultPkg::test);
 		static std::string ret(defaultPkg::test);
 		static int32_t intRet(defaultPkg::test);
 		static int32_t passArg(defaultPkg::test, int32_t);
@@ -139,10 +141,7 @@ namespace java {
 		struct __VMManager {
 			__VMManager_VT* __vptr;
 			
-			__VMManager() :
-				__vptr(&__vtable) {
-			};
-
+			__VMManager() : __vptr(&__vtable) {};
 			static java::lang::Class __class();
 			
 			static java::lang::Class getClassNative(java::lang::Object);
@@ -161,10 +160,7 @@ namespace java {
 		struct __Object {
 			__Object_VT* __vptr;
 			
-			__Object() :
-				__vptr(&__vtable) {
-			};
-
+			__Object() : __vptr(&__vtable) {};
 			static java::lang::Class __class();
 			
 			static java::lang::Class getClass(java::lang::Object);
@@ -174,6 +170,23 @@ namespace java {
 			
 			private:
 			static __Object_VT __vtable;
+		};
+
+	};
+
+};
+
+namespace java {
+	namespace lang {
+		struct __String {
+			__String_VT* __vptr;
+			
+			__String() : __vptr(&__vtable) {};
+			static java::lang::Class __class();
+			
+			
+			private:
+			static __String_VT __vtable;
 		};
 
 	};
@@ -234,7 +247,6 @@ namespace defaultPkg {
 		int32_t (*hashCode)(defaultPkg::test);
 		bool (*equals)(defaultPkg::test, java::lang::Object);
 		std::string (*toString)(defaultPkg::test);
-		void (*test)(defaultPkg::test);
 		std::string (*ret)(defaultPkg::test);
 		int32_t (*intRet)(defaultPkg::test);
 		int32_t (*passArg)(defaultPkg::test, int32_t);
@@ -245,7 +257,6 @@ namespace defaultPkg {
 			hashCode((int32_t(*)(defaultPkg::test))&java::lang::__Object::hashCode),
 			equals((bool(*)(defaultPkg::test, java::lang::Object))&java::lang::__Object::equals),
 			toString((std::string(*)(defaultPkg::test))&java::lang::__Object::toString),
-			test(&__test::test),
 			ret(&__test::ret),
 			intRet(&__test::intRet),
 			passArg(&__test::passArg) {
@@ -297,6 +308,29 @@ namespace java {
 				hashCode(&__Object::hashCode),
 				equals(&__Object::equals),
 				toString(&__Object::toString) {
+			};
+
+		};
+
+	};
+
+};
+
+namespace java {
+	namespace lang {
+		struct __String_VT {
+			java::lang::Class __isa;
+			java::lang::Class (*getClass)(java::lang::String);
+			int32_t (*hashCode)(java::lang::String);
+			bool (*equals)(java::lang::String, java::lang::Object);
+			std::string (*toString)(java::lang::String);
+			
+			__String_VT() :
+				__isa(__String::__class()),
+				getClass((java::lang::Class(*)(java::lang::String))&java::lang::__Object::getClass),
+				hashCode((int32_t(*)(java::lang::String))&java::lang::__Object::hashCode),
+				equals((bool(*)(java::lang::String, java::lang::Object))&java::lang::__Object::equals),
+				toString((std::string(*)(java::lang::String))&java::lang::__Object::toString) {
 			};
 
 		};
