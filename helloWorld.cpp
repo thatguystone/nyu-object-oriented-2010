@@ -46,12 +46,49 @@ namespace java {
 };
 
 namespace defaultPkg {
+	 __test3::__test3() : __vptr(&__vtable) {
+		this->x = 3;
+	};
+
+	void __test3::willIWork(defaultPkg::test3 __this) {
+		java::lang::__System::out->println(__this->__vptr->getVal(__this));
+	};
+
+	java::lang::Class __test3::__class() {
+		static java::lang::Class k = new java::lang::__Class("default.test3", NULL, 0);;
+		return k;
+	};
+
+	__test3_VT __test3::__vtable;
+};
+
+namespace defaultPkg {
+	 __test2::__test2() : __vptr(&__vtable) {
+	};
+
+	int32_t __test2::getVal(defaultPkg::test2 __this) {
+		return 35463;
+	};
+
+	java::lang::Class __test2::__class() {
+		static java::lang::Class k = new java::lang::__Class("default.test2", NULL, 0);;
+		return k;
+	};
+
+	__test2_VT __test2::__vtable;
+};
+
+namespace defaultPkg {
 	void __helloWorld::hello(defaultPkg::helloWorld __this) {
 		java::lang::Class cls = __this->__vptr->getClass(__this);
 		java::lang::__System::out->println("hello world");
 		defaultPkg::test t = new defaultPkg::__test();
 		java::lang::__System::out->println(t->__vptr->ret(t));
 		java::lang::__System::out->println(t->__vptr->intRet(t));
+		java::lang::__System::out->print("n from test: ");
+		t->__vptr->printN(t);
+		java::lang::__System::out->print("m from test: ");
+		defaultPkg::__test::printM();
 		java::lang::__System::out->println(t->__vptr->passArg(t, 1));
 	};
 
@@ -69,6 +106,9 @@ namespace defaultPkg {
 
 		};
 
+		defaultPkg::test2 d = new defaultPkg::__test2();
+		defaultPkg::test3 e = new defaultPkg::__test3();
+		e->__vptr->willIWork(e);
 		bool hh = true;
 		if(hh) {
 			java::lang::__System::out->println("IF STATEMENT!");
@@ -83,6 +123,11 @@ namespace defaultPkg {
 
 		java::lang::__System::out->println(x);
 		h->__vptr->hello(h);
+		defaultPkg::__test::staticSomething();
+		defaultPkg::__test::staticSomethingWithArgs('a');
+		java::lang::__System::out->println(defaultPkg::__test::staticSomethingReturnWithArgs('b'));
+		java::lang::__System::out->println(defaultPkg::__test::staticSomethingReturnWith2Args(1, 2));
+		java::lang::__System::out->println(defaultPkg::__test::staticSomethingReturnWith5Args(1, 2, 4, 5, 6));
 	};
 
 	java::lang::Class __helloWorld::__class() {
@@ -101,6 +146,8 @@ namespace defaultPkg {
 	};
 
 	std::string __test::ret(defaultPkg::test __this) {
+		__this->n=2;
+		__this->n=(__this->n+2);
 		return "Hey sexy.";
 	};
 
@@ -110,6 +157,34 @@ namespace defaultPkg {
 
 	int32_t __test::passArg(defaultPkg::test __this, int32_t i) {
 		return i;
+	};
+
+	void __test::printN(defaultPkg::test __this) {
+		java::lang::__System::out->println(__this->n);
+	};
+
+	void __test::staticSomething() {
+		java::lang::__System::out->println("Call from static!");
+	};
+
+	void __test::staticSomethingWithArgs(char a) {
+		java::lang::__System::out->println(a);
+	};
+
+	char __test::staticSomethingReturnWithArgs(char a) {
+		return a;
+	};
+
+	int32_t __test::staticSomethingReturnWith2Args(int32_t a, int32_t b) {
+		return (a+b);
+	};
+
+	int32_t __test::staticSomethingReturnWith5Args(int32_t a, int32_t b, int32_t c, int32_t d, int32_t e) {
+		return ((((a*b)+c)+d)+e);
+	};
+
+	void __test::printM() {
+		java::lang::__System::out->println(m);
 	};
 
 	java::lang::Class __test::__class() {
