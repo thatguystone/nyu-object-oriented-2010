@@ -24,6 +24,19 @@ class ExpAssignmentExpression extends JavaExpression {
 	}
 
 	public String printMe() {
-		return first.printMe() + this.operator + second.printMe();
+		String ret = "";
+		if (this.getScope().getCls().getField(first.printMe()) != null)
+			ret += "__this->";
+		
+		ret += first.printMe();
+		
+		ret += this.operator;
+		
+		if (this.getScope().getCls().getField(second.printMe()) != null)
+			ret += "__this->";
+		
+		ret += second.printMe();
+		
+		return ret;
 	}
 }

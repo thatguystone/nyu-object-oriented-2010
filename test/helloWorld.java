@@ -1,11 +1,13 @@
 class test {
 	public static int m = 1;
+	public int n;
 
 	test() {
 		System.out.println("Hello from Mr. Test");
 	}
 	
 	public String ret() {
+		n = 2;
 		return "Hey sexy.";
 	}
 	
