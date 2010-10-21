@@ -157,7 +157,12 @@ abstract class JavaScope extends Visitor {
 			primitives.put("double", "double");
 			primitives.put("boolean", "bool");
 			primitives.put("void", "void");
+			primitives.put("String", "std::string");
 		}
+	}
+
+	public String getCppReferenceScope(JavaScope refrencedLocation) {
+		return this.getCppReferenceScope(refrencedLocation, false);
 	}
 
 	/**
@@ -165,7 +170,7 @@ abstract class JavaScope extends Visitor {
 	 * For example ClassB myB; in PackageA.ClassA with PackageB.ClassB
 	 * will become PackageB::ClassB myB;.
 	 */
-	public String getCppReferenceScope(JavaScope refrencedLocation) {
+	public String getCppReferenceScope(JavaScope refrencedLocation, boolean withDoubleUnderscore) {
 		String scopeString = "";
 		String remaining = refrencedLocation.getScopeString();
 		
@@ -173,7 +178,7 @@ abstract class JavaScope extends Visitor {
 			int i = remaining.indexOf(".");
 			
 			if (i == -1) {
-				scopeString += remaining;
+				scopeString += (withDoubleUnderscore ? "__" : "") + remaining;
 				remaining = "";
 			} else {
 				scopeString += remaining.substring(0, i) + "::";

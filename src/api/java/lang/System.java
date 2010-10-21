@@ -1,5 +1,6 @@
 package java.lang;
 
 public class System {
-	public static native void println();
+	//just tip off our native include guy
+	public static native void nothing();
 }

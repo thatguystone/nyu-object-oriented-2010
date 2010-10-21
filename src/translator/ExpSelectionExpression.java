@@ -50,10 +50,26 @@ class ExpSelectionExpression extends JavaExpression {
 	public boolean isClass() {
 		return true;
 	}
-
+	
 	public String printMe() {
-		if (myExpressions.size() > 0)
-			return expression.printMe() + "::" + (String)this.node.get(1);
+		if (myExpressions.size() > 0) {
+			String ret;
+			
+			//are we looking at a reference to something defined or a static
+			if (this.getScope().getField((String)this.node.get(1)) == null) {
+				if (expression instanceof ExpIdentifier)
+					ret = ((ExpIdentifier)expression).printMe(true);
+				else
+					ret = expression.printMe();
+				
+				ret += "::";
+			} else {
+				ret = expression.printMe();
+				ret += "->";
+			}
+
+			return ret + (String)this.node.get(1);
+		}
 		return "I hate my life";
 	}
 }

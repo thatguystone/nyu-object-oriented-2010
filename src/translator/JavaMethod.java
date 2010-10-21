@@ -51,6 +51,11 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 	 * If we are looking at a native method.
 	 */
 	private boolean isNative = false;
+	
+	/**
+	 * Sets things as static.
+	 */
+	private boolean isStatic = false;
 
 	/**
 	 * This method's code block.
@@ -75,6 +80,9 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 		this.setFile(parent.getFile());
 		this.setup(n);
 		this.dispatch(n);
+		
+		if (this.name.equals("main"))
+			JavaClass.mainMethod = this;
 	}
 	
 	public void process() {
@@ -190,10 +198,25 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 	}
 	
 	/**
+	 * Set the method as static.
+	 */
+	private void setStatic() {
+		this.notVirtual();
+		this.isStatic = true;
+	}
+	
+	/**
 	 * Test if this is a native method.
 	 */
 	public boolean isNative() {
 		return this.isNative;
+	}
+	
+	/**
+	 * Test if this is a static method.
+	 */
+	public boolean isStatic() {
+		return this.isStatic;
 	}
 	
 	/**
@@ -221,9 +244,13 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 	 * Get the method's parameters for printing.
 	 */
 	public String getParameters() {
-		String temp = this.getParent().getName(false) + " __this";
+		String temp = "";
+		if (!this.isStatic())
+			temp = this.getCppReferenceScope(this.getParent()) + " __this";
+		
 		for (JavaField fld : this.parameters.values())
-			temp = temp + ", " + fld.printDec();
+			temp = temp + ", " + fld.printpDec(false);
+		
 		return temp;
 	}
 
@@ -231,16 +258,21 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 	 * Get only the types of the parameters for printing.
 	 */
 	public String getParameterTypes() {
-		String temp = this.getParent().getName(false);
-		for (JavaField fld : this.parameters.values())
-			temp = temp + ", " + fld.printFullType();
-		return temp;
+		return this.getParameterTypes(this.getParent());
 	}
 
 	public String getParameterTypes(JavaClass cls) {
-		String temp = cls.getName(false);
+		String temp = "";
+		if (!this.isStatic())
+			temp = this.getCppReferenceScope(cls, false);
+		
 		for (JavaField fld : this.parameters.values())
-			temp = temp + ", " + fld.printFullType(cls);
+			temp = temp + ", " + fld.printFullType();
+		
+		//remove the extra ", " if we're static
+		if (this.isStatic() && temp.length() > 0)
+			temp = temp.substring(2);
+		
 		return temp;
 	}
 
@@ -262,8 +294,13 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 	 * Print out the translation. printImplementation() is not in use.
 	 */
 	public CodeBlock getMethodBlock(CodeBlock block) {
-		if (this.codeBlock != null)
-			return this.codeBlock.printBlock(block, this.getCReturnType()  + " " + this.getParent().getName(false) + "::" + this.getName() + "(" + this.getParameters() + ")");
+		if (this.codeBlock != null) {
+			return this.codeBlock.printBlock(block,
+				this.getCReturnType()  + " __" +
+				this.getParent().getName(false) + "::" + this.getName() + "(" + this.getParameters() + ")"
+			);
+		}
+		
 		return null;
 	}
 	
@@ -331,8 +368,11 @@ class JavaMethod extends ActivatableVisitor implements Nameable {
 			String modifier = ((GNode)n.get(i)).get(0).toString();
 			
 			//surely there is a better way to do this...
-			if (modifier == "private" || modifier == "static")
+			if (modifier == "private")
 				this.notVirtual();
+			
+			if (modifier == "static")
+				this.setStatic();
 			
 			if (modifier == "native")
 				this.setNative();

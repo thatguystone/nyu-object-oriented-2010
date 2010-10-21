@@ -8,10 +8,6 @@ import xtc.tree.GNode;
 import xtc.tree.Visitor;
 
 class ExpCallExpression extends JavaExpression {
-
-	/**
-	 * Name of the variable calling this method, null means no caller or this
-	 */
 	String methName = null;
 
 	boolean hasCallee = false;
@@ -39,20 +35,22 @@ class ExpCallExpression extends JavaExpression {
 	private void preparePrint() {
 		if (!(prepared)) {
 			this.methName = this.node.get(2).toString();
+			
 			if (this.node.get(0) != null) {
-				hasCallee = true;
-				caller = myExpressions.get(0);
+				this.caller = myExpressions.get(0);
 				this.type = caller.getType();
-				System.out.print(methName + " ");
+				
+				this.hasCallee = true;
+				
 				this.isStatic = caller.isStatic();
 				this.isClass = caller.isClass();
+				
 				//should never be null, but is.
 				if (this.type.getMeth(methName) != null) {
 					System.out.println("correct");
 					this.isVirtual = this.type.getMeth(methName).isVirtual();
-				}
-				else {
-					System.out.println("broken");
+				} else {
+					System.out.println(methName + " ---- broken");
 					this.isVirtual = false;
 				}
 			}
@@ -84,38 +82,45 @@ class ExpCallExpression extends JavaExpression {
 		this.preparePrint();
 		String temp = "";
 
-		if (this.hasCallee)
-			temp = temp + myExpressions.get(0).printMe();
-		else
-			temp = temp + "__this";
+		if (this.hasCallee) {
+			JavaExpression e = myExpressions.get(0);
+			if (e instanceof ExpIdentifier)
+				temp += ((ExpIdentifier)e).printMe(true);
+			else
+				temp += e.printMe();
+		} else {
+			temp += "__this";
+		}
 		
-		if (this.isClass)
-			temp = temp + ".";
+		if (this.type.getName().equals("java.lang.System"))
+			temp += "->";
+		else if (this.isClass && this.type.getField(this.methName) == null)
+			temp += "::";
 		else
-			temp = temp + "->";
+			temp += "->";
 		
 		if (this.isVirtual)
 			temp = temp + "__vptr->";
 		
 		temp = temp + this.methName + "(";
 		if (this.hasCallee) {
+			temp += (this.isStatic ? "" : this.caller.printMe());
+			
 			if (myExpressions.size() > 1)
 				temp = temp + myExpressions.get(1).printMe();
-			//else
-				//temp = temp + "(I'm Broken!)";
+			
 			for (int i = 2; i < myExpressions.size() - 1; i++)
 				temp = temp + ", " + myExpressions.get(i).printMe();
-			return temp + ")";
-		}
-		else {
+		} else {
+			temp += (this.isStatic ? "" : "__this");
+			
 			if (myExpressions.size() > 0)
-				temp = temp + "(" +  myExpressions.get(0).printMe();
-			//else
-				//temp = temp + "(I'm Broken!)";
+				temp = temp +  myExpressions.get(0).printMe();
+
 			for (int i = 1; i < myExpressions.size() - 1; i++)
 				temp = temp + ", " + myExpressions.get(i).printMe();
-			return temp + ")";
 		}
 		
+		return temp + ")";
 	}
 }

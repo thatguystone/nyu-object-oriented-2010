@@ -21,7 +21,7 @@ namespace java {
 		
 		class __System {
 			public:
-				static SystemOut out;
+				static SystemOut* out;
 		};
 	}
 }

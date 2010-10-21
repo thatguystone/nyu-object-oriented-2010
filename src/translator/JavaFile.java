@@ -89,6 +89,7 @@ class JavaFile extends ActivatableVisitor implements Nameable {
 		this.importFile("java.lang.Object");
 		this.importFile("java.lang.String");
 		this.importFile("java.lang.System");
+		this.importFile("java.lang.Class");
 	}
 	
 	/**

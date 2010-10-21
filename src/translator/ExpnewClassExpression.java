@@ -14,12 +14,13 @@ class ExpnewClassExpression extends JavaExpression {
 
 	ExpnewClassExpression(JavaScope parent, Node n) {
 		this.node = n;
-		this.name = (String)n.get(2);
+		this.name = ((GNode)n.get(2)).get(0).toString();
 		this.setScope(parent);
+		this.setType(this.name);
 		this.visit(this.node);
 	}
 
-	private void setType(String type) {	
+	private void setType(String type) {
 		this.getFile().getImport(type).activate();
 		this.cls = this.getFile().getImport(type);
 	}
@@ -29,10 +30,19 @@ class ExpnewClassExpression extends JavaExpression {
 	}
 
 	public String printMe() {
-		String temp = "new " + this.getCppReferenceScope(cls) + "(" + myExpressions.remove(0).printMe();
-		for (Object o : myExpressions) {
-			temp += ", " + ((JavaExpression)o).printMe();
+		String temp = "new " + this.getCppReferenceScope(cls, true) + "(";
+		
+		String args = "";
+		if (myExpressions.size() > 1) {
+			ArrayList<JavaExpression> list = (ArrayList<JavaExpression>)myExpressions.clone();
+			list.remove(0);
+			for (Object o : list) {
+				args += "," + ((JavaExpression)o).printMe();
+			}
+			
+			args = args.substring(1);
 		}
-		return temp + ")";
+		
+		return temp + args + ")";
 	}
 }

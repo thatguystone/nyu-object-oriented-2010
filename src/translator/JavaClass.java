@@ -14,6 +14,11 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	private String pkg;
 	
 	/**
+	 * Holds a pointer to the main method.
+	 */
+	public static JavaMethod mainMethod;
+	
+	/**
 	 * The name of the class.
 	 */
 	private String name;
@@ -130,7 +135,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * Classes need to implement this themselves because the scope hierarchy terminates here.
 	 */	
 	public String getScopeString() {
-		return this.getName();
+		return this.getCPackageName() + "." + this.getName(false);
 	}
 
 	/**
@@ -143,20 +148,22 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	public String getCPackageName() {
 		return (this.pkg.equals("default") ? "defaultPkg" : this.pkg);
 	}
-
+	
+	/**
+	 * Gets a method by its name (without its signature). This will be nuked for version 2 when we implement
+	 * overloading.
+	 */
 	public JavaMethod getMeth(String name) {
-		for (String s : methods.keySet())
-			;//System.out.println("*" + s + "*");
 		if (this.methods.containsKey(name)) {
-			//System.out.println("AM I HERE?");
-			if (getMethod(this.methods.get(name)) != null)
-				return getMethod(this.methods.get(name));
+			System.out.println("---------------" + this.getName() + " ==> " + name + " ==> " + this.getMethod(this.methods.get(name)));
+			if (this.getMethod(this.methods.get(name)) != null)
+				return this.getMethod(this.methods.get(name));
+			
 			if (this.vTable.containsKey(this.methods.get(name)))
 				return this.vTable.get(this.methods.get(name)).getMeth(name);
 		}
-		//System.out.println("did I fail?");
+
 		return null;
-		
 	}
 	
 	/**
@@ -234,9 +241,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		if (this.parent != null) {
 			//add the parent's vTable to our own
 			for (String sig : this.parent.vTable.keySet()) {
-				if (this.vMethods.containsKey(sig)) //we're overriding a parent method, use ours
+				if (this.vMethods.containsKey(sig)) { //we're overriding a parent method, use ours
 					this.vTable.put(sig, this.vMethods.get(sig).getParent());
-				else {
+				} else {
 					this.vTable.put(sig, this.parent.vTable.get(sig));
 					this.methods.put(this.parent.vTable.get(sig).getMethod(sig).getName(), sig);
 				}
@@ -278,6 +285,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * need here is something like block.pln(jMeth.printMe());.
 	 */
 	protected void printHeader() {
+		if (this.getName().equals("java.lang.System"))
+			return;
+			
 		CodeBlock block;
 		
 		this.setupBlock(prototypePrintQueue, this.getCPackageName())
@@ -307,8 +317,8 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		
 					//and now for those static and private methods
 					for (JavaMethod jMeth : this.pMethods.values())
-						if (jMeth.getName().compareTo("main") != 0)
-							block.pln("static " + jMeth.getMethodHeader());
+						//if (jMeth.getName().compareTo("main") != 0)
+						block.pln("static " + jMeth.getMethodHeader());
 					
 					block
 					.pln()
@@ -346,7 +356,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 					} else { //nope, we're looking at inheritance, so cast
 						block.pln(
 							jMeth.getName() + "(" + jMeth.getCMethodCast(this) +
-							this.getCppReferenceScope(cls) + "&__" + cls.getName(false) + "::" + jMeth.getName() + ")" + (i == len ? " {" : ",")
+							"&" + this.getCppReferenceScope(cls, true) + "::" + jMeth.getName() + ")" + (i == len ? " {" : ",")
 						);
 					}
 				
@@ -364,6 +374,9 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * Really just opens a namespace and gets its methods to print their implementation.
 	 */
 	protected void printImplementation() {
+		if (this.getName().equals("java.lang.System"))
+			return;
+		
 		CodeBlock block = this.setupBlock(cppPrintQueue, this.getCPackageName());
 
 		//let each method attach it's own block onto our block
@@ -371,9 +384,18 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 			jMeth.getMethodBlock(block);
 		//now for the rest, except main
 		for (JavaMethod jMeth : this.pMethods.values())
-			if (jMeth.getName().compareTo("main") != 0)
-				jMeth.getMethodBlock(block);
-
+			//if (jMeth.getName().compareTo("main") != 0)
+			jMeth.getMethodBlock(block);
+			
+		// Internal accessor for java.lang.Object's class.
+    	block.block("java::lang::Class __" + this.getName(false) + "::__class()")
+    		//.pln("static Class k = new __Class((std::string)\"test\", 0, false);")
+    		.pln("static java::lang::Class k = new java::lang::__Class();;")
+      		.pln("return k;")
+      	.close();
+		
+		block.pln("__" + this.getName(false) + "_VT __" + this.getName(false) + "::__vtable;");
+		
 		block.closeAll();
 	}
 
@@ -425,13 +447,14 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	public void visitMethodDeclaration(GNode n) {
 		JavaMethod jMethod = new JavaMethod(n, this.getFile(), this);
 		
-		if (jMethod.isNative())
+		if (jMethod.isNative()) {
 			JavaStatic.pkgs.importNative(this.getName());
-		else if (jMethod.isVirtual()) {
 			this.vMethods.put(jMethod.getMethodSignature(), jMethod);
 			this.methods.put(jMethod.getName(), jMethod.getMethodSignature());
-		}
-		else {
+		} else if (jMethod.isVirtual()) {
+			this.vMethods.put(jMethod.getMethodSignature(), jMethod);
+			this.methods.put(jMethod.getName(), jMethod.getMethodSignature());
+		} else {
 			this.pMethods.put(jMethod.getMethodSignature(), jMethod);
 			this.methods.put(jMethod.getName(), jMethod.getMethodSignature());
 		}

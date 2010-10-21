@@ -20,8 +20,9 @@ class ExpIdentifier extends JavaExpression {
 	}
 
 	private void setup(){
-		if(this.getField(this.value) == null)
+		if(this.getField(this.value) == null) {
 			this.getScope().getFile().getImport(value).activate();
+		}
 	}
 
 	public boolean isStatic() {
@@ -44,11 +45,34 @@ class ExpIdentifier extends JavaExpression {
 	}
 
 	public JavaClass getMyType() {
-		this.getScope().getFile().getImport((String)this.node.get(0)).activate();
-		return this.getCls().getFile().getImport((String)this.node.get(0));
+		JavaField feld = this.getScope().getField((String)this.node.get(0));
+		if (feld != null)
+			return feld.getCls();
+		
+		if (this.getScope().getFile().getImport((String)this.node.get(0)) != null) {
+			this.getScope().getFile().getImport((String)this.node.get(0)).activate();
+			return this.getCls().getFile().getImport((String)this.node.get(0));
+		}
+		
+		return null;	
 	}
 
 	public String printMe() {
-		return value;
-	}		
+		return this.printMe(false);
+	}
+	
+	public String printMe(boolean forStaticFunctionCall) {
+		System.out.println("printMe: " + forStaticFunctionCall + " -- "  + this.getMyType().getName());
+		if (!forStaticFunctionCall) {
+			if (this.isClass())
+				return this.getCppReferenceScope(this.getScope().getFile().getImport(value));
+			else
+				return value;
+		} else {
+			if (this.getScope().getField(value) != null)
+				return value;
+			else
+				return this.getCppReferenceScope(this.getScope().getFile().getImport(value), true);
+		}
+	}
 }

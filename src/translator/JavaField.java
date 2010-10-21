@@ -140,7 +140,7 @@ class JavaField extends ExpressionVisitor implements Nameable{
 	 */
 	public String printMe() {
 		if (hasExpression()) {
-			return this.printpDec() + " = " + assignment.printMe() + ";"; 
+			return this.printpDec(false) + " = " + assignment.printMe() + ";"; 
 		}
 		return this.printpDec();
 	}
@@ -161,18 +161,16 @@ class JavaField extends ExpressionVisitor implements Nameable{
 		return this.getType();
 	}
 
-	public String printFullType(JavaClass cls) {
-		if (isObject)
-			return this.getCppReferenceScope(this.getCls());
-		return this.getType();
-	}	
+	public String printpDec() {
+		return this.printpDec(true);
+	}
 
 	/**
 	 * Some internal formatting
 	 */
-	private String printpDec() {
+	public String printpDec(boolean withSemicolon) {
 		if (isObject)
-			return this.getCppReferenceScope(this.getCls()) + " " + this.getName() + ";";
+			return this.getCppReferenceScope(this.getCls()) + " " + this.getName() + (withSemicolon ? ";" : "");
 		return this.getType() + " " + this.getName() + ";";
 	}
 
