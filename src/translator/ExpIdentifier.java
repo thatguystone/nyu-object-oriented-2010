@@ -21,6 +21,8 @@ class ExpIdentifier extends JavaExpression {
 
 	private void setup(){
 		if(this.getField(this.value) == null) {
+			JavaFile file = this.getScope().getFile();
+			System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ " + value);
 			this.getScope().getFile().getImport(value).activate();
 		}
 	}

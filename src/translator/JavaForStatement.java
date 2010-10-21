@@ -6,17 +6,17 @@ import java.util.LinkedHashMap;
 import xtc.tree.Node;
 import xtc.tree.GNode;
 
-class JavaConditionalStatement extends ExpressionVisitor implements Nameable {
+class JavaForStatement extends JavaScope implements Nameable {
 
-	JavaExpression condition;
+	JavaBasicForControl control;
 	
 	JavaBlock codeBlock;
 	
-	JavaConditionalStatement(JavaScope scope, Node n) {
+	JavaForStatement(JavaScope scope, Node n) {
+		System.out.println("################FOR STATEMENT###########");
 		this.setScope(scope);
-		this.node = n;
+		//this.node = n;
 		this.dispatch(n);
-		this.condition = myExpressions.get(0);
 	}
 	
 	public boolean hasBlock() {
@@ -28,10 +28,15 @@ class JavaConditionalStatement extends ExpressionVisitor implements Nameable {
 	}
 	
 	public CodeBlock printBlk(CodeBlock block) {
-		block = this.codeBlock.printBlock(block,"if("+ condition.printMe() +")");
+		block = this.codeBlock.printBlock(block,"for("+ control.printMe() +")");
 		
 		return block;
 	}	
+	
+	
+	public void visitBasicForControl(GNode n) {
+		this.control = new JavaBasicForControl(this, n);
+	}
 	
 	public void visitBlock(GNode n) {
 		/**

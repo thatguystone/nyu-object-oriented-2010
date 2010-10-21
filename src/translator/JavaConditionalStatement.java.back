@@ -13,6 +13,7 @@ class JavaConditionalStatement extends ExpressionVisitor implements Nameable {
 	JavaBlock codeBlock;
 	
 	JavaConditionalStatement(JavaScope scope, Node n) {
+		System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&& IF STATEMENT &&&&&&&&&&&&&&&&&&&&&&&&&");
 		this.setScope(scope);
 		this.node = n;
 		this.dispatch(n);

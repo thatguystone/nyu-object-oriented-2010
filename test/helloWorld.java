@@ -19,6 +19,22 @@ class test {
 public class helloWorld {
 	public static void main() {
 		helloWorld h = new helloWorld();
+		int i;
+		int x = 1;
+		for (i = 0; i < 10; i++) {	
+			x = x*2;
+		}
+		boolean hh = true;
+		if(hh){
+			System.out.println("IF STATEMENT!");
+		}
+		i = 0;
+		while(i < 10){
+			System.out.print("Number : ");
+			System.out.println(i);
+			i++;
+		}
+		System.out.println(x);
 		h.hello();
 	}
 

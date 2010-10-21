@@ -16,6 +16,15 @@ class JavaBlock extends JavaScope {
 
 	public CodeBlock printBlock(CodeBlock block, String header) {
 		block = block.block(header);
+		
+			if (this.getScope() instanceof JavaMethod) {
+				if (((JavaMethod)this.getScope()).isConstructor()){
+					for (JavaField fld : this.getScope().getCls().fields.values())
+						if (!fld.isStatic() && fld.hasExpression())
+							block.pln(fld.PrintAssignment());
+				}
+			}
+		
 			for (JavaScope statement : this.statements) {
 				if (!statement.hasBlock())
 					block.pln(statement.printMe());
@@ -44,15 +53,24 @@ class JavaBlock extends JavaScope {
 	public void visitConditionalStatement(GNode n) {
 		this.statements.add(new JavaConditionalStatement(this.getScope(), n));
 	}
-
+	
 	public void visitForStatement(GNode n) {
+				System.out.println("################FOR STATEMENT###########");
 		this.statements.add(new JavaForStatement(this.getScope(), n));
 	}
 	
 	public void visitWhileStatement(GNode n) {
 		this.statements.add(new JavaWhileStatement(this.getScope(), n));
 	}
-
+	/*
+	public void visitSwitchStatement(GNode n) {
+		this.statements.add(new JavaSwitchStatement(this.getScope(), n));
+	}
+	
+	public void wisitBreakStatement(Gnode n) {
+	
+	}
+	*/
 }
 
 

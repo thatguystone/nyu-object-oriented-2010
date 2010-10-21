@@ -6,13 +6,13 @@ import java.util.LinkedHashMap;
 import xtc.tree.Node;
 import xtc.tree.GNode;
 
-class JavaConditionalStatement extends ExpressionVisitor implements Nameable {
+class JavaWhileStatement extends ExpressionVisitor implements Nameable {
 
 	JavaExpression condition;
 	
 	JavaBlock codeBlock;
 	
-	JavaConditionalStatement(JavaScope scope, Node n) {
+	JavaWhileStatement(JavaScope scope, Node n) {
 		this.setScope(scope);
 		this.node = n;
 		this.dispatch(n);
@@ -27,8 +27,9 @@ class JavaConditionalStatement extends ExpressionVisitor implements Nameable {
 		return this.getScope().getFile();
 	}
 	
+	
 	public CodeBlock printBlk(CodeBlock block) {
-		block = this.codeBlock.printBlock(block,"if("+ condition.printMe() +")");
+		block = this.codeBlock.printBlock(block,"while("+ condition.printMe() +")");
 		
 		return block;
 	}	

@@ -68,7 +68,7 @@ abstract class ExpressionVisitor extends JavaScope {
 	}
 
 	public void visitStringLiteral(GNode n) {
-		myExpressions.add(new ExpStringLiteral(n));
+		myExpressions.add(new ExpLiteral(n));
 	}
 
 	public void visitArrayInitializer(GNode n) {
@@ -102,5 +102,14 @@ abstract class ExpressionVisitor extends JavaScope {
 	public void visitSelectionExpression(GNode n) {
 		myExpressions.add(new ExpSelectionExpression(this, n));
 	}
+	
+	public void visitPostfixExpression(GNode n) {
+		myExpressions.add(new ExpPostfixExpression(this, n));
+	}
+	
+	public void visitUnaryExpression(GNode n) {
+		myExpressions.add(new ExpUnaryExpression(this, n));
+	}
+	
 }
 
