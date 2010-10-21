@@ -40,6 +40,29 @@ class test {
 	}
 }
 
+class test2 {
+
+
+	test2(){}
+
+	public int getVal() {
+		return 35463;
+	}
+
+}
+
+class test3 extends test2 {
+	
+	public int x = 3;
+	
+	test3() {
+	}
+	
+	public void willIWork() {
+		System.out.println(this.getVal());
+	}
+}
+
 public class helloWorld {
 	public static void main() {
 		helloWorld h = new helloWorld();
@@ -53,6 +76,13 @@ public class helloWorld {
 				System.out.println(x);
 			}
 		}
+		
+		test2 d = new test2();
+		
+		test3 e = new test3();
+		
+		e.willIWork();
+		
 		boolean hh = true;
 		if(hh){
 			System.out.println("IF STATEMENT!");
