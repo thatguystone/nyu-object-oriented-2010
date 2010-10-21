@@ -16,35 +16,9 @@ class JavaBlock extends JavaScope {
 
 	public CodeBlock printBlock(CodeBlock block, String header) {
 		block = block.block(header);
-		
-			if (this.getScope() instanceof JavaMethod) {
-				if (((JavaMethod)this.getScope()).isConstructor()) {
-					System.out.println("------------CONSTRUCTOR TIME-----------" + this.getCls().getName());
-					for (JavaField fld : this.getCls().fields.values()) {
-						System.out.println(fld.getName() + " ------------------ Static : " + (fld.isStatic()?"yes":"no") + "    " + "Expression : " + (fld.hasExpression()?"yes":"no"));
-						if (!fld.isStatic() && fld.hasExpression()) {
-							block.pln("this->" + fld.PrintAssignment());
-						}
-					}
-				}
-			}
-		
 			for (JavaScope statement : this.statements) {
-				if (!statement.hasBlock()) {
-					if (this.getScope() instanceof JavaMethod) {
-						if (((JavaMethod)this.getScope()).isConstructor()) {
-							String temp = statement.printMe();
-							while (temp.charAt(0) == '_') {
-								temp = temp.substring(1);
-							}
-							block.pln(temp);
-						}
-						else
-							block.pln(statement.printMe());
-					}
-					else
-						block.pln(statement.printMe());
-				}
+				if (!statement.hasBlock())
+					block.pln(statement.printMe());
 				else 
 					block = statement.printBlk(block);
 			}

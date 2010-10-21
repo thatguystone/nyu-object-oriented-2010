@@ -3,6 +3,8 @@ import test2.*;
 interface test1 { } 
 
 class test {
+	private int dfg;	
+	
 	protected String som() {
 		return "test";
 	}

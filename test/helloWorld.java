@@ -1,6 +1,8 @@
 class test {
 	public static int m = 1;
 	public int n;
+	public String ss = "hi";	
+
 
 	test() {
 		System.out.println("Hello from Mr. Test");
