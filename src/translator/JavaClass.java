@@ -407,7 +407,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		// Internal accessor for java.lang.Object's class.
     	block.block("java::lang::Class __" + this.getName(false) + "::__class()")
     		//.pln("static Class k = new __Class((std::string)\"test\", 0, false);")
-    		.pln("static java::lang::Class k = new java::lang::__Class(\"" + this.getName() + "\", NULL, 0);;")
+    		.pln("static java::lang::Class k = new java::lang::__Class(\"" + this.getCPackageName() + "." + this.getName(false) + "\", NULL, 0);;")
       		.pln("return k;")
       	.close();
 		

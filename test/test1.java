@@ -5,11 +5,13 @@ class inheritMe {
 	}
 
 	public void printInherit() {
-	
-	System.out.println();
-	System.out.println("You have successfully demonstrated inheritance!");
-	System.out.println();
-	
+		System.out.println();
+		System.out.println("You have successfully demonstrated inheritance!");
+		System.out.println();
+		
+		Class cls = this.getClass();
+		System.out.print("I am of class type (printing from inheritMe): ");
+		System.out.println(cls.getName());
 	}
 
 }
@@ -19,6 +21,10 @@ class needsInherit extends inheritMe {
 
 	public void printCls(){
 		System.out.println("I am a needsInherit object");
+		
+		Class cls = this.getClass();
+		System.out.print("I am of class type (printing from needsInherit): ");
+		System.out.println(cls.getName());
 	}
 
 	needsInherit(){}
