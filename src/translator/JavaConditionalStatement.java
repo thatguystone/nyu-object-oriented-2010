@@ -10,7 +10,8 @@ class JavaConditionalStatement extends ExpressionVisitor implements Nameable {
 
 	JavaExpression condition;
 	
-	JavaBlock codeBlock;
+	JavaBlock codeBlock1;
+	JavaBlock codeBlock2;
 	
 	JavaConditionalStatement(JavaScope scope, Node n) {
 		this.setScope(scope);
@@ -28,7 +29,10 @@ class JavaConditionalStatement extends ExpressionVisitor implements Nameable {
 	}
 	
 	public CodeBlock printBlk(CodeBlock block) {
-		block = this.codeBlock.printBlock(block,"if("+ condition.printMe() +")");
+		
+		block = this.codeBlock1.printBlock(block,"if("+ condition.printMe() +")", false);
+		if(codeBlock2 != null)
+			block = this.codeBlock2.printBlock(block, "else");
 		
 		return block;
 	}	
@@ -37,7 +41,10 @@ class JavaConditionalStatement extends ExpressionVisitor implements Nameable {
 		/**
 		 * @TODO Implement!
 		 */
-		this.codeBlock = new JavaBlock(this, n);
+		if(codeBlock1 == null)
+			this.codeBlock1 = new JavaBlock(this, n);
+		else
+			this.codeBlock2 = new JavaBlock(this, n);
 	}
 }
 
