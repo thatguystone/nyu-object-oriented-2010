@@ -32,8 +32,7 @@ test: src
 	./a.out
 
 clean:
-	$(MAKE) -C src clean
-	$(MAKE) -C test clean
+	$(MAKE) -C classes clean
 	rm -f *.cpp
 	rm -f *.h
 	rm -f *.out

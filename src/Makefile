@@ -4,19 +4,11 @@ include ../Makebase
 
 default: translator java xtc
 
-clean-translator:
-	$(MAKE) -C translator clean
-
-clean-api:
-	$(MAKE) -C api clean
-
-clean: clean-translator clean-api
-
 #java has to be made from the parent directory, otherwise it fails (packages break)
 #  * cd-ing from the child directory (java) to here in the makefile causes an error because none of java's rules are in this file
 #  * the simplest solution was to move everything here
 %.class: %.java
-	javac -source 1.5 -classpath $(XTCCLASSPATH) -sourcepath $(SRCPATH) $<
+	javac -source 1.5 -classpath $(XTCCLASSPATH) -sourcepath $(SRCPATH) -d $(CLASSPATH) $<
 
 java:
 	$(MAKE) -C api

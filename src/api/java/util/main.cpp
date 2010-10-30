@@ -6,8 +6,6 @@
 
 #include "JavaArray.h"
 
-using namespace java::lang;
-using namespace java::util;
 
 int main(void) {
 
@@ -40,7 +38,7 @@ int main(void) {
   std::cout << "b[3][2] = " << get(b, 3, 2) << std::endl;
   
   // Object[] c = new Object[2];
-  __JavaArray<__Object>* c = new __JavaArray<__Object>(1, 2);
+  __JavaArray<java::lang::Object>* c = new __JavaArray<__Object>(1, 2);
 
   // ArrayOutOfBounds Exception
   get(b, 20, 5);

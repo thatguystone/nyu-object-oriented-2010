@@ -15,17 +15,10 @@ import xtc.tree.Visitor;
 
 import xtc.util.Tool;
 
-import java.util.*;
-
 /**
  * The public interface to our Java to C++ translator.
  */
 public class Translator extends Tool {
-	/**
-	 * The C++ tree.
-	 */
-	private JavaPackages packages;
-	
 	/**
 	 * The file currently being processed.
 	 */
@@ -33,7 +26,7 @@ public class Translator extends Tool {
 	
 	/** Create a new translator. */
 	private Translator() {
-		JavaStatic.translator = this;
+		
 	}
 
 	public String getCopy() {
@@ -54,9 +47,7 @@ public class Translator extends Tool {
 		// Declare command line arguments.
 		runtime
 			.bool("printJavaAST", "printJavaAST", false, "Print the Java AST.")
-			.bool("countMethods", "optionCountMethods", false, "Print the number of method declarations.")
 			.word("outputFile", "outputFile", false, "The file to which to output the translated code (defaults to stdout; when the file cannot be written, goes to stdout)")
-			.bool("printImportedPackages", "printImportedPackages", false, "Print a list of all packages imported during this run.")
 			.bool("debug", "debug", false, "Print debugging messages while translating.")
 		;
 	}
@@ -75,28 +66,10 @@ public class Translator extends Tool {
 
 	public void prepare() {
 		super.prepare();
-		
-		//setup our package
-		JavaPackages.getInstance();
-		
-		//set our runtime in our static guys
-		JavaStatic.runtime = this.runtime;
-		
-		//setup our output file
-		JavaStatic.cpp = CodePrinter.factory("cpp");
-		JavaStatic.h = CodePrinter.factory("h");
-		
-		JavaStatic.h.pln("#include <stdint.h>");
-		
-		JavaStatic.cpp.pln("#include \"" + JavaStatic.h.getBaseName() + "\"");
-		
-		JavaStatic.pkgs.importFile("java.lang.Class").activate();
 	}
 	
 	public void wrapUp() {
-		JavaStatic.pkgs.wrapUp();
-		JavaStatic.cpp.flush().close();
-		JavaStatic.h.flush().close();
+		
 	}
 
 	public File locate(String name) throws IOException {
@@ -119,21 +92,6 @@ public class Translator extends Tool {
 	public void process(Node node) {
 		if (runtime.test("printJavaAST"))
 			runtime.console().format(node).pln().flush();
-
-		if (runtime.test("optionCountMethods"))
-			new MethodCounter(runtime).dispatch(node);
-		
-		JavaFile f = new JavaFile(this.currentFile, node);
-		f.activate();
-		JavaStatic.pkgs.print();
-		
-		//print the list of packages loaded during this run?
-		if (runtime.test("printImportedPackages")) {
-			System.out.println("\nImported packages:");
-			Iterator itr = JavaStatic.pkgs.loadedPackages.iterator();
-			while (itr.hasNext())
-				System.out.println("\t" + itr.next());
-		}
 	}
 	
 	public static void main(String args[]) {
