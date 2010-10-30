@@ -13,5 +13,25 @@ package translator;
  * way to store all our information.
  */
 class JavaPackages {
+	/**
+	 * Singleton so that only 1 can exist.
+	 */
+	private static JavaPackages instance = null;
 
+	/**
+	 * Don't allow creation of the class anywhere but inside itself.
+	 */
+	private JavaPackages() {
+		JavaStatic.pkgs = this;
+	}
+	
+	/**
+	 * Get the only instance of this class.
+	 */
+	public static JavaPackages getInstance() {
+		if (instance == null)
+			instance = new JavaPackages();
+		
+		return instance;
+	}
 }

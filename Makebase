@@ -4,13 +4,8 @@ XTCCLASSPATH=$(XTCROOT)/classes/
 #where the source files are located
 SRCPATH=$(TRANSROOT)/src/
 
-#where the source files should be compiled to
-CLASSPATH=$(TRANSROOT)/classes/
-APICLASSPATH=$(CLASSPATH)/api/
-TESTCLASSPATH=$(CLASSPATH)/test/
-
 #where to look for class files at runtime
-RUNCLASSPATH=$(XTCCLASSPATH):$(CLASSPATH)
+RUNCLASSPATH=$(XTCCLASSPATH):$(SRCPATH)
 
 #where our pseudo-javaApi lives
 JAVAAPIPATH=$(SRCPATH)/api/

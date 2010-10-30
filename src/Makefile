@@ -8,7 +8,7 @@ default: translator java xtc
 #  * cd-ing from the child directory (java) to here in the makefile causes an error because none of java's rules are in this file
 #  * the simplest solution was to move everything here
 %.class: %.java
-	javac -source 1.5 -classpath $(XTCCLASSPATH) -sourcepath $(SRCPATH) -d $(CLASSPATH) $<
+	javac -source 1.5 -classpath $(XTCCLASSPATH) -sourcepath $(SRCPATH) $<
 
 java:
 	$(MAKE) -C api
@@ -20,3 +20,11 @@ translator:
 #for our xtc base
 xtc:
 	cd $(XTCROOT); . ./setup.sh; $(MAKE) classes
+
+clean-api:
+	$(MAKE) -C api clean
+
+clean-translator:
+	find translator -name "*.class" -exec rm {} \;
+
+clean: clean-api clean-translator

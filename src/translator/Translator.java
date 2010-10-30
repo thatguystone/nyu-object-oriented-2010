@@ -24,9 +24,14 @@ public class Translator extends Tool {
 	 */
 	private String currentFile;
 	
+	/**
+	 * Singleton so that only 1 can exist.
+	 */
+	private static Translator instance = null;
+	
 	/** Create a new translator. */
 	private Translator() {
-		
+		JavaStatic.translator = this;
 	}
 
 	public String getCopy() {
@@ -52,11 +57,6 @@ public class Translator extends Tool {
 		;
 	}
 	
-	/**
-	 * Singleton so that only 1 can exist.
-	 */
-	private static Translator instance = null;
-	 
 	public static Translator getInstance() {
 		if (instance == null)
 			instance = new Translator();
@@ -66,6 +66,9 @@ public class Translator extends Tool {
 
 	public void prepare() {
 		super.prepare();
+		
+		JavaStatic.pkgs = JavaPackages.getInstance();
+		JavaStatic.runtime = this.runtime;
 	}
 	
 	public void wrapUp() {
@@ -92,9 +95,12 @@ public class Translator extends Tool {
 	public void process(Node node) {
 		if (runtime.test("printJavaAST"))
 			runtime.console().format(node).pln().flush();
+		
+		JavaFile f = new JavaFile(this.currentFile, node);
 	}
 	
 	public static void main(String args[]) {
 		Translator.getInstance().run(args);
 	}
 }
+

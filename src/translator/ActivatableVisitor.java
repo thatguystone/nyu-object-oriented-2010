@@ -25,7 +25,7 @@ abstract class ActivatableVisitor extends JavaScope {
 	 *
 	 * @param n The node with all the information.
 	 */
-	public void setup(Node n) {
+	public void stashNode(Node n) {
 		this.node = n;
 	}
 	

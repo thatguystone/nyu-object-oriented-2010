@@ -12,7 +12,7 @@ ifdef args
 endif
 
 %.class: %.java
-	javac -source 1.5 -classpath $(RUNCLASSPATH) -sourcepath $(TESTPATH) -d $(TESTCLASSPATH) $<
+	javac -source 1.5 -classpath $(RUNCLASSPATH) -sourcepath $(TESTPATH) $<
 
 allTests:
 	$(MAKE) `../make.srcs .`
@@ -24,4 +24,6 @@ run: allTests
 		translator.Translator $(ARGS) \
 		-in $(TESTPATH) -in $(JAVAAPIPATH) \
 		$(FILE)
-	
+
+clean:
+	find -name "*.class" -exec rm {} \;
