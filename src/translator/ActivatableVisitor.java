@@ -20,14 +20,26 @@ abstract class ActivatableVisitor extends JavaScope {
 	protected boolean activated = false; 
 	
 	/**
-	 * Setup anything needed for this run. Right now, only saves the Node for use
-	 * when activated.
-	 *
-	 * @param n The node with all the information.
+	 * We don't have a scope.  Cool.
 	 */
-	public void stashNode(Node n) {
+	ActivatableVisitor(GNode n) {
 		this.node = n;
 	}
+	
+	/**
+	 * We have a scope. Cool.
+	 */
+	ActivatableVisitor(JavaScope scope, GNode n) {
+		super(scope);
+		this.node = n;
+		
+		this.onNodeSetup();
+	}
+	
+	/**
+	 * If we need to do anything once the node has been stored and is therefore accessible by the subclass.
+	 */
+	protected void onNodeSetup() { }
 	
 	/**
 	 * Starts the processing (via Visitor.dispatch()) on this guy.

@@ -96,7 +96,7 @@ public class Translator extends Tool {
 		if (runtime.test("printJavaAST"))
 			runtime.console().format(node).pln().flush();
 		
-		JavaFile f = new JavaFile(this.currentFile, node);
+		JavaFile f = new JavaFile(this.currentFile, (GNode)node);
 	}
 	
 	public static void main(String args[]) {
