@@ -94,12 +94,14 @@ class JavaPackages {
 	 * @param cls The class to add to our registry.
 	 */
 	public void addClass(JavaClass cls) {
+		//stash the class
 		this.classes.put(cls.getName(), cls);
 		
 		//add the class to our package
 		if (!this.packageExists(cls.getPackageName()))
 			this.packages.put(cls.getPackageName(), new HashSet<String>());
 		
+		//add the class to its package
 		this.packages.get(cls.getPackageName()).add(cls.getName(false)); 
 	}
 	

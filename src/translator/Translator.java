@@ -72,7 +72,6 @@ public class Translator extends Tool {
 	}
 	
 	public void wrapUp() {
-		
 	}
 
 	public File locate(String name) throws IOException {
@@ -97,6 +96,7 @@ public class Translator extends Tool {
 			runtime.console().format(node).pln().flush();
 		
 		JavaFile f = new JavaFile(this.currentFile, (GNode)node);
+		f.activate();
 	}
 	
 	public static void main(String args[]) {

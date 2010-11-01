@@ -1,18 +1,16 @@
 package translator;
 
-import xtc.tree.Node;
 import xtc.tree.GNode;
-import xtc.tree.Visitor;
 
 /**
  * Create a visitor structure that only processes classes on demand. This makes our processing faster
  * as only files/classes that are actually needed are ever processed.
  */
-abstract class ActivatableVisitor extends JavaScope {
+abstract class ActivatableVisitor extends JavaVisibleScope {
 	/**
 	 * The Node that contains the information for this object.
 	 */
-	protected Node node = null;
+	protected GNode node = null;
 	
 	/**
 	 * If the visitor has been activated / used.
@@ -23,7 +21,7 @@ abstract class ActivatableVisitor extends JavaScope {
 	 * We don't have a scope.  Cool.
 	 */
 	ActivatableVisitor(GNode n) {
-		this.node = n;
+		this(null, n);
 	}
 	
 	/**

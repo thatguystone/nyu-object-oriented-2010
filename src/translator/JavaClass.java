@@ -22,28 +22,7 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * List of all virtual methods in this class (v is for virtual).
 	 * Method name -> Method object
 	 */
-	private LinkedHashMap<String, JavaMethod> vMethods = new LinkedHashMap<String, JavaMethod>();
-	
-	/**
-	 * List of all non-virtual methods in this class (p is for private).
-	 * Method name -> Method object
-	 */
-	private LinkedHashMap<String, JavaMethod> pMethods = new LinkedHashMap<String, JavaMethod>();
-	
-	/**
-	 * List of all the methods from the parent class that haven't been overriden(written?) (i is for inherited).
-	 * Points to a {@link JavaClass} because we're going to need the class for vtable resolution.
-	 */
-	private LinkedHashMap<String, JavaClass> vTable = new LinkedHashMap<String, JavaClass>();
-
-	/**
-	 * List of all methods WITHOUT their signature
-	 * I'm adding this because we don't need overloading atm
-	 * and this is much easier than having a method call
-	 figure out the type of its arguments.
-	 * Method name -> Method name with sig
-	 */
-	private Hashtable<String, String> methods = new Hashtable<String, String>();
+	private LinkedHashMap<String, JavaMethod> methods = new LinkedHashMap<String, JavaMethod>();
 	
 	/**
 	 * SAEKJFA;WIE JF K;LSDFJ ASILD JFASD;IFJ!!!!!!! WHY DOES JAVA NOT INHERIT CONSTRUCTORS?!?!?!?!?!?!?!?!?!??!
@@ -60,7 +39,14 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * There are a few minor details we need to sort out once we can access our GNode.
 	 */
 	protected void onNodeSetup() {
+		//we're going to need our name, no matter what
+		this.name = this.node.get(1).toString();
+	
+		//setup our visibility from the get-go
 		this.setupVisibility((GNode)this.node.get(0));
+		
+		//make sure we get added to the class registry
+		JavaStatic.pkgs.addClass(this);
 	}
 	
 	/**
@@ -79,31 +65,22 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		//check if we have a parent; if we don't, then java.lang.Object is our parent
 		this.setParent("java.lang.Object");
 		
-		/*
-		System.out.println("Setting up vtable for " + this.getName());
-		
-		for (StackTraceElement e : Thread.currentThread().getStackTrace())
-			System.out.println(e.toString());
-		
-		System.out.println();
-		System.out.println();
-		//*/
-		
 		//once we're sure we have a parent, then add all our inherited methods
 		//and, once the VTable is setup, go ahead and activate the methods
 		this.setupVTable();
 	}
-
+	
 	/**
 	 * Gets the method from its signature.
 	 */
 	public JavaMethod getMethod(String sig) {
+		/*
 		if (this.vMethods.containsKey(sig))
 			return this.vMethods.get(sig);
 		
 		if (this.pMethods.containsKey(sig))
 			return this.pMethods.get(sig);
-		
+		*/
 		return null;
 	}
 
@@ -196,6 +173,8 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 * Take in a method.  Adds the method to our method table with its signature.
 	 */
 	public void visitMethodDeclaration(GNode n) {
+		JavaMethod m = new JavaMethod(this, n);
+		//this.methods.put(m.getSignature(), m);
 	}
 	
 	public void visitConstructorDeclaration(GNode n) {
