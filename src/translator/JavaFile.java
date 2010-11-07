@@ -9,7 +9,7 @@ import java.util.Iterator;
 /**
  * A representation of a java file.
  */
-class JavaFile extends ActivatableVisitor implements Nameable {
+public class JavaFile extends ActivatableVisitor implements Nameable {
 	/**
 	 * The name of the file.
 	 */

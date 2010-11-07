@@ -1,5 +1,7 @@
 package translator;
 
+import java.util.HashMap;
+
 import xtc.tree.Node;
 import xtc.tree.GNode;
 import xtc.tree.Visitor;
@@ -7,7 +9,7 @@ import xtc.tree.Visitor;
 /**
  * Handles anything that can have its own scope, from a File to a Block.
  */
-abstract class JavaScope extends Visitor {
+abstract public class JavaScope extends Visitor {
 	/**
 	 * The name of the package.  We include this in all scopes so that we don't have to climb
 	 * the tree when printing: we can just directly reference it here.
@@ -20,6 +22,11 @@ abstract class JavaScope extends Visitor {
 	private JavaScope scope;
 	
 	/**
+	 * List of all fields in this scope.
+	 */
+	private HashMap<String, JavaField> fields = new HashMap<String, JavaField>();
+
+	/**
 	 * Do some frikking-sweet calling.
 	 */
 	JavaScope(JavaScope scope) {
@@ -29,7 +36,7 @@ abstract class JavaScope extends Visitor {
 	/**
 	 * Store our parent scope so that we can climb our scope tree.
 	 */
-	JavaScope(JavaScope scope, GNode n) {
+	public JavaScope(JavaScope scope, GNode n) {
 		this.scope = scope;
 		
 		//if we have a scope, then save our package name
@@ -66,6 +73,19 @@ abstract class JavaScope extends Visitor {
 		//ask the parent if he is a file
 		return this.scope.getFile();
 	}
+
+	public JavaField getField(String name) {
+		JavaStatic.runtime.error("IMPLEMENT ME!");
+		JavaStatic.runtime.exit();
+		return null;
+	}
+
+	/**
+	 * Perhaps I need my scope.
+	 */
+	public JavaScope getScope() {
+		return this.scope;
+	}
 	
 	/**
 	 * ==================================================================================================
@@ -84,6 +104,13 @@ abstract class JavaScope extends Visitor {
 	 */
 	public String getPackageName() {
 		return this.pkg;
+	}
+
+	/**
+	 * Add a field to our list of fields.
+	 */
+	public void addField(JavaField fld) {
+		this.fields.put(fld.getName(), fld);
 	}
 	
 	/**

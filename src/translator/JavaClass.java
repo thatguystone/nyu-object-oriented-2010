@@ -3,11 +3,12 @@ package translator;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 
-class JavaClass extends ActivatableVisitor implements Nameable {
+public class JavaClass extends JavaType implements Nameable {
 	/**
 	 * The name of the class (not fully qualified, just the name).
 	 */
@@ -105,6 +106,10 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 		}
 	}
 
+	public JavaClass getParent() {
+		return this.parent;
+	}
+
 	/**
 	 * Go through all the parents and get their virtual methods, then just add them.  To do this, we test
 	 * if we first have a parent (java.lang.Object doesn't); if we have a parent, grab his virtual methods,
@@ -116,6 +121,43 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	 */
 	private void setupVTable() {
 
+	}
+
+	/**
+	 * Gets a method from its name and arguments, handles overloading.
+	 *
+	 * Oh My God. What have I done!
+	 */
+	public JavaMethod findMethod(String methodName, ArrayList<JavaType> arguments) {
+		JavaMethod temp = null;
+		int bestCloseness = -1;
+		for (JavaMethod meth : this.methods.values()) {
+			if (methodName.equals(meth.getName()) && arguments.size() == meth.getParameters().size()) {
+				int closeness = 0;
+				for (int i = 0; i < arguments.size(); i++){
+					JavaType callType = arguments.get(i);
+					JavaType methType = meth.getParameters().get(i).getType();
+					if (callType != methType) {
+						if (callType instanceof JavaPrimitive || methType instanceof JavaPrimitive) {
+							closeness = -1;
+						}
+						while (callType != methType && callType != null) {
+							closeness++;
+							callType = ((JavaClass)callType).getParent();
+							if (callType == null)
+								closeness = -1;
+						}
+					}
+					if (closeness == -1)
+						break;
+				}
+				if (closeness != -1 && (bestCloseness == -1 || closeness < bestCloseness)) {
+					temp = meth;
+					bestCloseness = closeness;
+				}
+			}
+		}
+		return temp;
 	}
 	
 	/**
@@ -179,4 +221,12 @@ class JavaClass extends ActivatableVisitor implements Nameable {
 	
 	public void visitConstructorDeclaration(GNode n) {
 	}
+
+	/**
+	 * Create a FieldDec object, the FieldDec will handle everything else so this is all we need to do.
+	 */
+	public void visitFieldDeclaration(GNode n) {
+		FieldDec f = new FieldDec(this, n);
+	}
+
 }

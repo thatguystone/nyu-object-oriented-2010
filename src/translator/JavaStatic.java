@@ -7,7 +7,7 @@ import xtc.tree.GNode;
  * Contains some instances of objects that are used all over the place and that make
  * no sense to pass around.
  */
-class JavaStatic {
+public class JavaStatic {
 	/**
 	 * The instance of {@link Translator} that everyone should use.
 	 */

@@ -1,5 +1,7 @@
 package translator;
 
+import java.util.ArrayList;
+
 import xtc.tree.GNode;
 
 /**
@@ -10,7 +12,7 @@ import xtc.tree.GNode;
  * other nodes of the GNode on instantiation.  In this way, we can get all information about the method by doing
  * minimal visiting on creation, and when activated, we will translate the Block that we saved.
  */ 
-class JavaMethod extends ActivatableVisitor {
+public class JavaMethod extends ActivatableVisitor {
 	/**
 	 * Our overloadable method name.
 	 */
@@ -30,7 +32,7 @@ class JavaMethod extends ActivatableVisitor {
 	 * List of all formal parameters of this method.
 	 * Parameter name -> Field Object
 	 */
-	//protected LinkedHashMap<String, JavaField> parameters = new LinkedHashMap<String, JavaField>();
+	private ArrayList<JavaField> parameters = new ArrayList<JavaField>();
 
 	/**
 	 * SAEKJFA;WIE JF K;LSDFJ ASILD JFASD;IFJ!!!!!!! WHY DOES JAVA NOT INHERIT CONSTRUCTORS?!?!?!?!?!?!?!?!?!??!
@@ -73,6 +75,19 @@ class JavaMethod extends ActivatableVisitor {
 	 */
 	protected void process() {
 	
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	//IMPLEMENT MEE
+	public JavaType getReturnType() {
+		return null;
+	}
+
+	public ArrayList<JavaField> getParameters() {
+		return this.parameters;
 	}
 	
 	/**
