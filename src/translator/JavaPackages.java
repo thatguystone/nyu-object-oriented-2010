@@ -84,7 +84,7 @@ class JavaPackages {
 	}
 	
 	public void wrapUp() {
-		this.getClass("defaultPkg.caseCall").wrapUp();
+		
 	}
 	
 	/**

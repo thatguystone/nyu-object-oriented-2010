@@ -1,5 +1,6 @@
 package translator;
 
+import translator.Printer.CodeBlock;
 import xtc.tree.GNode;
 
 /**
@@ -19,7 +20,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	/**
 	 * Our method signature.
 	 */
-	private String signature;
+	private JavaMethodSignature sig;
 	
 	/**
 	 * The type this method returns.
@@ -41,6 +42,10 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 * There are a few minor details we need to sort out once we can access our GNode.
 	 */
 	protected void onNodeSetup() {
+		//yes java, we know you don't create fields in classes until after
+		//the constructors are done. F-you, too.
+		this.sig = new JavaMethodSignature();
+		
 		//the nodes that we are going to visit NOW
 		GNode visitFirst = this.node;
 		
@@ -61,7 +66,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 * Determine if we are a virtual method.
 	 */
 	public boolean isVirtual() {
-		return this.isStatic() || this.getVisibility(Visibility.PRIVATE);
+		return this.isStatic() || this.isVisible(Visibility.PRIVATE);
 	}
 
 	/**
@@ -71,7 +76,54 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	protected void process() {
 		this.dispatch(this.node);
 	}
-
+	
+	/**
+	 * ==================================================================================================
+	 * Comparing Methods
+	 */
+	
+	/**
+	 * Checks to see if this method is equal to another based on its signature.
+	 */
+	public boolean equals(JavaMethod m) {
+		return this.equals(m.getSignature());
+	}
+	
+	/**
+	 * Checks to see if this method is equal to another based on its signature.
+	 */
+	public boolean equals(JavaMethodSignature sig) {
+		return this.sig.equals(sig);
+	}
+	
+	/**
+	 * Checks to see if the given signature, "orig", is more specific than the signature of this method
+	 * when compared with "compare".
+	 *
+	 * @param orig The method signature we are trying to get closest to.
+	 * @param compare The method signature to compare this method to, to see if it's closer to orig.
+	 */
+	public boolean isMoreSpecific(JavaMethodSignature orig, JavaMethodSignature compare) {
+		return this.getSignature().isMoreSpecific(orig, compare);
+	}
+	
+	/**
+	 * ==================================================================================================
+	 * Printing methods
+	 */
+	
+	/**
+	 * Prints the method signature to the class definition in the header, if the method is part of
+	 * the class.
+	 */
+	public void printToClassDefinition(CodeBlock b, JavaClass cls) {
+		//we only wany to print
+		if (cls != this.getJavaClass())
+			return;
+		
+		b.pln("static " + this.getName() + ";");
+	}
+	
 	/**
 	 * ==================================================================================================
 	 * Nameable Methods
@@ -103,7 +155,14 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	public JavaType getType() {
 		return this.returnType;
-	} 
+	}
+	
+	/**
+	 * Gets the signature for the method.  Be nice, don't modify it.
+	 */
+	public JavaMethodSignature getSignature() {
+		return this.sig;
+	}
 	
 	/**
 	 * ==================================================================================================
@@ -139,11 +198,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 * JavaFieldDec isn't needed here because we can't pass multiple fields with the same type declaration.
 	 */
 	public void visitFormalParameter(GNode n) {
-		
-		//System.out.println("Formal parameter in JavaMethod found!!!!!!! I feel....accomplished?");
-		
-		//JavaField field = new JavaField((String)((GNode)((GNode)n.get(1)).get(0)).get(0), this, this.getFile(), n);
-		//this.parameters.put(field.getName(), field);
+		this.sig.add(JavaType.getType(this, ((GNode)((GNode)n.get(1)).get(0)).get(0).toString()), this);
 	}
 	
 	/**
@@ -151,7 +206,6 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 * Visitor Methods -- for Activation
 	 */
 	public void visitBlock(GNode n) {
-		System.out.println(this.getName() + " --> " + this.getJavaClass().getName());
 		JavaBlock b = new JavaBlock(this, n);
 	}
 }

@@ -25,6 +25,11 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	private LinkedHashMap<String, ArrayList<JavaMethod>> methods = new LinkedHashMap<String, ArrayList<JavaMethod>>();
 	
 	/**
+	 * The VTable list of methods (in the order they need to appear).
+	 */
+	private ArrayList<JavaMethod> vtable = new ArrayList<JavaMethod>();
+	
+	/**
 	 * SAEKJFA;WIE JF K;LSDFJ ASILD JFASD;IFJ!!!!!!! WHY DOES JAVA NOT INHERIT CONSTRUCTORS?!?!?!?!?!?!?!?!?!??!
 	 * This feels so dirty and wrong.
 	 */
@@ -47,35 +52,27 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		JavaStatic.pkgs.addClass(this);
 	}
 	
-	public void wrapUp() {
-		for (ArrayList<JavaMethod> a : this.methods.values()) {
-			for (JavaMethod m : a) {
-				System.out.println("JavaClass.wrapUp: " + m.getName());
-				m.activate();
-			}
-		}
-	}
-	
 	/**
 	 * Only to be used upon activation.  Does everything we need to get this class ready for translation.
 	 */
 	protected void process() {
 		//go for a nice visit to see everyone
 		this.dispatch(this.node);
-		
+	
 		//activate the parent file so that all the classes with him are included
 		this.getJavaFile().activate();
-		
-		if (JavaStatic.runtime.test("debug"))
-			System.out.println("Class activated: " + this.getName());
 		
 		//check if we have a parent; if we don't, then java.lang.Object is our parent
 		this.setParent("java.lang.Object");
 		
 		//once we're sure we have a parent, then add all our inherited methods
-		//and, once the VTable is setup, go ahead and activate the methods
 		this.setupVTable();
 	}
+	
+	/**
+	 * ==================================================================================================
+	 * Printing methods
+	 */
 	
 	/**
 	 * Prints out the class.
@@ -103,7 +100,18 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	private void printHeader(CodeBlock b) {
 		CodeBlock cls = b.block("class " + this.getName(false));
 		
-		//methods/constructors and fields go here
+		System.out.println("Method size (" + this.getName() + "): " + this.methods.size());
+		
+		//@TODO Print all fields
+		//we need to print all the fields out to each class definition
+		
+		//we only need to print our OWN methods into the class definition
+		for (ArrayList<JavaMethod> a : this.methods.values()) {
+			for (JavaMethod m : a) {
+				//ask the method to print himself to our class definition in the header block
+				m.printToClassDefinition(cls, this);
+			}
+		}
 		
 		cls.close();
 	}
@@ -113,16 +121,87 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	private void printImplementation(CodeBlock b) {
 		b.pln("METHODS AND FIELD INITIALIZATIONS HERE");
+		
+		for (ArrayList<JavaMethod> a : this.methods.values()) {
+			for (JavaMethod m : a) {
+				//somehow activate the method and give it something to print with
+				//m.activate();
+			}
+		}
 	}
 	
 	/**
-	 * Gets the method from its signature. If overloaded, finds the most-like method to return.
+	 * Given a method, properly adds it to the methods table.
+	 */
+	private void addMethod(JavaMethod m) {
+		String name = m.getName();
+		
+		if (!this.methods.containsKey(name))
+			this.methods.put(name, new ArrayList<JavaMethod>());
+		
+		this.methods.get(name).add(m);
+	}
+	
+	/**
+	 * ==================================================================================================
+	 * Magic method finders
+	 */
+	
+	/**
+	 * Gets the method from its signature.
 	 */
 	public JavaMethod getMethod(String name, JavaMethodSignature sig) {
+		//do we even have any methods with this name?
+		if (!this.methods.containsKey(name))
+			return null;
+		
+		for (JavaMethod m : this.methods.get(name)) { 
+			if (m.equals(sig))
+				return m;
+		}
 		
 		return null;
 	}
 
+	/**
+	 * Attempts to get a method from this class given a method.
+	 */
+	public JavaMethod getMethod(JavaMethod m) {
+		return this.getMethod(m.getName(), m.getSignature());
+	}
+	
+	/**
+	 * This is for overloading: it will find the method that has the signature closest to the
+	 * one provided.
+	 */
+	public JavaMethod findClosestMethod(JavaMethod m) {
+		return this.findClosestMethod(m.getName(), m.getSignature());
+	}
+	
+	/**
+	 * This is for overloading: it will find the method that has the signature closest to the
+	 * one provided.
+	 */ 
+	public JavaMethod findClosestMethod(String name, JavaMethodSignature sig) {
+		//assuming it compiles, we're all good with being naïve and just
+		//finding some method
+		JavaMethod found = null;
+		for (JavaMethod m : this.methods.get(name)) {
+			//if we're on our first round 
+			if (found == null) {
+				found = m;
+			} else {
+				//we can compare the currently "found" method to another
+				//to see if it's a closer match than what we're considering
+				if (found.isMoreSpecific(sig, m.getSignature())) {
+					found = m;
+				}
+			}
+		}
+		
+		return found;
+	}
+	
 	/**
 	 * Setup our parent.  Can only be run once, then everything is permanent.
 	 */
@@ -151,14 +230,29 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	/**
 	 * Go through all the parents and get their virtual methods, then just add them.  To do this, we test
 	 * if we first have a parent (java.lang.Object doesn't); if we have a parent, grab his virtual methods,
-	 * see if we override them (they'll be set in either this.pMethods or this.vMethods), if we don't, then add
-	 * them, otherwise, ignore.
-	 * 
-	 * Since we know that there are problems with VTable resolution from parents, we're going to first add our methods
-	 * to our vtable and grab our parents, then we're going to activate our methods so that they translate.
+	 * see if we override them, if we don't, then add them, otherwise, ignore.
 	 */
 	private void setupVTable() {
+		//if we have a parent from whom we can steal methods
+		if (this.parent != null) {
+			//go through all the parent virtual methods and add them to our table
+			for (JavaMethod m : this.parent.vtable) {
+				//if we're not overriding the method
+				if (this.getMethod(m) == null) {
+					this.addMethod(m);
+					this.vtable.add(m);
+				}
+			}
+		}
 		
+		//and go through all our methods and add them back
+		for (ArrayList<JavaMethod> a : this.methods.values()) {
+			for (JavaMethod m : a) {
+				//does the method belong in the vtable?
+				if (m.isAtLeastVisible(Visibility.PROTECTED) && !m.isStatic())
+					this.vtable.add(m);
+			}
+		}
 	}
 
 	/**
@@ -218,12 +312,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	public void visitMethodDeclaration(GNode n) {
 		JavaMethod m = new JavaMethod(this, n);
-		String name = m.getName();
-		
-		if (!this.methods.containsKey(name))
-			this.methods.put(name, new ArrayList<JavaMethod>());
-		
-		this.methods.get(name).add(m);
+		this.addMethod(m);
 	}
 	
 	/**

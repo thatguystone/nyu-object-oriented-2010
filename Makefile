@@ -13,7 +13,7 @@ doc:
 		-use \
 		-version \
 		-splitIndex \
-		translator
+		translator translator.Printer translator.Expression translator.Statements
 
 src:
 	$(MAKE) -C src

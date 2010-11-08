@@ -63,8 +63,17 @@ abstract class JavaVisibleScope extends JavaScope implements ItemVisibility {
 	/**
 	 * See if this item is visible at the specified level.
 	 */
-	public boolean getVisibility(Visibility v) {
+	public boolean isVisible(Visibility v) {
 		return this.visibility == v;
+	}
+	
+	/**
+	 * See if the method is available at the specified level or greater. For example, if you are
+	 * testing if a method is private, and it is public it will return true.  Or, if you are testing
+	 * if a method is package protected, and it is private (or protected), it will return false.
+	 */
+	public boolean isAtLeastVisible(Visibility v) {
+		return this.visibility.ordinal() >= v.ordinal();
 	}
 	
 	/**

@@ -40,7 +40,7 @@ public class CodePrinter extends Printer {
 	 * for printing -> the prototypes, headers, and includes need to come in a specific order in the file, so we can't just
 	 * allow the blocks to print out as they come in.  This blows.
 	 */
-	private Hashtable<Integer, ArrayList<CodeBlock>> blocks = new Hashtable<Integer, ArrayList<CodeBlock>>(); 
+	private Hashtable<PrintOrder, ArrayList<CodeBlock>> blocks = new Hashtable<PrintOrder, ArrayList<CodeBlock>>(); 
 	
 	/**
 	 * This is not too important, because we're extending printer, but only allow construct from the factory method.
@@ -75,9 +75,9 @@ public class CodePrinter extends Printer {
 	 * We're done, so get everything dumped to a file.
 	 */
 	private void dump() {
-		for (int i = 0; i < PrintOrder.ORDINAL.ordinal(); i++) {
-			if (this.blocks.containsKey(i)) {
-				for (CodeBlock b : this.blocks.get(i)) {
+		for (PrintOrder p : PrintOrder.values()) {
+			if (this.blocks.containsKey(p)) {
+				for (CodeBlock b : this.blocks.get(p)) {
 					this.p(b);
 				}
 			}
@@ -133,12 +133,10 @@ public class CodePrinter extends Printer {
 	public void p(PrintOrder o, CodeBlock block) {
 		//that would be embarassing to print out a null....
 		if (block != null) {
-			int ord = o.ordinal();
-		
-			if (!this.blocks.containsKey(ord))
-				this.blocks.put(ord, new ArrayList<CodeBlock>());
+			if (!this.blocks.containsKey(o))
+				this.blocks.put(o, new ArrayList<CodeBlock>());
 			
-			this.blocks.get(ord).add(block);
+			this.blocks.get(o).add(block);
 		}
 	}
 	

@@ -198,7 +198,7 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 		//grab the entries in the imported file's class entries and add them to our imports
 		for (String cls : f.classes.keySet()) {
 			JavaClass jCls = f.classes.get(cls);
-			if (jCls.getVisibility(Visibility.PUBLIC)) {
+			if (jCls.isVisible(Visibility.PUBLIC)) {
 				this.imports.put(cls, jCls);
 			}
 		}
@@ -215,7 +215,7 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 		Iterator itr = JavaStatic.pkgs.getPackage(pkg).iterator();
 		while (itr.hasNext()) {
 			JavaClass cls = JavaStatic.pkgs.getClass(pkg + "." + (String)itr.next());
-			if (cls.getVisibility(Visibility.PUBLIC))
+			if (cls.isVisible(Visibility.PUBLIC))
 				this.imports.put(cls.getName(false), cls);
 		}
 	}
