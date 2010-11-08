@@ -1,5 +1,6 @@
 package translator;
 
+import translator.Printer.CodePrinter;
 import xtc.util.Runtime;
 import xtc.tree.GNode;
 
@@ -25,10 +26,20 @@ public class JavaStatic {
 	public static Runtime runtime;
 	
 	/**
+	 * The pointer to the printer that prints to the header.
+	 */
+	public static CodePrinter h;
+	
+	/**
+	 * The pointer to the printer that prints to the implementation file.
+	 */
+	public static CodePrinter cpp;
+	
+	/**
 	 * Sometimes, there is just no way to figure out what is going on without a stack trace.
 	 * So here it is: Stack Trace, or GTFO.
 	 */
-	public static void strackTrace() {
+	public static void stackTrace() {
 		for (StackTraceElement e : Thread.currentThread().getStackTrace())
 			System.out.println(e.toString());
 		

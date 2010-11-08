@@ -1,63 +1,76 @@
 package translator.Expressions;
 
-import translator.*;
-
+import translator.JavaClass;
+import translator.JavaField;
+import translator.JavaScope;
+import translator.JavaStatic;
+import translator.Nameable;
 import xtc.tree.GNode;
-import xtc.tree.Node;
-import xtc.tree.Visitor;
 
 /**
  * It holds a name, that's it.
  */
-class Identifier extends JavaExpression {
+public class Identifier extends JavaExpression implements Nameable {
+	/**
+	 * The identifier (its string representation).
+	 */
+	private String value;
 	
 	/**
-	 * The identifier
+	 * The type of identifier we're looking at.
 	 */
-	String Id;
-
+	private IdentifierType type;
+	
 	/**
-	 * Yea, I'm not sure what to call it, and even then this is a bad name, oh well.
-	 * This is whatever Id refers to
+	 * Another stupid constructor :(
 	 */
-	JavaScope something;
-
-	/**
-	 * The names... they're just so good
-	 * Package = 0, Class = 1, Field = 2
-	 */
-	int 	whatAmI = 0;
-
-	Identifier(JavaScope scope, Node n) {
+	public Identifier(JavaScope scope, GNode n) {
 		super(scope, n);
-		this.Id = (String)n.get(0);
 	}
-
-	public String getName() {
-		return Id + ".";
-	}
-
+	
 	/**
 	 * Setup return type and figure out what this idendifier is identifiying.
 	 */
-	protected void onInstantiate() {
-		if((this.something = this.getField(Id)) != null) {
-			this.whatAmI = 2;
-			this.setReturnType(((JavaField)this.something).getType());
+	protected void onInstantiate(GNode n) {
+		this.value = (String)n.get(0);
+		
+		//a temporary storage so that we don't have to do numerous calls to
+		//getField(), getType() when we find a Field / Class.
+		JavaScope type;
+		
+		//are we looking at a field?
+		if ((type = this.getField(this.value)) != null) {
+			this.type = IdentifierType.FIELD;
+			this.setType(((JavaField)type).getType());
+		
+		//perhaps a class?
+		} else if ((type = this.getJavaFile().getImport(this.value)) != null) {
+			this.type = IdentifierType.CLASS;
+			this.setType(((JavaClass)type).getType());
+		
+		//well, that was nothing
+		} else {
+			this.type = IdentifierType.PACKAGE;
+			this.setType(null);
 		}
-		else if((this.something = this.getFile().getImport(Id)) != null) {
-			this.whatAmI = 1;
-			this.setReturnType((JavaClass)this.something);
-		}
-		else
-			this.setReturnType(null);
 	}
-
+	
 	/**
-	 * No visiting here, this should never be called.
+	 * ==================================================================================================
+	 * Nameable Methods
 	 */
-	public void processExpression(JavaExpression expression) {
-		JavaStatic.runtime.error("If you managed to reach this error, you've done something I didn't think was possible");
-		JavaStatic.runtime.exit();
+	
+	/**
+	 * Some pretty name!
+	 */
+	public String getName() {
+		return value;
+	}
+	
+	/**
+	 * It's an identifier -- it can't have a special name.
+	 */
+	public String getName(boolean na) {
+		return value;
 	}
 }

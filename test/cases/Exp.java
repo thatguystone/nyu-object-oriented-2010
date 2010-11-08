@@ -6,3 +6,5 @@ public class Exp {
 		System.out.println(tmp);
 	}
 }
+
+class __test { } 

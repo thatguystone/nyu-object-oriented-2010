@@ -1,16 +1,11 @@
 public class caseCall {
 	public void test() {
 		caseCall a = new caseCall();
-		a.test2().test2();
-		test2().test2().test2().test2().test2();
+		a.test2("").test2("a");
 	}
 	
-	public caseCall test2() {
+	public caseCall test2(String a) {
 		return this;
-	}
-	
-	public Object getScope() {
-		return new Object();
 	}
 }
 

@@ -71,7 +71,7 @@ abstract class JavaVisibleScope extends JavaScope implements ItemVisibility {
 	 * Set the default visibility for this scope item. Defaults to PackageProtected if not overriden.
 	 */
 	protected Visibility getDefaultVisibility() {
-		return Visibility.PACKAGEPROTECTED;
+		return Visibility.PACKAGE_PROTECTED;
 	}
 	
 	/**
@@ -93,5 +93,17 @@ abstract class JavaVisibleScope extends JavaScope implements ItemVisibility {
 				this.isStatic = true;
 			}
 		}
+	}
+	
+	/**
+	 * ==================================================================================================
+	 * Visitor Methods
+	 */
+	
+	/**
+	 * For our modifiers
+	 */
+	public void visitModifiers(GNode n) {
+		this.setupVisibility(n);
 	}
 }

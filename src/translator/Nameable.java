@@ -3,7 +3,7 @@ package translator;
 /**
  * A standard way of accessing name information across various classes.
  */
-interface Nameable {
+public interface Nameable {
 	/**
 	 * Gets the fully qualified java name.
 	 */

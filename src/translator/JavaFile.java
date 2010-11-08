@@ -1,10 +1,12 @@
 package translator;
 
-import xtc.tree.Node;
-import xtc.tree.GNode;
-
 import java.util.Hashtable;
 import java.util.Iterator;
+
+import translator.Printer.CodeBlock;
+import translator.Printer.PrintOrder;
+import xtc.tree.Node;
+import xtc.tree.GNode;
 
 /**
  * A representation of a java file.
@@ -86,6 +88,40 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 	protected void process() {
 		for (JavaClass cls : this.classes.values())
 			cls.activate();
+		
+		this.print();
+	}
+	
+	/**
+	 * Prints out all our junk.
+	 */
+	public void print() {
+		//the simplest way to get the namespaces injected into all these blocks...fun
+		CodeBlock proto = new CodeBlock(), header = new CodeBlock(), implm = new CodeBlock();
+		CodeBlock origProto = proto, origHeader = header, origImplm = implm;
+		
+		//setup our namespaces
+		String[] namespaces = this.getPackageName().split("\\.");
+		for (String n : namespaces) {
+			proto = proto.block("namespace " + n);
+			header = header.block("namespace " + n);
+			implm = implm.block("namespace " + n);
+		}
+		
+		//print out the classes
+		for (JavaClass cls : this.classes.values()) {
+			cls.print(proto, header, implm);
+		}
+		
+		//make sure the namespace declarations are closed
+		implm.closeAll();
+		proto.closeAll();
+		header.closeAll();
+		
+		//and queue our blocks for printing
+		JavaStatic.cpp.p(PrintOrder.IMPLEMENTATION, origImplm);
+		JavaStatic.h.p(PrintOrder.PROTOTYPE, origProto);
+		JavaStatic.h.p(PrintOrder.HEADER, origHeader);
 	}
 	
 	/**
@@ -141,11 +177,8 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 				return JavaStatic.pkgs.getClass(this.getPackageName() + "." + cls);
 		}
 		
-		//wtf? error...
-		JavaStatic.runtime.error("Class could not be found for import (in JavaFile.getImport): " + cls);
-		JavaStatic.runtime.exit(); //abort, we can't possibly go any further
-		
-		return null; //oh, shutup already, Java...yes, you need a return statement. w/e.
+		//well, that wasn't imported...hmm
+		return null;
 	}
 	
 	/**
@@ -165,8 +198,9 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 		//grab the entries in the imported file's class entries and add them to our imports
 		for (String cls : f.classes.keySet()) {
 			JavaClass jCls = f.classes.get(cls);
-			if (jCls.getVisibility(Visibility.PUBLIC))
+			if (jCls.getVisibility(Visibility.PUBLIC)) {
 				this.imports.put(cls, jCls);
+			}
 		}
 	}
 	

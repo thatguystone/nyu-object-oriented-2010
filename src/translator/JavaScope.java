@@ -6,10 +6,13 @@ import xtc.tree.Node;
 import xtc.tree.GNode;
 import xtc.tree.Visitor;
 
+//we need every expression type for visiting
+import translator.Expressions.*;
+
 /**
  * Handles anything that can have its own scope, from a File to a Block.
  */
-abstract public class JavaScope extends Visitor {
+public class JavaScope extends Visitor {
 	/**
 	 * The name of the package.  We include this in all scopes so that we don't have to climb
 	 * the tree when printing: we can just directly reference it here.
@@ -29,7 +32,7 @@ abstract public class JavaScope extends Visitor {
 	/**
 	 * Do some frikking-sweet calling.
 	 */
-	JavaScope(JavaScope scope) {
+	public JavaScope(JavaScope scope) {
 		this(scope, null);
 	}
 	
@@ -44,15 +47,15 @@ abstract public class JavaScope extends Visitor {
 			this.pkg = scope.pkg;
 		
 		//do the construct call-back, alright, do the construct call-back, baby.
-		this.onInstantiate();
+		this.onInstantiate(n);
 	}
 	
 	/**
 	 * A nice, little call-back for when something is constructed.  Just in case classes
 	 * need to do something without intercepting the constructor.
 	 */
-	protected void onInstantiate() { }
-
+	protected void onInstantiate(GNode n) { }
+	
 	/**
 	 * ==================================================================================================
 	 * Scope Methods -- these operate on _this_ scope and the _parent_ scope.
@@ -61,7 +64,7 @@ abstract public class JavaScope extends Visitor {
 	/**
 	 * Gets the file that this scope is contained in.
 	 */
-	public JavaFile getFile() {
+	public JavaFile getJavaFile() {
 		if (this instanceof JavaFile)
 			return (JavaFile)this;
 		
@@ -71,12 +74,29 @@ abstract public class JavaScope extends Visitor {
 		}
 		
 		//ask the parent if he is a file
-		return this.scope.getFile();
+		return this.scope.getJavaFile();
+	}
+	
+	/**
+	 * Stupid name conflict with java.lang.Object.getClass()
+	 */
+	public JavaClass getJavaClass() {
+		if (this instanceof JavaClass)
+			return (JavaClass)this;
+		
+		if (this.scope == null) {
+			JavaStatic.runtime.error("Epic fail. Some scope object was not contained in a file.");
+			JavaStatic.runtime.exit();
+		}
+		
+		//ask the parent if he is a file
+		return this.scope.getJavaClass();
 	}
 
 	public JavaField getField(String name) {
-		JavaStatic.runtime.error("IMPLEMENT ME!");
-		JavaStatic.runtime.exit();
+		System.out.println(name);
+		System.out.println("Implement JavaScope.getField()");
+	
 		return null;
 	}
 
@@ -117,6 +137,18 @@ abstract public class JavaScope extends Visitor {
 	 * ==================================================================================================
 	 * Visitor Methods
 	 */
+	
+	public JavaExpression visitCallExpression(GNode n) {
+		return new CallExpression(this, n);
+	}
+	
+	public JavaExpression visitPrimaryIdentifier(GNode n) {
+		return new Identifier(this, n);
+	}
+	
+	public JavaExpression visitStringLiteral(GNode n) {
+		return new StringLiteral(this, n);
+	}
 	
 	/**
 	 * The default visitor method from Visitor.

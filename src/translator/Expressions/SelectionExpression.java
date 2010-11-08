@@ -38,12 +38,12 @@ class SelectionExpression extends JavaExpression {
 
 	protected void onInstantiate() {
 		if(this.selector.getReturnType() == null) {
-			this.selectee = this.getFile().getImport(selector.getName() + selecteeName);
-			this.setReturnType((JavaClass)this.selectee);
+			//this.selectee = this.getFile().getImport(selector.getName() + selecteeName);
+			//this.setReturnType((JavaClass)this.selectee);
 		}		
 		else {
-			this.selectee = this.selector.getReturnType().getField(selecteeName);
-			this.setReturnType(((JavaField)this.selectee).getType());
+			//this.selectee = this.selector.getReturnType().getField(selecteeName);
+			//this.setReturnType(((JavaField)this.selectee).getType());
 		}
 	}
 

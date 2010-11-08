@@ -4,8 +4,8 @@ package translator;
  * The possible visibility types out there.
  */
 public enum Visibility {
-	PUBLIC,
-	PROTECTED,
 	PRIVATE,
-	PACKAGEPROTECTED;
+	PROTECTED,
+	PACKAGE_PROTECTED,
+	PUBLIC;
 }

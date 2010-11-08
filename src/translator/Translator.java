@@ -4,11 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 
+import translator.Printer.CodePrinter;
 import xtc.lang.JavaFiveParser;
-
 import xtc.parser.ParseException;
 import xtc.parser.Result;
-
 import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
@@ -69,9 +68,14 @@ public class Translator extends Tool {
 		
 		JavaStatic.pkgs = JavaPackages.getInstance();
 		JavaStatic.runtime = this.runtime;
+		
+		JavaType.prepare();
+		CodePrinter.prepare();
 	}
 	
 	public void wrapUp() {
+		JavaStatic.pkgs.wrapUp();
+		CodePrinter.wrapUp();
 	}
 
 	public File locate(String name) throws IOException {

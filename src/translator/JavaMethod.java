@@ -1,7 +1,5 @@
 package translator;
 
-import java.util.ArrayList;
-
 import xtc.tree.GNode;
 
 /**
@@ -12,7 +10,7 @@ import xtc.tree.GNode;
  * other nodes of the GNode on instantiation.  In this way, we can get all information about the method by doing
  * minimal visiting on creation, and when activated, we will translate the Block that we saved.
  */ 
-public class JavaMethod extends ActivatableVisitor {
+public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	/**
 	 * Our overloadable method name.
 	 */
@@ -24,16 +22,10 @@ public class JavaMethod extends ActivatableVisitor {
 	private String signature;
 	
 	/**
-	 * Return type for method.
+	 * The type this method returns.
 	 */
-	private String returnType;
-
-	/**
-	 * List of all formal parameters of this method.
-	 * Parameter name -> Field Object
-	 */
-	private ArrayList<JavaField> parameters = new ArrayList<JavaField>();
-
+	private JavaType returnType;
+	
 	/**
 	 * SAEKJFA;WIE JF K;LSDFJ ASILD JFASD;IFJ!!!!!!! WHY DOES JAVA NOT INHERIT CONSTRUCTORS?!?!?!?!?!?!?!?!?!??!
 	 * This feels so dirty and wrong.
@@ -58,6 +50,9 @@ public class JavaMethod extends ActivatableVisitor {
 		//and remove the block from what we're visiting NOW
 		visitFirst.set(7, null);
 		
+		//that name thing
+		this.name = visitFirst.get(3).toString();
+		
 		//and go visit on our basic method info
 		this.dispatch(visitFirst);
 	}
@@ -74,21 +69,41 @@ public class JavaMethod extends ActivatableVisitor {
 	 * what we are going to need to run for the translation to take place.
 	 */
 	protected void process() {
-	
+		this.dispatch(this.node);
 	}
 
+	/**
+	 * ==================================================================================================
+	 * Nameable Methods
+	 */
+	
+	/**
+	 * Gets the method name.
+	 */
 	public String getName() {
 		return this.name;
 	}
-
-	//IMPLEMENT MEE
-	public JavaType getReturnType() {
-		return null;
+	
+	/**
+	 * Gets the java name.
+	 *
+	 * @param fullName Does nothing.
+	 */
+	public String getName(boolean fullName) {
+		return this.getName();
 	}
-
-	public ArrayList<JavaField> getParameters() {
-		return this.parameters;
-	}
+	
+	/**
+	 * ==================================================================================================
+	 * Typed Methods
+	 */
+	
+	/**
+	 * Gets the type that this class represents.
+	 */
+	public JavaType getType() {
+		return this.returnType;
+	} 
 	
 	/**
 	 * ==================================================================================================
@@ -96,26 +111,17 @@ public class JavaMethod extends ActivatableVisitor {
 	 */
 	
 	/**
-	 * For our modifiers
-	 */
-	public void visitModifiers(GNode n) {
-		this.setupVisibility(n);
-	}
-	
-	/**
 	 * Grab the method return type.
 	 */
 	public void visitType(GNode n) {
-		this.returnType = ((GNode)n.get(0)).get(0).toString();
-		//if (!primitives.containsKey(this.returnType))
-		//	this.file.getImport(this.returnType).activate();
+		this.returnType = JavaType.getType(this, ((GNode)n.get(0)).get(0).toString());
 	}
 	
 	/**
 	 * Void has its own SPECIAL (as in "herp derp") type.
 	 */
 	public void visitVoidType(GNode n) {
-		this.returnType = "void";
+		this.returnType = JavaType.getType("void");
 	}
 	
 	/**
@@ -134,7 +140,7 @@ public class JavaMethod extends ActivatableVisitor {
 	 */
 	public void visitFormalParameter(GNode n) {
 		
-		System.out.println("Formal parameter in JavaMethod found!!!!!!! I feel....accomplished?");
+		//System.out.println("Formal parameter in JavaMethod found!!!!!!! I feel....accomplished?");
 		
 		//JavaField field = new JavaField((String)((GNode)((GNode)n.get(1)).get(0)).get(0), this, this.getFile(), n);
 		//this.parameters.put(field.getName(), field);
@@ -145,6 +151,7 @@ public class JavaMethod extends ActivatableVisitor {
 	 * Visitor Methods -- for Activation
 	 */
 	public void visitBlock(GNode n) {
-		//run on activation
+		System.out.println(this.getName() + " --> " + this.getJavaClass().getName());
+		JavaBlock b = new JavaBlock(this, n);
 	}
 }

@@ -83,6 +83,10 @@ class JavaPackages {
 		return instance;
 	}
 	
+	public void wrapUp() {
+		this.getClass("defaultPkg.caseCall").wrapUp();
+	}
+	
 	/**
 	 * =============================================================================================
 	 * Methods for adding classes / files to our structure.

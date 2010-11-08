@@ -8,7 +8,7 @@ import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
 
-public class JavaField extends JavaVisibleScope implements Nameable{
+public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 
 	/**
 	 * The name of the field.
@@ -100,7 +100,7 @@ public class JavaField extends JavaVisibleScope implements Nameable{
 	 */
 
 	/**
-	 * You are a poorly declared array. Go die.
+	 * You are a poorly declared array. Go die. <<-- LOL @ Leon
 	 */
 	public void visitDimensions(GNode n) {
 		if (this.dimensions == 0) {

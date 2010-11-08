@@ -1,14 +1,13 @@
 package translator;
 
+import translator.Printer.CodeBlock;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.LinkedHashMap;
 
-public class JavaClass extends JavaType implements Nameable {
+public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	/**
 	 * The name of the class (not fully qualified, just the name).
 	 */
@@ -23,15 +22,12 @@ public class JavaClass extends JavaType implements Nameable {
 	 * List of all virtual methods in this class (v is for virtual).
 	 * Method name -> Method object
 	 */
-	private LinkedHashMap<String, JavaMethod> methods = new LinkedHashMap<String, JavaMethod>();
+	private LinkedHashMap<String, ArrayList<JavaMethod>> methods = new LinkedHashMap<String, ArrayList<JavaMethod>>();
 	
 	/**
 	 * SAEKJFA;WIE JF K;LSDFJ ASILD JFASD;IFJ!!!!!!! WHY DOES JAVA NOT INHERIT CONSTRUCTORS?!?!?!?!?!?!?!?!?!??!
 	 * This feels so dirty and wrong.
 	 */
-	JavaClass(GNode n) {
-		super(n);
-	}
 	JavaClass(JavaScope scope, GNode n) {
 		super(scope, n);
 	}
@@ -42,12 +38,22 @@ public class JavaClass extends JavaType implements Nameable {
 	protected void onNodeSetup() {
 		//we're going to need our name, no matter what
 		this.name = this.node.get(1).toString();
-	
-		//setup our visibility from the get-go
+		
+		//setup our visibility -- we need this from the start so that imports work even
+		//when a class hasn't been activated yet
 		this.setupVisibility((GNode)this.node.get(0));
 		
 		//make sure we get added to the class registry
 		JavaStatic.pkgs.addClass(this);
+	}
+	
+	public void wrapUp() {
+		for (ArrayList<JavaMethod> a : this.methods.values()) {
+			for (JavaMethod m : a) {
+				System.out.println("JavaClass.wrapUp: " + m.getName());
+				m.activate();
+			}
+		}
 	}
 	
 	/**
@@ -58,7 +64,7 @@ public class JavaClass extends JavaType implements Nameable {
 		this.dispatch(this.node);
 		
 		//activate the parent file so that all the classes with him are included
-		this.getFile().activate();
+		this.getJavaFile().activate();
 		
 		if (JavaStatic.runtime.test("debug"))
 			System.out.println("Class activated: " + this.getName());
@@ -72,16 +78,48 @@ public class JavaClass extends JavaType implements Nameable {
 	}
 	
 	/**
-	 * Gets the method from its signature.
+	 * Prints out the class.
+	 *
+	 * @param prot The prototype code block.
+	 * @param header The header code block.
+	 * @param implm The code block for the implementation.
 	 */
-	public JavaMethod getMethod(String sig) {
-		/*
-		if (this.vMethods.containsKey(sig))
-			return this.vMethods.get(sig);
+	public void print(CodeBlock prot, CodeBlock header, CodeBlock implm) {
+		this.printPrototype(prot);
+		this.printHeader(header);
+		this.printImplementation(implm);
+	}
+	
+	/**
+	 * Prints out the prototype for this class.
+	 */
+	private void printPrototype(CodeBlock b) {
+		b.pln("class " + this.getName(false) + ";");
+	}
+	
+	/**
+	 * Gets that header out.
+	 */
+	private void printHeader(CodeBlock b) {
+		CodeBlock cls = b.block("class " + this.getName(false));
 		
-		if (this.pMethods.containsKey(sig))
-			return this.pMethods.get(sig);
-		*/
+		//methods/constructors and fields go here
+		
+		cls.close();
+	}
+	
+	/**
+	 * Gets the methods all printed.
+	 */
+	private void printImplementation(CodeBlock b) {
+		b.pln("METHODS AND FIELD INITIALIZATIONS HERE");
+	}
+	
+	/**
+	 * Gets the method from its signature. If overloaded, finds the most-like method to return.
+	 */
+	public JavaMethod getMethod(String name, JavaMethodSignature sig) {
+		
 		return null;
 	}
 
@@ -96,10 +134,10 @@ public class JavaClass extends JavaType implements Nameable {
 		//only allow one parent to be set
 		if (this.parent == null) {
 			if (JavaStatic.runtime.test("debug"))
-				System.out.println(this.getName() + " extends " + this.getFile().getImport(parent).getName());
+				System.out.println(this.getName() + " extends " + this.getJavaFile().getImport(parent).getName());
 			
 			//set our parent from its name in import
-			this.parent = this.getFile().getImport(parent);
+			this.parent = this.getJavaFile().getImport(parent);
 			
 			//with the extension, we need to activate it (ie. process it) before we can use it
 			this.parent.activate();
@@ -120,45 +158,20 @@ public class JavaClass extends JavaType implements Nameable {
 	 * to our vtable and grab our parents, then we're going to activate our methods so that they translate.
 	 */
 	private void setupVTable() {
-
+		
 	}
 
 	/**
-	 * Gets a method from its name and arguments, handles overloading.
-	 *
-	 * Oh My God. What have I done!
+	 * ==================================================================================================
+	 * Typed Methods
 	 */
-	public JavaMethod findMethod(String methodName, ArrayList<JavaType> arguments) {
-		JavaMethod temp = null;
-		int bestCloseness = -1;
-		for (JavaMethod meth : this.methods.values()) {
-			if (methodName.equals(meth.getName()) && arguments.size() == meth.getParameters().size()) {
-				int closeness = 0;
-				for (int i = 0; i < arguments.size(); i++){
-					JavaType callType = arguments.get(i);
-					JavaType methType = meth.getParameters().get(i).getType();
-					if (callType != methType) {
-						if (callType instanceof JavaPrimitive || methType instanceof JavaPrimitive) {
-							closeness = -1;
-						}
-						while (callType != methType && callType != null) {
-							closeness++;
-							callType = ((JavaClass)callType).getParent();
-							if (callType == null)
-								closeness = -1;
-						}
-					}
-					if (closeness == -1)
-						break;
-				}
-				if (closeness != -1 && (bestCloseness == -1 || closeness < bestCloseness)) {
-					temp = meth;
-					bestCloseness = closeness;
-				}
-			}
-		}
-		return temp;
-	}
+	
+	/**
+	 * Gets the type that this class represents.
+	 */
+	public JavaType getType() {
+		return JavaType.getType(this.getName());
+	} 
 	
 	/**
 	 * ==================================================================================================
@@ -196,37 +209,36 @@ public class JavaClass extends JavaType implements Nameable {
 	 * it can extend it properly.
 	 */
 	public void visitExtension(GNode n) {
-		/** 
-		 * get the name of the class we inherit from, as:
-		 *	Extension(
-		 *		(0) - Type(
-		 *			(0) - QualifiedIdentifier(
-		 *				(0) - "Object"
-		 *			),
-		 *			null
-		 *		)
-		 *	)
-		 */
 		//java only supports single inheritance...no need for loops or anything here
 		this.setParent((String)((GNode)((GNode)n.get(0)).get(0)).get(0));
 	}
 	
 	/**
-	 * Take in a method.  Adds the method to our method table with its signature.
+	 * Take in a method.  Adds the method to our method table.
 	 */
 	public void visitMethodDeclaration(GNode n) {
 		JavaMethod m = new JavaMethod(this, n);
-		//this.methods.put(m.getSignature(), m);
+		String name = m.getName();
+		
+		if (!this.methods.containsKey(name))
+			this.methods.put(name, new ArrayList<JavaMethod>());
+		
+		this.methods.get(name).add(m);
 	}
 	
-	public void visitConstructorDeclaration(GNode n) {
-	}
-
 	/**
 	 * Create a FieldDec object, the FieldDec will handle everything else so this is all we need to do.
 	 */
 	public void visitFieldDeclaration(GNode n) {
 		FieldDec f = new FieldDec(this, n);
 	}
-
+	
+	/**
+	 * We process modifiers on instantiation, so skip that here.
+	 */
+	public void visitModifiers(GNode n) { }
+	
+	public void visitConstructorDeclaration(GNode n) {
+		//special...yay :(
+	}
 }
