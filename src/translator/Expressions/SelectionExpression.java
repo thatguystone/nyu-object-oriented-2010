@@ -19,25 +19,32 @@ class SelectionExpression extends JavaExpression {
 	/**
 	 * Name of the selectee.
 	 */
-	String selecteeName;
+	String selecteeName = "";
 
 	/**
 	 * The actual selectee.
 	 */
 	JavaScope selectee = null;
 
-	SelectionExpression(JavaScope scope, Node n) {
+	public SelectionExpression(JavaScope scope, Node n) {
 		super(scope, n);
-		this.dispatch(n);
-		this.selecteeName = (String)n.get(1);
 	}
 
+	/**
+	 * This method will be called by the selection expression's child.
+	 * Basically selection expressions are too stupid to resolve their own problems so they
+	 * push their work onto their child... yea, a real role model.
+	 */
 	public String getName() {
-		return this.selector.getName() + selecteeName + ".";
+		return this.selecteeName;
 	}
 
-	protected void onInstantiate() {
-		if(this.selector.getReturnType() == null) {
+	protected void onInstantiate(GNode n) {
+		this.selector = this.dispatch((Node)n.get(0));
+		if (this.getScope() instanceof SelectionExpression)
+			this.selecteeName = ((SelectionExpression)this.getScope()).getName() + ".";
+		this.selecteeName += (String)n.get(1);
+		if (this.selector.getReturnType() == null) {
 			//this.selectee = this.getFile().getImport(selector.getName() + selecteeName);
 			//this.setReturnType((JavaClass)this.selectee);
 		}		
@@ -45,15 +52,10 @@ class SelectionExpression extends JavaExpression {
 			//this.selectee = this.selector.getReturnType().getField(selecteeName);
 			//this.setReturnType(((JavaField)this.selectee).getType());
 		}
+		this.setType(((JavaExpression)this.getScope()).getType());
 	}
 
-	/**
-	 * Set our selector.
-	 */
-	public void processExpression(JavaExpression expression) {
-		if(this.selector == null)
-			this.selector = expression;
+	public String printMe() {
+		
 	}
-
-	
 }

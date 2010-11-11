@@ -149,6 +149,10 @@ public class JavaScope extends Visitor {
 	public JavaExpression visitStringLiteral(GNode n) {
 		return new StringLiteral(this, n);
 	}
+
+	public JavaExpression visitSelectionExpression(GNode n) {
+		return new SelectionExpression(this, n);
+	} 
 	
 	/**
 	 * The default visitor method from Visitor.
