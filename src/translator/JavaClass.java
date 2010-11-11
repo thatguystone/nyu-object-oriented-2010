@@ -5,7 +5,7 @@ import xtc.tree.GNode;
 import xtc.tree.Node;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 
 public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	/**
@@ -22,10 +22,11 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * List of all virtual methods in this class (v is for virtual).
 	 * Method name -> Method object
 	 */
-	private LinkedHashMap<String, ArrayList<JavaMethod>> methods = new LinkedHashMap<String, ArrayList<JavaMethod>>();
+	private HashMap<String, ArrayList<JavaMethod>> methods = new HashMap<String, ArrayList<JavaMethod>>();
 	
 	/**
-	 * The VTable list of methods (in the order they need to appear).
+	 * The VTable list of methods (in the order they need to appear). This is used for nothing but maintaining
+	 * the order of the VTable.
 	 */
 	private ArrayList<JavaMethod> vtable = new ArrayList<JavaMethod>();
 	
@@ -67,6 +68,22 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		
 		//once we're sure we have a parent, then add all our inherited methods
 		this.setupVTable();
+	}
+	
+	/**
+	 * Determines if we are a subclass of another class.
+	 */
+	public boolean isSubclassOf(JavaClass cls) {
+		//if we are the same! yay!
+		if (this == cls)
+			return true;
+		
+		//if we reach the top, we're clearly not
+		if (this.parent == null)
+			return false;
+		
+		//if we're not at the top, ask our parent
+		return this.parent.isSubclassOf(cls);
 	}
 	
 	/**
@@ -148,52 +165,46 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	
 	/**
-	 * Gets the method from its signature.
-	 */
-	public JavaMethod getMethod(String name, JavaMethodSignature sig) {
-		//do we even have any methods with this name?
-		if (!this.methods.containsKey(name))
-			return null;
-		
-		for (JavaMethod m : this.methods.get(name)) { 
-			if (m.equals(sig))
-				return m;
-		}
-		
-		return null;
-	}
-
-	/**
-	 * Attempts to get a method from this class given a method.
+	 * Replaces the older version of getMethod() to take into account overaloding: it will find the method
+	 * that has the signature closest to the one provided.
+	 *
+	 * @return The method that is the closest match to the requested method signature.  Null if no method
+	 * was found (but since the Java is assumed to compile, this should be considered a fatal internal error.
 	 */
 	public JavaMethod getMethod(JavaMethod m) {
 		return this.getMethod(m.getName(), m.getSignature());
 	}
 	
 	/**
-	 * This is for overloading: it will find the method that has the signature closest to the
-	 * one provided.
-	 */
-	public JavaMethod findClosestMethod(JavaMethod m) {
-		return this.findClosestMethod(m.getName(), m.getSignature());
-	}
-	
-	/**
-	 * This is for overloading: it will find the method that has the signature closest to the
-	 * one provided.
+	 * Replaces the older version of getMethod() to take into account overaloding: it will find the method
+	 * that has the signature closest to the one provided.
+	 *
+	 * @return The method that is the closest match to the requested method signature.  Null if no method
+	 * was found (but since the Java is assumed to compile, this should be considered a fatal internal error.
 	 */ 
-	public JavaMethod findClosestMethod(String name, JavaMethodSignature sig) {
+	public JavaMethod getMethod(String name, JavaMethodSignature sig) {
+		//let's see if we actually have that method defined in the first place before we start searching
+		if (!this.methods.containsKey(name))
+			return null;
+		
+		//we need to find all the methods that apply to the signature, and then
+		//find the most specific.
+		//let's see if we can do it in one loop without any major data structures
+	
 		//assuming it compiles, we're all good with being naïve and just
 		//finding some method
 		JavaMethod found = null;
 		for (JavaMethod m : this.methods.get(name)) {
-			//if we're on our first round 
-			if (found == null) {
-				found = m;
-			} else {
-				//we can compare the currently "found" method to another
-				//to see if it's a closer match than what we're considering
-				if (found.isMoreSpecific(sig, m.getSignature())) {
+			//only look at the method if it actually applies to the signature we have
+			if (m.canBeUsedAs(sig)) {
+				//if we're on our first round
+				if (found == null) {
+					found = m;
+				} else if (!m.canBeUsedAs(found)) {
+					//if our testing method can't be used as the found,
+					//then it _must_ be more specific than found as, by now,
+					//the testing method applies to the signature, and it would
+					//only be rejected if it were more specific than found
 					found = m;
 				}
 			}

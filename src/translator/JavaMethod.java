@@ -10,7 +10,7 @@ import xtc.tree.GNode;
  * it takes the Block GNode and sets it to be the node that is visited on activation, and it visits on all the 
  * other nodes of the GNode on instantiation.  In this way, we can get all information about the method by doing
  * minimal visiting on creation, and when activated, we will translate the Block that we saved.
- */ 
+ */
 public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	/**
 	 * Our overloadable method name.
@@ -84,6 +84,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	
 	/**
 	 * Checks to see if this method is equal to another based on its signature.
+	 * Note: method name is not a factor of this comparison, only the signature matters.
 	 */
 	public boolean equals(JavaMethod m) {
 		return this.equals(m.getSignature());
@@ -91,20 +92,29 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	
 	/**
 	 * Checks to see if this method is equal to another based on its signature.
+	 * Note: method name is not a factor of this comparison, only the signature matters.
 	 */
 	public boolean equals(JavaMethodSignature sig) {
 		return this.sig.equals(sig);
 	}
 	
 	/**
-	 * Checks to see if the given signature, "orig", is more specific than the signature of this method
-	 * when compared with "compare".
-	 *
-	 * @param orig The method signature we are trying to get closest to.
-	 * @param compare The method signature to compare this method to, to see if it's closer to orig.
+	 * Determines if this method can take the parameters of the given method.
+	 * Note: method name is not a factor of this comparison, only the signature matters.
 	 */
-	public boolean isMoreSpecific(JavaMethodSignature orig, JavaMethodSignature compare) {
-		return this.getSignature().isMoreSpecific(orig, compare);
+	public boolean canBeUsedAs(JavaMethod m) {
+		return this.canBeUsedAs(m.getSignature());
+	}
+	
+	/**
+	 * Determines if this method can take the parameters given in the signature.
+	 * Note: method name is not a factor of this comparison, only the signature matters.
+	 *
+	 * This is just a higher-level accessor that accesses this.getSignature() and passes off the compare.
+	 * Using this method is preferable to going directly to the signature.
+	 */
+	public boolean canBeUsedAs(JavaMethodSignature sig) {
+		return this.getSignature().canBeUsedAs(sig);
 	}
 	
 	/**
@@ -199,13 +209,5 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	public void visitFormalParameter(GNode n) {
 		this.sig.add(JavaType.getType(this, ((GNode)((GNode)n.get(1)).get(0)).get(0).toString()), this);
-	}
-	
-	/**
-	 * ==================================================================================================
-	 * Visitor Methods -- for Activation
-	 */
-	public void visitBlock(GNode n) {
-		JavaBlock b = new JavaBlock(this, n);
 	}
 }

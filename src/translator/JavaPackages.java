@@ -84,7 +84,35 @@ class JavaPackages {
 	}
 	
 	public void wrapUp() {
+		/*
+		//Testing overloading resolution
+		getClass("java.lang.String").activate();
+	
+		JavaClass cls = getClass("defaultPkg.caseCall");
+		JavaMethodSignature sig = new JavaMethodSignature();
+		sig.add(JavaType.getType("java.lang.Object"), new JavaScope(null));
+		sig.add(JavaType.getType("java.lang.String"), new JavaScope(null));
 		
+		System.out.println(cls.getMethod("test2", sig).getSignature().toString());
+		
+		sig = new JavaMethodSignature();
+		sig.add(JavaType.getType("java.lang.String"), new JavaScope(null));
+		sig.add(JavaType.getType("java.lang.Object"), new JavaScope(null));
+		
+		System.out.println(cls.getMethod("test2", sig).getSignature().toString());
+		
+		sig = new JavaMethodSignature();
+		sig.add(JavaType.getType("java.lang.String"), new JavaScope(null));
+		sig.add(JavaType.getType("java.lang.String"), new JavaScope(null));
+		
+		System.out.println(cls.getMethod("test2", sig).getSignature().toString());
+		
+		sig = new JavaMethodSignature();
+		sig.add(JavaType.getType("java.lang.Object"), new JavaScope(null));
+		sig.add(JavaType.getType("java.lang.Object"), new JavaScope(null));
+		
+		System.out.println(cls.getMethod("test2", sig).getSignature().toString());
+		*/
 	}
 	
 	/**

@@ -55,8 +55,42 @@ public class JavaMethodSignature {
 		return true;
 	}
 	
-	public boolean isMoreSpecific(JavaMethodSignature orig, JavaMethodSignature compare) {
-		System.out.println("Need to implement: JavaMethodSignature.isMoreSpecific()");
-		return false;
+	/**
+	 * Gets the number of arguments contained in this signature.
+	 */
+	public int size() {
+		return this.sig.size();
+	}
+	
+	/**
+	 * Determines if this signature can be used to identify the given signature.  That is, if this
+	 * signature is: <br><br>
+	 * 
+	 *  1) The same length as the given<br>
+	 *  2) The arguments for the given are at least as equal to this (ie. primitives can be expanded
+	 *     to whatever given, classes are equal to or are parent classes of the others, etc).<br> 
+	 *  3) The planets are aligned properly.<br><br>
+	 *
+	 * This can be a confusing call, so I'll explain with an example:<br><br>
+	 * 
+	 * Assume: this.sig = {Object, Object}; sig.sig = {Object, String}<br>
+	 * For the first arguments, isChildOf will return true (Object is a child of Object, no matter which way compared)<br>
+	 * For the second arguments, we will see if String (from sig.sig) is a child of Object (from this.sig)<br>
+	 * It will return true, so we're good, and sig.sig can be used as (Object, Object)<br><br>
+	 *
+	 * On the opposing side, assume: this.sig = {Object, String}; sig.sig = {Object, Object}<br>
+	 * It would then return false as Object IS NOT a child of String, so (Object, Object) CANNOT be used as (Object, String)
+	 */
+	public boolean canBeUsedAs(JavaMethodSignature sig) {
+		if (this.size() != sig.size())
+			return false;
+		
+		//go through all of our internal arguments, and compare them to the other's
+		for (int i = 0; i < this.size(); i++) {
+			if (!sig.sig.get(i).type.isChildOf(this.sig.get(i).type))
+				return false;
+		}
+		
+		return true;
 	}
 }
