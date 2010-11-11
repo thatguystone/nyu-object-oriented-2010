@@ -200,13 +200,12 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 				//if we're on our first round
 				if (found == null) {
 					found = m;
-				} else {
+				} else if (!m.canBeUsedAs(found)) {
 					//if our testing method can't be used as the found,
 					//then it _must_ be more specific than found as, by now,
 					//the testing method applies to the signature, and it would
 					//only be rejected if it were more specific than found
-					if (!m.canBeUsedAs(found))
-						found = m;
+					found = m;
 				}
 			}
 		}
