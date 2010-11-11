@@ -74,7 +74,7 @@ public class CallExpression extends JavaExpression {
 
 	public String printMe() {
 		if (caller == null && method.isStatic())
-			return methodName + "(" + sig.print() + ")";
+			return methodName + "(" + sig.print()/*not implemented*/ + ")";
 		
 	}
 
