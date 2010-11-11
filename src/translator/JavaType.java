@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 /**
  * The current setup for expressions requires this class.
  */
-public class JavaType {
+abstract public class JavaType {
 	/**
 	 * If this class has been prepared and is ready for use (stops prepare() from being run more than once).
 	 */
@@ -15,37 +15,85 @@ public class JavaType {
 	 * The list of all types we know about, including primitives.
 	 */
 	private static LinkedHashMap<String, JavaType> types = new LinkedHashMap<String, JavaType>(); 
-
-	/**
-	 * The name of the type.
-	 */
-	private String javaType;
 	
 	/**
-	 * If we're not primitive, then the class.
+	 * A class that represents primitives and their "inheritance".
 	 */
-	private JavaClass cls;
-	
-	/**
-	 * The cpp name of the type.
-	 */
-	private String cppType;
-
-	private JavaType(JavaClass cls) {
-		this.javaType = cls.getName();
-		this.cls = cls;
+	private static class Primitive extends JavaType {
+		/**
+		 * The name of the primitive type being represented.
+		 */
+		private String typeName;
 		
-		types.put(javaType, this);
+		/**
+		 * The name of the cpp type for the primitive.
+		 */
+		private String cppTypeName;
+		
+		/**
+		 * The parent of this type. Null if there is no parent.
+		 */
+		private JavaType parent;
+		
+		/**
+		 * Setup the basic parameters for the primitive type.
+		 */
+		Primitive(String javaTypeName, String cppTypeName, Primitive parent) {
+			super(javaTypeName);
+			this.typeName = typeName;
+			this.cppTypeName = cppTypeName;
+			this.parent = parent;
+		}
+		
+		/**
+		 * Determines if we are a child of some parent primitive type.
+		 */
+		protected boolean hasParent(JavaType parent) {
+			//only ever 1 instance of the type
+			if (parent == this)
+				return true;
+			
+			//if we reach the top, we're clearly not
+			if (this.parent == null)
+				return false;
+			
+			//maybe our parent is, thus making us one, too?
+			return this.parent.hasParent(parent);
+		}
 	}
 	
 	/**
-	 * Handles our primitives.
+	 * A class that represents classes.
 	 */
-	private JavaType(String javaType, String cppType) {
-		this.javaType = javaType;
-		this.cppType = cppType;
+	private static class Object extends JavaType {
+		/**
+		 * The JavaClass we will use to interface with primitives.
+		 */
+		private JavaClass cls;
 		
-		types.put(javaType, this);
+		/**
+		 * Basic setup for the object type.
+		 */
+		Object(JavaClass cls) {
+			super(cls.getName());
+			this.cls = cls;
+		}
+
+		/**
+		 * Determines if we are a child of some parent class.
+		 */
+		protected boolean hasParent(JavaType parent) {
+			//we count on this only being called if the JavaType we're given
+			//is an object
+			return this.cls.isSubclassOf(((Object)parent).cls);
+		}
+	}
+	
+	/**
+	 * Constructor.  Should only be accessible by the internal classes for instantiation.
+	 */
+	private JavaType(String typeName) {
+		types.put(typeName, this);
 	}
 	
 	/**
@@ -57,23 +105,18 @@ public class JavaType {
 		
 		prepared = true;
 		
-		//and add all our primitives
-		new JavaType("char", "char");
-		new JavaType("byte", "int8_t");
-		new JavaType("short", "int16_t");
-		new JavaType("int", "int32_t");
-		new JavaType("long", "int64_t");
-		new JavaType("float", "float");
-		new JavaType("double", "double");
-		new JavaType("boolean", "bool");
-		new JavaType("void", "void");
-	}
-	
-	/**
-	 * Gets the name of the type (as a string) in Java.
-	 */
-	public String getTypeName() {
-		return this.javaType;
+		//and add all our primitives in the order they can be cast to
+		Primitive dbl = new Primitive("double", "double", null);
+		Primitive flt = new Primitive("float", "float", dbl);
+		Primitive lng = new Primitive("long", "int64_t", flt);
+		Primitive it = new Primitive("int", "int32_t", lng);
+		Primitive chr = new Primitive("char", "char_t", it);
+		Primitive shrt = new Primitive("short", "int16_t", it);
+		Primitive byt = new Primitive("byte", "int8_t", shrt);
+		
+		//and those tricky primitives that can't be cast to anything
+		new Primitive("void", "void", null);
+		new Primitive("boolean", "bool", null);
 	}
 	
 	/**
@@ -97,9 +140,45 @@ public class JavaType {
 		//if we have the type cached, throw it back to him
 		if (!types.containsKey(type)) {
 			//the class isnt here yet, so add it on-demand
-			new JavaType(JavaStatic.pkgs.getClass(type));
+			new Object(JavaStatic.pkgs.getClass(type));
 		}
 		
 		return types.get(type);
+	}
+
+	/**
+	 * ==================================================================================================
+	 * Methods that determine java type information
+	 */
+	 
+	/**
+	 * Are we just a wee primitive?  No need to push this off to the inner classes as there will only ever
+	 * be two, and putting them there is just adding more code...but we could. Eh. This works.
+	 */
+	public boolean isPrimitive() {
+		return (this instanceof Primitive);
+	}
+	
+	/**
+	 * Determines if we are a child of some parent class.
+	 * Will only ever be called when the object is the same class as the parent; that is, it will only
+	 * be called when (this.getClass() == parent.getClass()), so you do not need to worry about checks like
+	 * that.
+	 */
+	protected abstract boolean hasParent(JavaType parent);
+	
+	/**
+	 * Determines if we are a subclass / sub-primitive of the given type.  In other words, given another
+	 * JavaType, it determines if that JavaType is one of our parents.
+	 * Note: a class is a child of itself.
+	 */
+	public boolean isChildOf(JavaType parent) {
+		//are we comparing a primitive with a class (or vis-versa)?
+		if (!this.getClass().isInstance(parent))
+			return false;
+		
+		//we can do a direct memory compare on this and parent because we only ever have 1 instance
+		//of the type floating around
+		return (this == parent || this.hasParent(parent));
 	}
 }

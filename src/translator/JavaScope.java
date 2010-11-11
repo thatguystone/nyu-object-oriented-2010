@@ -139,6 +139,7 @@ public class JavaScope extends Visitor {
 	 */
 	
 	public JavaExpression visitCallExpression(GNode n) {
+	System.out.println("hey there");
 		return new CallExpression(this, n);
 	}
 	
@@ -148,6 +149,14 @@ public class JavaScope extends Visitor {
 	
 	public JavaExpression visitStringLiteral(GNode n) {
 		return new StringLiteral(this, n);
+	}
+	
+	public void visitBlock(GNode n) {
+		new JavaScope(this, n) {
+			protected void onInstantiate(GNode n) {
+				this.visit(n);
+			}
+		};
 	}
 	
 	/**

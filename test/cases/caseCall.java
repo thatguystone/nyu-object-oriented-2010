@@ -7,6 +7,26 @@ public class caseCall {
 	public caseCall test2(String a) {
 		return this;
 	}
+	
+	public caseCall test2(Object a) {
+		return this;
+	}
+	
+	public caseCall test2(Object a, Object b) {
+		return this;
+	}
+	
+	public caseCall test2(Object a, String b) {
+		return this;
+	}
+	
+	public caseCall test2(String a, Object b) {
+		return this;
+	}
+	
+	public caseCall test2(String a, String b) {
+		return this;
+	}
 }
 
 class caseCall2 extends caseCall {

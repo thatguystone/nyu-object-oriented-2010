@@ -125,6 +125,13 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 	}
 	
 	/**
+	 * Set the default visibility for this scope item. Defaults to PackageProtected if not overriden.
+	 */
+	protected Visibility getDefaultVisibility() {
+		return Visibility.PUBLIC;
+	}
+	
+	/**
 	 * ==================================================================================================
 	 * Nameable Methods
 	 */
