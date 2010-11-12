@@ -139,7 +139,6 @@ public class JavaScope extends Visitor {
 	 */
 	
 	public JavaExpression visitCallExpression(GNode n) {
-	System.out.println("hey there");
 		return new CallExpression(this, n);
 	}
 	
