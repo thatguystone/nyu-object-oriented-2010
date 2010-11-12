@@ -1,6 +1,7 @@
 package translator;
 
 import java.util.HashMap;
+import java.util.ArrayList;
 
 import xtc.tree.Node;
 import xtc.tree.GNode;
@@ -28,6 +29,12 @@ public class JavaScope extends Visitor {
 	 * List of all fields in this scope.
 	 */
 	private HashMap<String, JavaField> fields = new HashMap<String, JavaField>();
+
+	/**
+	 * List of all statements/fields in this block in the order they appear.
+	 * DO NOT JUST DELETE. WE NEED TO STORE STATEMENTS.
+	 */
+	private ArrayList<JavaScope> statements = new ArrayList<JavaScope>();
 
 	/**
 	 * Do some frikking-sweet calling.
@@ -106,6 +113,14 @@ public class JavaScope extends Visitor {
 	public JavaScope getScope() {
 		return this.scope;
 	}
+
+	/**
+	 * Get the method I'm a part of.
+	 * This is needed because we're creating new fields in methods (__this/__chain).
+	 */
+	public JavaMethod getMyMethod() {
+		return this.getScope().getMyMethod();
+	}
 	
 	/**
 	 * ==================================================================================================
@@ -131,6 +146,11 @@ public class JavaScope extends Visitor {
 	 */
 	public void addField(JavaField fld) {
 		this.fields.put(fld.getName(), fld);
+	}
+
+
+	public void addStatement(JavaScope scope) {
+		this.statements.add(scope);
 	}
 	
 	/**

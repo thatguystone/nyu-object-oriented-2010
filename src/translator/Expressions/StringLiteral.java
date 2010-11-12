@@ -19,4 +19,6 @@ public class StringLiteral extends JavaExpression {
 		this.setType(JavaType.getType("java.lang.String"));
 		this.value = n.get(0).toString();
 	}
+
+	public String printMe() {}
 }

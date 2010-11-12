@@ -18,6 +18,21 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	private String name;
 
 	/**
+	 * The name of this method's "this" if it's in use.
+	 */
+	private String __this = "__this";
+
+	/**
+	 * The name of this method's chaining variable if it's in use.
+	 */
+	private String chain = "__chain";
+
+	/**
+	 * Does this method have chaining?
+	 */
+	private boolean chaining = false;
+
+	/**
 	 * Our method signature.
 	 */
 	private JavaMethodSignature sig;
@@ -76,7 +91,47 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	protected void process() {
 		this.dispatch(this.node);
 	}
+
+	/**
+	 * ==================================================================================================
+	 * New Variable Methods(this/chain)
+	 */
+
+	/**
+	 * A call expression in this method has determined we have chaining.
+	 */
+	public void hasChaining() {
+		this.chaining = true;
+	}
+
+	/**
+	 * Get the current name of our "this".
+	 */
+	public String getThis() {
+		return this.__this;
+	}
 	
+	/**
+	 * Get the current name of our chain variable.
+	 */
+	public String getChain() {
+		return this.chain;
+	}
+
+	/**
+	 * Updates the this variable if it has the same name as a field.
+	 */
+	public void updateThis() {
+		this.__this = "_" + this.__this;
+	}
+	
+	/**
+	 * Updates the chain variable if it has the same name as a field.
+	 */
+	public void updateChain() {
+		this.chain = "_" + this.chain;
+	}
+
 	/**
 	 * ==================================================================================================
 	 * Comparing Methods
@@ -172,6 +227,13 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	public JavaMethodSignature getSignature() {
 		return this.sig;
+	}
+
+	/**
+	 * Gets this method, fields and expressions o=in this method will need this.
+	 */
+	public JavaMethod getMyMethod() {
+		return this;
 	}
 	
 	/**

@@ -176,6 +176,13 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	}
 	
 	/**
+	 * You're not in a method.
+	 */
+	public JavaMethod getMyMethod() {
+		return null;
+	}
+
+	/**
 	 * Replaces the older version of getMethod() to take into account overaloding: it will find the method
 	 * that has the signature closest to the one provided.
 	 *

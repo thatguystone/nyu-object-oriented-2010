@@ -2,6 +2,7 @@ package translator.Expressions;
 
 import java.util.ArrayList;
 
+import translator.JavaClass;
 import translator.JavaMethod;
 import translator.JavaMethodSignature;
 import translator.JavaScope;
@@ -31,6 +32,11 @@ public class CallExpression extends JavaExpression {
 	 * The called method.
 	 */
 	JavaMethod method;
+
+	/**
+	 * Is this expression part of a method chain?
+	 */
+	private boolean chaining = false;
 	
 	/**
 	 * Why java, why?! Just override constructors :(
@@ -43,6 +49,15 @@ public class CallExpression extends JavaExpression {
 		//this.sig is not yet instantiated...so we can't use it.
 		//seriously, wtf, java?
 		this.visit(n);
+		
+		//get our method from our caller's type, the method name, and the method signature.
+		this.method = ((JavaClass)this.caller.getType()).getMethod(this.methodName, this.sig);
+
+
+		if ((this.caller instanceof CallExpression) && !this.method.isStatic()) {
+			this.chaining = true;
+			this.getMyMethod().hasChaining();
+		}
 	}
 
 	/**
@@ -65,8 +80,7 @@ public class CallExpression extends JavaExpression {
 	 */
 	private void setupCaller(GNode n) {
 		if (n == null) {
-			//our parent? I think this is what the code was attempting to do before
-			this.caller = (JavaExpression)this.getScope();
+			this.caller = null;
 		} else {
 			this.caller = (JavaExpression)this.dispatch(n);
 		}

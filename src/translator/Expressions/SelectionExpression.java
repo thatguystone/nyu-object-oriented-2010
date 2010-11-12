@@ -9,7 +9,7 @@ import xtc.tree.Visitor;
 /**
  * Selections Expressions, hours of debugging fun free of charge!
  */
-class SelectionExpression extends JavaExpression {
+public class SelectionExpression extends JavaExpression {
 
 	/**
 	 * The JavaExpression making the selection.
@@ -26,7 +26,7 @@ class SelectionExpression extends JavaExpression {
 	 */
 	JavaScope selectee = null;
 
-	public SelectionExpression(JavaScope scope, Node n) {
+	public SelectionExpression(JavaScope scope, GNode n) {
 		super(scope, n);
 	}
 
