@@ -56,14 +56,6 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		this.name = (String)n.get(0);
 		this.getScope().addField(this);
 
-		//if we're a method field we need to add ourself to the statement list and check for conflicts with __this and chain.
-		JavaMethod method;
-		if ((method = this.getMyMethod()) != null) {
-			method.addStatement(this);
-			if (method.getThis().equals(this.name)) method.updateThis();
-			if (method.getChain().equals(this.name)) method.updateChain();
-		}
-
 		this.dispatch(n);	
 	}
 
