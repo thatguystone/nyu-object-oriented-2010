@@ -40,11 +40,11 @@ public class SelectionExpression extends JavaExpression {
 	}
 
 	protected void onInstantiate(GNode n) {
-		this.selector = this.dispatch((Node)n.get(0));
+		this.selector = (JavaExpression)this.dispatch((Node)n.get(0));
 		if (this.getScope() instanceof SelectionExpression)
 			this.selecteeName = ((SelectionExpression)this.getScope()).getName() + ".";
 		this.selecteeName += (String)n.get(1);
-		if (this.selector.getReturnType() == null) {
+		if (this.selector.getType() == null) {
 			//this.selectee = this.getFile().getImport(selector.getName() + selecteeName);
 			//this.setReturnType((JavaClass)this.selectee);
 		}		
@@ -56,6 +56,6 @@ public class SelectionExpression extends JavaExpression {
 	}
 
 	public String printMe() {
-		
+		return "I am a selection expression. FEAR ME!";
 	}
 }
