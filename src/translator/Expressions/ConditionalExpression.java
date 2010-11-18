@@ -19,15 +19,15 @@ public class ConditionalExpression extends JavaExpression {
 	}
 
 	protected void onInstantiate(GNode n) {
-		expressions[0] = this.dispatch((GNode)n.get(0));
-		expressions[1] = this.dispatch((GNode)n.get(1));
-		expressions[2] = this.dispatch((GNode)n.get(2));
+		expressions[0] = (JavaExpression)this.dispatch((GNode)n.get(0));
+		expressions[1] = (JavaExpression)this.dispatch((GNode)n.get(1));
+		expressions[2] = (JavaExpression)this.dispatch((GNode)n.get(2));
 
 		this.setType(expressions[1].getType());
 	}
 
 	public String printMe() {
-		return "(" + expression[0].printMe() + "?" + expression[1].printMe() + ":" + expression[2].printMe() + ")";
+		return "(" + expressions[0].printMe() + "?" + expressions[1].printMe() + ":" + expressions[2].printMe() + ")";
 	}
 
 }

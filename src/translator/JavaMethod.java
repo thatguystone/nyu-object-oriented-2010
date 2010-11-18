@@ -18,16 +18,6 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	private String name;
 
 	/**
-	 * The name of this method's "this" if it's in use.
-	 */
-	private String __this = "__this";
-
-	/**
-	 * The name of this method's chaining variable if it's in use.
-	 */
-	private String chain = "__chain";
-
-	/**
 	 * Does this method have chaining?
 	 */
 	private boolean chaining = false;
@@ -102,34 +92,6 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	public void hasChaining() {
 		this.chaining = true;
-	}
-
-	/**
-	 * Get the current name of our "this".
-	 */
-	public String getThis() {
-		return this.__this;
-	}
-	
-	/**
-	 * Get the current name of our chain variable.
-	 */
-	public String getChain() {
-		return this.chain;
-	}
-
-	/**
-	 * Updates the this variable if it has the same name as a field.
-	 */
-	public void updateThis() {
-		this.__this = "_" + this.__this;
-	}
-	
-	/**
-	 * Updates the chain variable if it has the same name as a field.
-	 */
-	public void updateChain() {
-		this.chain = "_" + this.chain;
 	}
 
 	/**

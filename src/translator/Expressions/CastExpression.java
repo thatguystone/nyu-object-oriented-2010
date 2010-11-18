@@ -3,6 +3,7 @@ package translator.Expressions;
 import translator.JavaType;
 import translator.JavaScope;
 import xtc.tree.GNode;
+import xtc.tree.Node;
 
 /**
  * A cast.
@@ -19,7 +20,7 @@ public class CastExpression extends JavaExpression {
 	}
 
 	protected void onInstantiate(GNode n) {
-		this.casted = this.dispatch((GNode)n.get(1));
+		this.casted = (JavaExpression)this.dispatch((GNode)n.get(1));
 		this.dispatch((GNode)n.get(0));
 	}
 
@@ -29,13 +30,13 @@ public class CastExpression extends JavaExpression {
 
 	public void visitQualifiedIdentifier(GNode n) {
 		String temp = "";
-		for (Node g : n)
+		for (Object g : n)
 			temp += (String)g + ".";
-		temp = temp.subString(0, temp.length() - 1);
+		temp = temp.substring(0, temp.length() - 1);
 		this.setType(JavaType.getType(this, temp));
 	}
 
 	public String printMe() {
-		return "((" + this.getType().print() + ")" + this.casted.printMe() + ")";
+		return "((" /*+ this.getType().print()*/ /*print method not yet implemented*/ + ")" + this.casted.printMe() + ")";
 	}
 }

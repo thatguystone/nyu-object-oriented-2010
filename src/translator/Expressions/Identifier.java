@@ -77,5 +77,7 @@ public class Identifier extends JavaExpression implements Nameable {
 
 
 
-	public String printMe() {}
+	public String printMe() {
+		return "I'm not implemented!";
+	}
 }

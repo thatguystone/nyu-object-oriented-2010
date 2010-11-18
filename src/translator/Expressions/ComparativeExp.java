@@ -22,17 +22,17 @@ public class ComparativeExp extends JavaExpression {
 	/**
 	 * The second operand.
 	 */
-	JavaExspression second;
+	JavaExpression second;
 
-	public Comparative(JavaScope scope, GNode n) {
+	public ComparativeExp(JavaScope scope, GNode n) {
 		super(scope, n);
 	}
 
 	protected void onInstantiate(GNode n) {
 		this.operator = (String)n.get(1);
 
-		this.first = this.dispatch((GNode)n.get(0));
-		this.second = this.dispatch((GNode)n.get(2));
+		this.first = (JavaExpression)this.dispatch((GNode)n.get(0));
+		this.second = (JavaExpression)this.dispatch((GNode)n.get(2));
 
 		//this.setType(JavaType.getType(null, "boolean"));
 	}

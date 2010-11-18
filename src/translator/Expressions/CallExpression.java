@@ -51,7 +51,8 @@ public class CallExpression extends JavaExpression {
 		this.visit(n);
 		
 		//get our method from our caller's type, the method name, and the method signature.
-		this.method = ((JavaClass)this.caller.getType()).getMethod(this.methodName, this.sig);
+		//can no longer get a class from a type, will need to fix this once types are complete
+		//this.method = ((JavaClass)this.caller.getType()).getMethod(this.methodName, this.sig);
 
 
 		if ((this.caller instanceof CallExpression) && !this.method.isStatic()) {
@@ -88,8 +89,8 @@ public class CallExpression extends JavaExpression {
 
 	public String printMe() {
 		if (caller == null && method.isStatic())
-			return methodName + "(" + sig.print()/*not implemented*/ + ")";
-		
+			return methodName + "(" /*+ sig.print()*/ /*not implemented*/ + ")";
+		return "hi";
 	}
 
 	/**
