@@ -13,7 +13,6 @@ class JavaStatement extends JavaScope {
 	 * SAEKJFA;WIE JF K;LSDFJ ASILD JFASD;IFJ!!!!!!! WHY DOES JAVA NOT INHERIT CONSTRUCTORS?!?!?!?!?!?!?!?!?!??!
 	 * This feels so dirty and wrong.
 	 */
-
 	JavaScope header;
 	ArrayList<JavaScope> subscope = new ArrayList<JavaScope>();
 	JavaStatement(JavaScope scope, GNode n) {
