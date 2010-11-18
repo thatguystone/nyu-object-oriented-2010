@@ -14,7 +14,7 @@ import xtc.tree.Visitor;
  * and a type array in the same field declaration, with arrays being their own type
  * post-translation this is no longer possible
  */
-class FieldDec extends Visitor {
+public class FieldDec extends Visitor {
 
 	/**
 	 * Is this declaration static.
@@ -44,7 +44,7 @@ class FieldDec extends Visitor {
 	/**
 	 * Constructor. Not much else to say here.
 	 */
-	FieldDec(JavaScope scope, Node n) {
+	public FieldDec(JavaScope scope, Node n) {
 		this.scope = scope;
 		this.dispatch(n);
 	}
