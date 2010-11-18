@@ -13,8 +13,12 @@ class JavaBasicForControl extends JavaScope{
 		super(scope,n);
 	}
 	protected void onInstantiate(GNode n){
-		ForExpression=dispatch((GNode)n.set(3,null));
-		ForUpdate=dispatch((GNode)n.set(4,null));
+		if (n.get(3)!=null){
+			ForExpression=dispatch((GNode)n.set(3,null));
+		}
+		if (n.get(4)!=null){
+			ForUpdate=dispatch((GNode)n.set(4,null));
+		}
 		if (n.get(1)!=null){  /** if this node has a type **/
 			new FieldDec(this,n){
 				public void visitDeclarator(GNode n){
