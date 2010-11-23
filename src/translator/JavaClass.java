@@ -6,6 +6,8 @@ import xtc.tree.Node;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	/**
@@ -24,6 +26,11 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	private HashMap<String, ArrayList<JavaMethod>> methods = new HashMap<String, ArrayList<JavaMethod>>();
 	
+	/**
+	 * List of all inherited fields in this scope.
+	 */
+	private LinkedHashMap<String, JavaField> inheritedFields = new LinkedHashMap<String, JavaField>();
+
 	/**
 	 * The VTable list of methods (in the order they need to appear). This is used for nothing but maintaining
 	 * the order of the VTable.
@@ -118,7 +125,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		CodeBlock cls = b.block("class " + this.getName(false));
 		
 		System.out.println("Method size (" + this.getName() + "): " + this.methods.size());
-		
+
 		//@TODO Print all fields
 		//we need to print all the fields out to each class definition
 		
@@ -270,6 +277,18 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 				if (m.isAtLeastVisible(Visibility.PROTECTED) && !m.isStatic())
 					this.vtable.add(m);
 			}
+		}
+		// If we have a parent
+		if (this.parent != null) {
+			// Inherit all of it's fields
+			this.inheritedFields.putAll(this.parent.inheritedFields);
+		}
+		// To preserve the integrity our of data we use a Set
+		HashSet<String> s = new HashSet<String>(this.inheritedFields.keySet());
+		// MANGLE MANGLE MANGLE
+		for (JavaField f : this.getAllFields()) {
+			f.mangleName(s);
+			this.inheritedFields.put(f.getName(), f);
 		}
 	}
 

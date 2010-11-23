@@ -1,6 +1,7 @@
 package translator;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
 
 import xtc.tree.Node;
 import xtc.tree.GNode;
@@ -27,7 +28,7 @@ public class JavaScope extends Visitor {
 	/**
 	 * List of all fields in this scope.
 	 */
-	private HashMap<String, JavaField> fields = new HashMap<String, JavaField>();
+	private LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
 
 	/**
 	 * Do some frikking-sweet calling.
@@ -93,13 +94,6 @@ public class JavaScope extends Visitor {
 		return this.scope.getJavaClass();
 	}
 
-	public JavaField getField(String name) {
-		System.out.println(name);
-		System.out.println("Implement JavaScope.getField()");
-	
-		return null;
-	}
-
 	/**
 	 * Perhaps I need my scope.
 	 */
@@ -139,6 +133,27 @@ public class JavaScope extends Visitor {
 	 */
 	public void addField(JavaField fld) {
 		this.fields.put(fld.getName(), fld);
+	}
+	
+	/**
+	 * Retrieve a JavaField, if it exists
+	 */
+	public JavaField getField(String name) {
+		if (this.fields.containsKey(name)) {
+			return this.fields.get(name);
+		}
+		else {
+			return null;
+		}
+	}
+	
+	/**
+	 * Returns an ArrayList of all JavaFields in this scope
+	 */
+	public ArrayList<JavaField> getAllFields() {	
+		ArrayList<JavaField> allFields = new ArrayList<JavaField>();
+		allFields.addAll(0, this.fields.values());
+		return allFields;
 	}
 	
 	/**

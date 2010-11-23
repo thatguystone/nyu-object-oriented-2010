@@ -3,6 +3,7 @@ package translator;
 import translator.Expressions.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import xtc.tree.GNode;
 import xtc.tree.Node;
@@ -14,6 +15,12 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * The name of the field.
 	 */
 	private String name;
+	
+	/**
+	 * The mangled name of the field
+	 * Format: ClassName__name
+	 */
+	private String mangleName;
 
 	/**
 	 * Is it an object?
@@ -68,6 +75,24 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 
 	public String getName(boolean fullName) {
 		return this.getName();
+	}
+	
+	/**
+	 * Mangles field names so that each field can be uniquely represented by
+	 * its 'ClassName__FieldName'
+	 * 
+	 * It should be noted that we had to resort to this name mangling algorithm
+	 * because Grimm has failed us all... twice
+	 */
+	public void mangleName(HashSet fields) {
+		if (!(fields.contains(this.name))) {
+			this.mangleName = this.mangle();
+		}
+		System.out.println("name of field = " + this.name + ", mangle name of field = " + this.mangleName);
+	}
+	
+	private String mangle() {
+		 return this.getJavaClass().getName().replace(",", "__");
 	}
 
 	/**
