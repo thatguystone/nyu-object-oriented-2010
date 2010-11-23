@@ -139,21 +139,20 @@ public class JavaScope extends Visitor {
 	 * Retrieve a JavaField, if it exists
 	 */
 	public JavaField getField(String name) {
-		if (this.fields.containsKey(name)) {
+		if (this.fields.containsKey(name))
 			return this.fields.get(name);
-		}
-		else {
+		
+		if (this.parent == null)
 			return null;
-		}
+		
+		return this.parent.getField(name);
 	}
 	
 	/**
 	 * Returns an ArrayList of all JavaFields in this scope
 	 */
 	public ArrayList<JavaField> getAllFields() {	
-		ArrayList<JavaField> allFields = new ArrayList<JavaField>();
-		allFields.addAll(0, this.fields.values());
-		return allFields;
+		return new ArrayList<JavaField>(this.fields.values());
 	}
 	
 	/**

@@ -85,21 +85,18 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * because Grimm has failed us all... twice
 	 */
 	public void mangleName(HashSet fields) {
-		if (!(fields.contains(this.name))) {
-			this.mangleName = this.mangle();
-		}
-		System.out.println("name of field = " + this.name + ", mangle name of field = " + this.mangleName);
+		if (this.fields.contains(this.name))
+			this.mangleName = this.getJavaClass().getName().replace(".", "_") + "__" + this.name;
+		else
+			this.mangleName = this.name;
 	}
 	
-	private String mangle() {
-		 return this.getJavaClass().getName().replace(",", "__");
-	}
-
 	/**
 	 * Does this declaration come with an assignment?
 	 */
 	public boolean hasExpression() {
-		if (this.assignment == null) return false;
+		if (this.assignment == null)
+			return false;
 		return true;
 	}
 
@@ -121,7 +118,8 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 */
 	public void visitDimensions(GNode n) {
 		if (this.dimensions == 0) {
-			for (Object o : (Node)n) this.dimensions++;
+			for (Object o : (Node)n)
+				this.dimensions++;
 		}
 	}
 }
