@@ -140,6 +140,24 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	
 	/**
+	 * Prints the implementation of this method.
+	 */
+	public void print(CodeBlock b) {
+		//in the future this will also print the sig
+		b.block(this.getName());
+		//Sets a temporary block to hold all the information from our statements.
+		//This also "activates" our method. Since this is guaranteed to only happen once, we can
+		//probably remove JavaMethod from activatible visitor.
+		CodeBlock block = (CodeBlock)this.dispatch(this.node);
+		if (this.chaining)
+			//only create a chain variable if we need it
+			b.pln("Object __chain;");
+		//now that we know if we need chaining, we can attach the main block
+		b.attach(block);
+		b.close();
+	}
+
+	/**
 	 * Prints the method signature to the class definition in the header, if the method is part of
 	 * the class.
 	 */

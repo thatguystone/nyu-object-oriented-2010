@@ -64,6 +64,14 @@ public class CodeBlock {
 	public CodeBlock block(String header, boolean withBrace) {
 		return new CodeBlock(this, header, withBrace);
 	}
+
+	/**
+	 * Attach a CodeBlock to the current block.
+	 */
+	public CodeBlock attach(CodeBlock b) {
+
+		return this;
+	}
 	
 	public CodeBlock close() {
 		return this.close(true);

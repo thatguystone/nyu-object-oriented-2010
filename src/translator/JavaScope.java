@@ -9,6 +9,7 @@ import xtc.tree.Visitor;
 
 //we need every expression type for visiting
 import translator.Expressions.*;
+import translator.Printer.CodeBlock;
 
 /**
  * Handles anything that can have its own scope, from a File to a Block.
@@ -19,6 +20,11 @@ public class JavaScope extends Visitor {
 	 * the tree when printing: we can just directly reference it here.
 	 */
 	private String pkg;
+
+	/**
+	 * The type of the object, for print debugging.
+	 */
+	private String objType;
 	
 	/**
 	 * The scope that this scope is in (ie the parent scope).
@@ -46,6 +52,8 @@ public class JavaScope extends Visitor {
 		//if we have a scope, then save our package name
 		if (scope != null)
 			this.pkg = scope.pkg;
+
+		this.objType = "hi";
 		
 		//do the construct call-back, alright, do the construct call-back, baby.
 		this.onInstantiate(n);
@@ -142,10 +150,10 @@ public class JavaScope extends Visitor {
 		if (this.fields.containsKey(name))
 			return this.fields.get(name);
 		
-		if (this.parent == null)
+		if (this.scope == null)
 			return null;
 		
-		return this.parent.getField(name);
+		return this.scope.getField(name);
 	}
 	
 	/**
@@ -155,6 +163,14 @@ public class JavaScope extends Visitor {
 		return new ArrayList<JavaField>(this.fields.values());
 	}
 	
+	/**
+	 * The universal print method. It should be abstract, but it isn't for now
+	 * so we can test without having to implement a print method for everything.
+	 */
+	public void print(CodeBlock b) {
+		b.pln(" /*** IMPLEMENT PRINT:  " + this.objType + " ***/ ");
+	}
+
 	/**
 	 * ==================================================================================================
 	 * Visitor Methods
@@ -176,12 +192,13 @@ public class JavaScope extends Visitor {
 		return new SelectionExpression(this, n);
 	} 
 	
-	public void visitBlock(GNode n) {
-		new JavaScope(this, n) {
-			protected void onInstantiate(GNode n) {
-				this.visit(n);
-			}
-		};
+	public CodeBlock visitBlock(GNode n) {
+		CodeBlock block = new CodeBlock();
+		for (Object o : n) {
+			if (o instanceof Node)
+				block.attach((CodeBlock)this.dispatch((Node)o));
+		}
+		return block;
 	}
 	
 	/**
@@ -194,3 +211,4 @@ public class JavaScope extends Visitor {
 		}
 	}
 }
+

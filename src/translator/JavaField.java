@@ -85,10 +85,14 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * because Grimm has failed us all... twice
 	 */
 	public void mangleName(HashSet fields) {
+
+		//this fails, I'll change it later.
+		/*
 		if (this.fields.contains(this.name))
 			this.mangleName = this.getJavaClass().getName().replace(".", "_") + "__" + this.name;
 		else
 			this.mangleName = this.name;
+		*/
 	}
 	
 	/**
