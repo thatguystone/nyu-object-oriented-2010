@@ -14,14 +14,14 @@ class JavaStatement extends JavaScope {
 	 * This feels so dirty and wrong.
 	 */
 	JavaScope header;
-	ArrayList<JavaScope> subscope = new ArrayList<JavaScope>();
+	ArrayList<CodeBlock> b = new ArrayList<CodeBlock>();
 	JavaStatement(JavaScope scope, GNode n) {
 		super(scope, n);
 		header=(JavaScope)dispatch((GNode)n.get(0));
 		for (int i=1;i<n.size();++i){
 			final GNode g=(GNode)n.get(i);
 			if (g!=null){
-				subscope.add((JavaScope)dispatch(g));
+				b.add((CodeBlock)dispatch(g));
 			}
 		}
 	}

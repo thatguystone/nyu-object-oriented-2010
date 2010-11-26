@@ -12,7 +12,6 @@ class JavaForStatement extends JavaStatement{
 		return new JavaBasicForControl(this,n);
 	}
 	public CodeBlock printMe(CodeBlock block){
-		/** still not too sure about how we are going to print everything inside the block ( i.e. where is the beef?? ) **/
-		return block.block("for ("+ ((JavaBasicForControl)header).printMe() + ")",true).close();
+		return block.block("for ("+ ((JavaBasicForControl)header).printMe() + ")",true).attach((CodeBlock)b.get(0)).close();
 	}
 }
