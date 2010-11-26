@@ -69,7 +69,8 @@ public class CodeBlock {
 	 * Attach a CodeBlock to the current block.
 	 */
 	public CodeBlock attach(CodeBlock b) {
-
+		if (b != null)
+			this.pln(b.toString());
 		return this;
 	}
 	

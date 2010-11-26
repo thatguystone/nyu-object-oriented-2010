@@ -104,7 +104,8 @@ public class CallExpression extends JavaExpression {
 	public void visitArguments(GNode n) {
 		for (int i = 0; i < n.size(); i++) {
 			JavaExpression e = (JavaExpression)this.dispatch((GNode)n.get(i));
-			this.sig.add(e.getType(), e);
+			if (e != null)
+				this.sig.add(e.getType(), e);
 		}
 	}
 }

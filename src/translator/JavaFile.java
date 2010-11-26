@@ -119,7 +119,7 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 		header.closeAll();
 		
 		//and queue our blocks for printing
-		JavaStatic.cpp.p(PrintOrder.IMPLEMENTATION, origImplm);
+		JavaStatic.h.p(PrintOrder.IMPLEMENTATION, origImplm);
 		JavaStatic.h.p(PrintOrder.PROTOTYPE, origProto);
 		JavaStatic.h.p(PrintOrder.HEADER, origHeader);
 	}
