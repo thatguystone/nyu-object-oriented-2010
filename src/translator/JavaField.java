@@ -1,6 +1,7 @@
 package translator;
 
 import translator.Expressions.*;
+import translator.Printer.CodeBlock;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -110,6 +111,10 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 */
 	public JavaType getType() {
 		return this.Type;
+	}
+
+	public void print(CodeBlock b) {
+		b.pln(this.type + " " + this.name + ";");
 	}
 
 	/**

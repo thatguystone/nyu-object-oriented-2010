@@ -128,7 +128,10 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 
 		//@TODO Print all fields
 		//we need to print all the fields out to each class definition
-		
+		for (JavaField f : this.inheritedFields.values()) 
+			f.print(cls);
+		for (JavaField f : this.fields.values())
+			f.print(cls);
 		//we only need to print our OWN methods into the class definition
 		for (ArrayList<JavaMethod> a : this.methods.values()) {
 			for (JavaMethod m : a) {

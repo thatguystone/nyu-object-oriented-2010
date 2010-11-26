@@ -34,7 +34,7 @@ public class JavaScope extends Visitor {
 	/**
 	 * List of all fields in this scope.
 	 */
-	private LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
+	public LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
 
 	/**
 	 * Do some frikking-sweet calling.

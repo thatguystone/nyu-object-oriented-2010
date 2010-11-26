@@ -1,5 +1,7 @@
 class inheritMe {
 
+	int test;
+
 	public void printCls(){
 		System.out.println("I am a inheritMe object");
 	}
