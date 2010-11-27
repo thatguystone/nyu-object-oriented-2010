@@ -15,13 +15,20 @@ class JavaStatement extends JavaScope {
 	 */
 	JavaScope header;
 	ArrayList<CodeBlock> b = new ArrayList<CodeBlock>();
-	JavaStatement(JavaScope scope, GNode n) {
+	JavaStatement(JavaScope scope, GNode n){
 		super(scope, n);
 		header=(JavaScope)dispatch((GNode)n.get(0));
 		for (int i=1;i<n.size();++i){
 			final GNode g=(GNode)n.get(i);
 			if (g!=null){
-				b.add((CodeBlock)dispatch(g));
+				Object o=dispatch(g);
+				if (o instanceof CodeBlock){
+					b.add((CodeBlock)o);
+				}else{
+					/** if it is blockless, then we might just want to add a block around it in our translation
+                                        (and we might want to find a better way other than an instanceof test...) **/
+					b.add(((JavaStatement)o).printMe(new CodeBlock()));
+				}
 			}
 		}
 	}
