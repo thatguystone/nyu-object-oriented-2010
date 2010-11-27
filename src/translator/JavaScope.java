@@ -198,6 +198,8 @@ public class JavaScope extends Visitor {
 			if (o instanceof Node)
 				block.attach((CodeBlock)this.dispatch((Node)o));
 		}
+		block.pln("When Statements print, they'll be here.");
+		block.close();
 		return block;
 	}
 	
