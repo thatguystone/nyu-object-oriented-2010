@@ -152,7 +152,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		for (ArrayList<JavaMethod> a : this.methods.values()) {
 			for (JavaMethod m : a) {
 				//somehow activate the method and give it something to print with
-				m.print(b);
+				m.print(b, this);
 				//b.pln("wowowow");
 			}
 		}

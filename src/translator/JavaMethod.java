@@ -142,7 +142,12 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	/**
 	 * Prints the implementation of this method.
 	 */
-	public void print(CodeBlock b) {
+	public void print(CodeBlock b, JavaClass cls) {
+		//we only want to print to our defining class
+		if (cls != this.getJavaClass())
+			return;
+		
+	
 		//in the future this will also print the sig
 		b = b.block(this.getName());
 		//Sets a temporary block to hold all the information from our statements.
@@ -162,7 +167,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 * the class.
 	 */
 	public void printToClassDefinition(CodeBlock b, JavaClass cls) {
-		//we only wany to print
+		//we only want to print to our defining class
 		if (cls != this.getJavaClass())
 			return;
 		
