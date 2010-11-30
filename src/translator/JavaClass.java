@@ -114,14 +114,14 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * Prints out the prototype for this class.
 	 */
 	private void printPrototype(CodeBlock b) {
-		b.pln("class " + this.getName(false) + ";");
+		b.pln("class " + this.getCppName(false) + ";");
 	}
 	
 	/**
 	 * Gets that header out.
 	 */
 	private void printHeader(CodeBlock b) {
-		CodeBlock block = b.block("class " + this.getName(false));
+		CodeBlock block = b.block("class " + this.getCppName(false));
 		
 		System.out.println("Method size (" + this.getName() + "): " + this.methods.size());
 
@@ -147,7 +147,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * Gets the methods all printed.
 	 */
 	private void printImplementation(CodeBlock b) {
-		b.pln("METHODS AND FIELD INITIALIZATIONS FOR : " + this.name);
+		b.pln("//METHODS AND FIELD INITIALIZATIONS FOR : " + this.getCppName(false));
 		
 		for (ArrayList<JavaMethod> a : this.methods.values()) {
 			for (JavaMethod m : a) {
@@ -157,7 +157,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			}
 		}
 
-		b.pln("END OF IMPLEMENTATION FOR : " + this.name);
+		b.pln("//END OF IMPLEMENTATION FOR : " + this.name);
 		b.pln();
 	}
 	
@@ -306,6 +306,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		
 		//the list of all the fields that are contained in our parent(s)
 		HashSet<String> parentFields = new HashSet<String>();
+		JavaField.reserveNames(parentFields);
 		
 		//go through all of our fields from our parent and, if we can technically access them in Java,
 		//add them to our list of fields in the class scope.
@@ -316,7 +317,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			
 			//either way, add the field to our list of parent fields
 			parentFields.add(f.getName());
-			parentFields.add(f.getMangledName());
+			parentFields.add(f.getCppName());
 		}
 		
 		//MANGLE MANGLE MANGLE
@@ -362,7 +363,19 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		
 		return name + this.name; 
 	}
-
+	
+	public String getCppName() {
+		return this.getCppName(true);
+	}
+	
+	public String getCppName(boolean fullName) {
+		String name = "";
+		if (fullName)
+			name += this.getPackageName() + ".";
+		
+		return name.replace(".", "::") + "__" + this.name;
+	}
+	
 	/**
 	 * ==================================================================================================
 	 * Visitor Methods

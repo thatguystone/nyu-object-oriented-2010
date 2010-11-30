@@ -64,7 +64,7 @@ abstract public class JavaType {
 		/**
 		 * Gets the name that is usable as a type in C++.
 		 */
-		public String getCName() {
+		public String getCppName() {
 			return this.cppTypeName;
 		}
 	}
@@ -98,8 +98,8 @@ abstract public class JavaType {
 		/**
 		 * Gets the name that is usable as a type in C++.
 		 */
-		public String getCName() {
-			return this.cls.getName().replace(".", "::");
+		public String getCppName() {
+			return this.cls.getCppName();
 		}
 	}
 	
@@ -168,7 +168,7 @@ abstract public class JavaType {
 	/**
 	 * Gets the name that is usable as a type in C++.
 	 */
-	public abstract String getCName();
+	public abstract String getCppName();
 	
 	/**
 	 * ==================================================================================================

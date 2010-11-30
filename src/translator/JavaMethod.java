@@ -16,6 +16,11 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 * Our overloadable method name.
 	 */
 	private String name;
+	
+	/**
+	 * The mangled name of the method.
+	 */
+	private String mangledName;
 
 	/**
 	 * Does this method have chaining?
@@ -171,7 +176,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		if (cls != this.getJavaClass())
 			return;
 		
-		b.pln("static " + this.returnType.getCName() + " " + this.getName() + ";");
+		b.pln("static " + this.returnType.getCppName() + " " + this.getName() + ";");
 	}
 	
 	/**
@@ -193,6 +198,30 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	public String getName(boolean fullName) {
 		return this.getName();
+	}
+	
+	/**
+	 * Gets the method name.
+	 */
+	public String getCppName() {
+		return this.getCppName(true);
+	}
+	
+	/**
+	 * Gets the java name.
+	 *
+	 * @param fullName Does nothing.
+	 */
+	public String getCppName(boolean fullName) {
+		return "Method names don't have C++ names yet.";
+		
+		/*
+		String name = "";
+		if (fullName)
+			name += this.getPackageName() + ".";
+		
+		return name + this.mangledName;
+		*/
 	}
 	
 	/**

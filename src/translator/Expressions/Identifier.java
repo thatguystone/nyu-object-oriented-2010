@@ -10,7 +10,7 @@ import xtc.tree.GNode;
 /**
  * It holds a name, that's it.
  */
-public class Identifier extends JavaExpression implements Nameable {
+public class Identifier extends JavaExpression {
 	/**
 	 * The identifier (its string representation).
 	 */
@@ -53,31 +53,5 @@ public class Identifier extends JavaExpression implements Nameable {
 			this.type = IdentifierType.PACKAGE;
 			this.setType(null);
 		}
-	}
-	
-	/**
-	 * ==================================================================================================
-	 * Nameable Methods
-	 */
-	
-	/**
-	 * Some pretty name!
-	 */
-	public String getName() {
-		return value;
-	}
-	
-	/**
-	 * It's an identifier -- it can't have a special name.
-	 */
-	public String getName(boolean na) {
-		return value;
-	}
-
-
-
-
-	public String printMe() {
-		return "I'm not implemented!";
 	}
 }

@@ -11,7 +11,6 @@ import xtc.tree.Node;
 import xtc.tree.Visitor;
 
 public class JavaField extends JavaVisibleScope implements Nameable, Typed {
-
 	/**
 	 * The name of the field.
 	 */
@@ -54,6 +53,13 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		this.dimensions = dimensions;
 
 	}
+	
+	/**
+	 * Adds the language reserved fields to our stuff so that we mangle names around our needed variables.
+	 */
+	public static void reserveNames(HashSet<String> fields) {
+		fields.add("__chain");
+	}
 
 	protected void onInstantiate(GNode n) {
 		this.name = (String)n.get(0);
@@ -73,7 +79,11 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		return this.getName();
 	}
 	
-	public String getMangledName() {
+	public String getCppName() {
+		return this.mangledName;
+	}
+
+	public String getCppName(boolean fullName) {
 		return this.mangledName;
 	}
 	
@@ -122,7 +132,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	}
 
 	public void print(CodeBlock b) {
-		b.pln(this.type.getCName() + " " + this.mangledName + ";");
+		b.pln(this.type.getCppName() + " " + this.mangledName + ";");
 	}
 
 	/**

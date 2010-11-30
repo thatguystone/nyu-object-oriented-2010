@@ -33,11 +33,6 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 	}
 	
 	/**
-	 * Prints the expression.
-	 */
-	abstract public String printMe();
-
-	/**
 	 * ==================================================================================================
 	 * Visitor Methods
 	 */

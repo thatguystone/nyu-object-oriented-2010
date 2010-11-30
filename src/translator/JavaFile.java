@@ -157,6 +157,14 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 		return name + this.fileName; 
 	}
 	
+	public String getCppName() {
+		return this.getCppName(true);
+	}
+	
+	public String getCppName(boolean fullName) {
+		return "JavaFile does not have a name in C++.  This isn't going to compile anymore.";
+	}
+	
 	/**
 	 * Searches for a class that has been imported into this file.  Given the name of a class, in "Object"
 	 * form, it will search its local imports to expand to the full name of the class (ie. expand "Object"
