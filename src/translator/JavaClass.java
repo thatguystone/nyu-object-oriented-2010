@@ -121,23 +121,26 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * Gets that header out.
 	 */
 	private void printHeader(CodeBlock b) {
-		CodeBlock cls = b.block("class " + this.getName(false));
+		CodeBlock block = b.block("class " + this.getName(false));
 		
 		System.out.println("Method size (" + this.getName() + "): " + this.methods.size());
 
 		//we need to print all the fields out to each class definition
+		block.pln("//Field layout");
 		for (JavaField f : this.fieldTable) 
-			f.print(cls);
+			f.print(block);
 		
+		block.pln();
+		block.pln("//Methods");
 		//we only need to print our OWN methods into the class definition
 		for (ArrayList<JavaMethod> a : this.methods.values()) {
 			for (JavaMethod m : a) {
 				//ask the method to print himself to our class definition in the header block
-				m.printToClassDefinition(cls, this);
+				m.printToClassDefinition(block, this);
 			}
 		}
 		
-		cls.close();
+		block.close();
 	}
 	
 	/**

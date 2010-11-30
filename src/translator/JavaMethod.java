@@ -171,7 +171,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		if (cls != this.getJavaClass())
 			return;
 		
-		b.pln("static " + this.getName() + ";");
+		b.pln("static " + this.returnType.getCName() + " " + this.getName() + ";");
 	}
 	
 	/**

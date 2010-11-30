@@ -69,8 +69,8 @@ public class Translator extends Tool {
 		JavaStatic.pkgs = JavaPackages.getInstance();
 		JavaStatic.runtime = this.runtime;
 		
-		JavaType.prepare();
 		CodePrinter.prepare();
+		JavaType.prepare();
 	}
 	
 	public void wrapUp() {

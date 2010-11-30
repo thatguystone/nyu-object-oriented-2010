@@ -36,12 +36,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	/**
 	 * Class this obj belongs to.
 	 */
-	private JavaType Type;
-
-	/**
-	 * Type of the object represented as a string.
-	 */
-	private String type;
+	private JavaType type;
 
 	/**
 	 * Assignment statement associated with this field declaration.
@@ -52,7 +47,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	/**
 	 * This constructor is for standard field declarations
 	 */
-	JavaField(boolean isStatic, GNode modifiers, String type, int dimensions, JavaScope scope, Node n) {
+	JavaField(boolean isStatic, GNode modifiers, JavaType type, int dimensions, JavaScope scope, Node n) {
 		super(scope, (GNode)n);
 		setupVisibility(modifiers);
 		this.type = type;
@@ -123,11 +118,11 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * int x and int[] y both return int.
 	 */
 	public JavaType getType() {
-		return this.Type;
+		return this.type;
 	}
 
 	public void print(CodeBlock b) {
-		b.pln(this.type + " " + this.mangledName + ";");
+		b.pln(this.type.getCName() + " " + this.mangledName + ";");
 	}
 
 	/**

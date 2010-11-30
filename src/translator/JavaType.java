@@ -60,6 +60,13 @@ abstract public class JavaType {
 			//maybe our parent is, thus making us one, too?
 			return this.parent.hasParent(parent);
 		}
+		
+		/**
+		 * Gets the name that is usable as a type in C++.
+		 */
+		public String getCName() {
+			return this.cppTypeName;
+		}
 	}
 	
 	/**
@@ -86,6 +93,13 @@ abstract public class JavaType {
 			//we count on this only being called if the JavaType we're given
 			//is an object
 			return this.cls.isSubclassOf(((Object)parent).cls);
+		}
+		
+		/**
+		 * Gets the name that is usable as a type in C++.
+		 */
+		public String getCName() {
+			return this.cls.getName().replace(".", "::");
 		}
 	}
 	
@@ -117,6 +131,11 @@ abstract public class JavaType {
 		//and those tricky primitives that can't be cast to anything
 		new Primitive("void", "void", null);
 		new Primitive("boolean", "bool", null);
+		
+		//and get the C++ types that we need
+		JavaStatic.h.pln("#include <stdint.h>");
+		JavaStatic.h.pln("typedef unsigned char char_t;");
+		JavaStatic.h.pln();
 	}
 	
 	/**
@@ -145,7 +164,12 @@ abstract public class JavaType {
 		
 		return types.get(type);
 	}
-
+	
+	/**
+	 * Gets the name that is usable as a type in C++.
+	 */
+	public abstract String getCName();
+	
 	/**
 	 * ==================================================================================================
 	 * Methods that determine java type information

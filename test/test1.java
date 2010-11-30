@@ -24,6 +24,8 @@ class inheritMe {
 class needsInherit extends inheritMe {
 	int test;
 	int test2;
+	inheritMe tmp;
+	java.lang.Object tmp2;
 
 	public void printCls(){
 		System.out.println("I am a needsInherit object");
@@ -44,6 +46,7 @@ class doubleRainbowExtension extends needsInherit {
 	int test;
 	int defaultPkg_doubleRainbowExtension__defaultPkg_needsInherit__0_test;
 	int defaultPkg_needsInherit__0_test;
+	char defaultPkg_doubleRainbowExtension__1_defaultPkg_needsInherit__0_test;
 	char defaultPkg_doubleRainbowExtension__0_defaultPkg_needsInherit__0_test;
 }
 

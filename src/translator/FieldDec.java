@@ -34,7 +34,7 @@ public class FieldDec extends Visitor {
 	/**
 	 * Type of the object represented as a string.
 	 */
-	private String type;
+	private JavaType type;
 
 	/**
 	 * Scope of this declaration
@@ -44,7 +44,7 @@ public class FieldDec extends Visitor {
 	/**
 	 * Constructor. Not much else to say here.
 	 */
-	public FieldDec(JavaScope scope, Node n) {
+	public FieldDec(JavaScope scope, GNode n) {
 		this.scope = scope;
 		this.dispatch(n);
 	}
@@ -58,24 +58,26 @@ public class FieldDec extends Visitor {
 	 * Visit a modifier, only do something if it's one we care about(there aren't many).
 	 */
 	public void visitModifier(GNode n) {
-		modifiers = n;
-		/*
-		if((String)n.get(0) == "static") isStatic = true;
-		if((String)n.get(0) == "protected") visibility = "protected";
-		if((String)n.get(0) == "public") visibility = "public";
-		*/
+		this.modifiers = n;
 	}
 
 	/**
 	 * Get the type of the field represented as a string
 	 */
 	public void visitType(GNode n) {
-		type = "";
-		for (Object o : (GNode)n.get(0))
-			type += n.get(0).toString() + ".";
-		//Good times with strings
-		type = type.substring(0, type.length() - 1);
-		visit(n);
+		String name = ((GNode)n.get(0)).getName();
+		
+		if (name.equals("PrimitiveType")) {
+			this.type = JavaType.getType(((GNode)n.get(0)).get(0).toString());
+		} else if (name.equals("QualifiedIdentifier")) {
+			String type = "";
+			
+			for (Object o : ((GNode)n.get(0)))
+				type += o + ".";
+			
+			//Good times with strings
+			this.type = JavaType.getType(this.scope, type.substring(0, type.length() - 1));
+		}
 	}
 
 	/**
