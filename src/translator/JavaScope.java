@@ -2,6 +2,7 @@ package translator;
 
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import xtc.tree.Node;
 import xtc.tree.GNode;
@@ -34,7 +35,7 @@ public class JavaScope extends Visitor {
 	/**
 	 * List of all fields in this scope.
 	 */
-	public LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
+	private LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
 
 	/**
 	 * Do some frikking-sweet calling.
@@ -161,6 +162,14 @@ public class JavaScope extends Visitor {
 	 */
 	public ArrayList<JavaField> getAllFields() {	
 		return new ArrayList<JavaField>(this.fields.values());
+	}
+	
+	/**
+	 * Gets a list of all of the names of the declared fields in this scope.
+	 * Take note: it ignores all the fields from any parent scope.
+	 */
+	public HashSet<String> getDeclaredFields() {
+		return new HashSet<String>(this.fields.keySet());
 	}
 	
 	/**

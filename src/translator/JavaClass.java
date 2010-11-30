@@ -7,7 +7,6 @@ import xtc.tree.Node;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 
 public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	/**
@@ -27,15 +26,15 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	private HashMap<String, ArrayList<JavaMethod>> methods = new HashMap<String, ArrayList<JavaMethod>>();
 	
 	/**
-	 * List of all inherited fields in this scope.
-	 */
-	private LinkedHashMap<String, JavaField> inheritedFields = new LinkedHashMap<String, JavaField>();
-
-	/**
 	 * The VTable list of methods (in the order they need to appear). This is used for nothing but maintaining
 	 * the order of the VTable.
 	 */
 	private ArrayList<JavaMethod> vtable = new ArrayList<JavaMethod>();
+	
+	/**
+	 * Kinda like the vTable, but for fields -- they are all in the order that they are inherited in.
+	 */
+	private ArrayList<JavaField> fieldTable;
 	
 	/**
 	 * SAEKJFA;WIE JF K;LSDFJ ASILD JFASD;IFJ!!!!!!! WHY DOES JAVA NOT INHERIT CONSTRUCTORS?!?!?!?!?!?!?!?!?!??!
@@ -67,14 +66,14 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		//go for a nice visit to see everyone
 		this.dispatch(this.node);
 	
-		//activate the parent file so that all the classes with him are included
-		this.getJavaFile().activate();
-		
 		//check if we have a parent; if we don't, then java.lang.Object is our parent
 		this.setParent("java.lang.Object");
 		
 		//once we're sure we have a parent, then add all our inherited methods
-		this.setupVTable();
+		this.setupDataLayout();
+		
+		//activate the parent file so that all the classes with him are included
+		this.getJavaFile().activate();
 	}
 	
 	/**
@@ -126,12 +125,10 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		
 		System.out.println("Method size (" + this.getName() + "): " + this.methods.size());
 
-		//@TODO Print all fields
 		//we need to print all the fields out to each class definition
-		for (JavaField f : this.inheritedFields.values()) 
+		for (JavaField f : this.fieldTable) 
 			f.print(cls);
-		for (JavaField f : this.fields.values())
-			f.print(cls);
+		
 		//we only need to print our OWN methods into the class definition
 		for (ArrayList<JavaMethod> a : this.methods.values()) {
 			for (JavaMethod m : a) {
@@ -263,8 +260,14 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * Go through all the parents and get their virtual methods, then just add them.  To do this, we test
 	 * if we first have a parent (java.lang.Object doesn't); if we have a parent, grab his virtual methods,
 	 * see if we override them, if we don't, then add them, otherwise, ignore.
+	 *
+	 * Then, add all of the fields that our parent has (at face value), then go through and add all of our
+	 * fields, and we use the names of our parent fields to mangle the names of our local fields.
 	 */
-	private void setupVTable() {
+	private void setupDataLayout() {
+		//---------------------------------------------------------------------------------------
+		// Setup the vTable
+		
 		//if we have a parent from whom we can steal methods
 		if (this.parent != null) {
 			//go through all the parent virtual methods and add them to our table
@@ -285,17 +288,38 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 					this.vtable.add(m);
 			}
 		}
-		// If we have a parent
-		if (this.parent != null) {
-			// Inherit all of it's fields
-			this.inheritedFields.putAll(this.parent.inheritedFields);
+		
+		//---------------------------------------------------------------------------------------
+		// Setup the inherited/local fields
+		
+		//if we have a parent, then add all his fields to our list of fields
+		if (this.parent == null)
+			this.fieldTable = new ArrayList<JavaField>();
+		else
+			this.fieldTable = new ArrayList<JavaField>(this.parent.fieldTable);
+		
+		//store all of our fields that we have before we add in all the visible fields from our parent
+		ArrayList<JavaField> localFields = this.getAllFields();
+		
+		//the list of all the fields that are contained in our parent(s)
+		HashSet<String> parentFields = new HashSet<String>();
+		
+		//go through all of our fields from our parent and, if we can technically access them in Java,
+		//add them to our list of fields in the class scope.
+		for (JavaField f : this.fieldTable) {
+			//also make sure that we're not "hiding" the field in our child class
+			if (f.isAtLeastVisible(Visibility.PROTECTED) && this.getField(f.getName()) == null)
+				this.addField(f);
+			
+			//either way, add the field to our list of parent fields
+			parentFields.add(f.getName());
+			parentFields.add(f.getMangledName());
 		}
-		// To preserve the integrity our of data we use a Set
-		HashSet<String> s = new HashSet<String>(this.inheritedFields.keySet());
-		// MANGLE MANGLE MANGLE
-		for (JavaField f : this.getAllFields()) {
-			f.mangleName(s);
-			this.inheritedFields.put(f.getName(), f);
+		
+		//MANGLE MANGLE MANGLE
+		for (JavaField f : localFields) {
+			f.mangleName(parentFields);
+			this.fieldTable.add(f);
 		}
 	}
 

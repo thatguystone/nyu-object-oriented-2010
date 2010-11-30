@@ -1,6 +1,9 @@
 class inheritMe {
 
 	int test;
+	char test2;
+	
+	int defaultPkg_needsInherit__test;
 
 	public void printCls(){
 		System.out.println("I am a inheritMe object");
@@ -18,8 +21,9 @@ class inheritMe {
 
 }
 
-
 class needsInherit extends inheritMe {
+	int test;
+	int test2;
 
 	public void printCls(){
 		System.out.println("I am a needsInherit object");
@@ -36,8 +40,15 @@ class needsInherit extends inheritMe {
 		
 }
 
-public class test1 extends inheritMe {
+class doubleRainbowExtension extends needsInherit {
+	int test;
+	int defaultPkg_doubleRainbowExtension__defaultPkg_needsInherit__0_test;
+	int defaultPkg_needsInherit__0_test;
+	char defaultPkg_doubleRainbowExtension__0_defaultPkg_needsInherit__0_test;
+}
 
+public class test1 extends inheritMe {
+	int test;
 	
 	public static void main(String[] args) {
 		needsInherit inheritor = new needsInherit();

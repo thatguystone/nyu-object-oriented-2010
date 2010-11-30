@@ -21,7 +21,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * The mangled name of the field
 	 * Format: ClassName__name
 	 */
-	private String mangleName;
+	private String mangledName;
 
 	/**
 	 * Is it an object?
@@ -78,6 +78,10 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		return this.getName();
 	}
 	
+	public String getMangledName() {
+		return this.mangledName;
+	}
+	
 	/**
 	 * Mangles field names so that each field can be uniquely represented by
 	 * its 'ClassName__FieldName'
@@ -85,15 +89,24 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * It should be noted that we had to resort to this name mangling algorithm
 	 * because Grimm has failed us all... twice
 	 */
-	public void mangleName(HashSet fields) {
-
-		//this fails, I'll change it later.
-		/*
-		if (this.fields.contains(this.name))
-			this.mangleName = this.getJavaClass().getName().replace(".", "_") + "__" + this.name;
-		else
-			this.mangleName = this.name;
-		*/
+	public void mangleName(HashSet<String> fields) {
+		this.mangledName = this.name;
+		
+		if (fields.contains(this.mangledName)) {
+			String clsName = this.getJavaClass().getName().replace(".", "_");
+		
+			this.mangledName = clsName + "__" + this.name;
+		
+			//someone is screwing with our names to try to break it...outsmart them :)
+			if (fields.contains(this.mangledName)) {
+				//set up a counter, and just go until we find a name we can use
+				int i = 0;
+				while (fields.contains(this.mangledName))
+					this.mangledName = clsName + "__" + (i++) + "_" + this.name;
+			}
+		}
+		
+		fields.add(this.mangledName);
 	}
 	
 	/**
@@ -114,7 +127,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	}
 
 	public void print(CodeBlock b) {
-		b.pln(this.type + " " + this.name + ";");
+		b.pln(this.type + " " + this.mangledName + ";");
 	}
 
 	/**

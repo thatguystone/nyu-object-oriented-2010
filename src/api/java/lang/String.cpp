@@ -17,7 +17,7 @@ namespace java {
 			 * Following the java standard for concat -- make a copy of the string
 			 * if adding anything.
 			 */
-			String& concat(String str) {
+			String& <java.lang.String.concat(String)>(String str) {
 				if (str.size() == 0) {
 					return *this;
 				} else {
