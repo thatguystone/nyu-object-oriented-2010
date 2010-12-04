@@ -21,6 +21,7 @@ public class ExpressionStatement extends JavaStatement{
 	public void print(CodeBlock b) {
 		if (expression != null)
 			b.pln(expression.print() + ";");
-		b.pln("NO EXPRESSION;");
+		else
+			b.pln("NO EXPRESSION;");
 	}
 }

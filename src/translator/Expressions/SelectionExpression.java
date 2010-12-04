@@ -14,7 +14,7 @@ public class SelectionExpression extends JavaExpression {
 	/**
 	 * The JavaExpression making the selection.
 	 */
-	JavaExpression selector = null;
+	JavaExpression selector;
 
 	/**
 	 * Name of the selectee.
@@ -28,6 +28,8 @@ public class SelectionExpression extends JavaExpression {
 
 	public SelectionExpression(JavaScope scope, GNode n) {
 		super(scope, n);
+		this.selecteeName = (String)n.get(1);
+		this.selector = (JavaExpression)this.dispatch((Node)n.get(0));
 	}
 
 	/**
@@ -53,8 +55,8 @@ public class SelectionExpression extends JavaExpression {
 	protected void onInstantiate(GNode n) {
 	}
 
-	public String printMe() {
-		return "I am a selection expression. FEAR ME!";
+	public String print() {
+		return selector.print();
 	}
 
 	/**

@@ -2,6 +2,7 @@ package translator.Expressions;
 
 import java.util.ArrayList;
 
+import translator.JavaType;
 import translator.JavaClass;
 import translator.JavaMethod;
 import translator.JavaMethodSignature;
@@ -15,7 +16,7 @@ public class CallExpression extends JavaExpression {
 	/**
 	 * The object or class making this method call
 	 */
-	private JavaExpression caller = null;
+	private JavaExpression caller;
 	
 	/**
 	 * String holding the name of the method.
@@ -36,7 +37,7 @@ public class CallExpression extends JavaExpression {
 	/**
 	 * Is this expression part of a method chain?
 	 */
-	private boolean chaining = false;
+	private boolean chaining;
 	
 	/**
 	 * Why java, why?! Just override constructors :(
@@ -59,6 +60,8 @@ public class CallExpression extends JavaExpression {
 			this.chaining = true;
 			this.getMyMethod().hasChaining();
 		}
+		else
+			this.chaining = false;
 	}
 
 	/**
@@ -71,6 +74,8 @@ public class CallExpression extends JavaExpression {
 			this.chaining = true;
 			this.getMyMethod().hasChaining();
 		}
+		else
+			this.chaining = false;
 		//Setting the selection expression's type for it.
 		((JavaExpression)this.getScope()).setType(this.method.getScope().getField(info).getType());
 	}
@@ -98,16 +103,27 @@ public class CallExpression extends JavaExpression {
 			this.caller = null;
 		} else {
 			this.caller = (JavaExpression)this.dispatch(n);
-		}
+			System.out.println(methodName);
+			if (caller != null){
+				if (caller.getType() != null){
+					if (caller.getType().getJavaClass() != null) {
+						this.method = this.caller.getType().getJavaClass().getMethod(methodName, sig);
+					}
+				}
+				//JavaScope temp = this.caller.getType().getJavaClass();
+			}
+		} 
 	}
 
 	public String print() {
-		if (method != null)
+		if (method != null) {
 			if (caller == null && method.isStatic())
-				return method.getJavaClass().getCppName() + methodName + "(" +/*+ sig.print()*/ /*not implemented*/"SIGNATURE" + ")";
+				return method.getJavaClass().getCppName() + method.getCppName() + "(" + /*sig.getCppArguments()*/"SIG" + ")";
+			return caller.print() + "->" + method.getCppName() + "(" + /*sig.getCppArguments()*/"SIG" + ")";
+		}
 		if (caller == null)
-			return methodName + "(" +/*+ sig.print()*/ /*not implemented*/"SIGNATURE" + ")";
-		return caller.print() + "->" + methodName + "(" +/*+ sig.print()*/ /*not implemented*/"SIGNATURE" + ")";
+			return methodName + "(" + /*sig.getCppArguments()*/"SIG" + ")";
+		return caller.print() + "->" + methodName + "(" + /*sig.getCppArguments()*/"SIG" + ")";
 	}
 
 	/**

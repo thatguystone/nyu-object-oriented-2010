@@ -10,11 +10,14 @@ import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
 
+/**
+ * Represents a "standard" java field.
+ */
 public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	/**
 	 * The name of the field.
 	 */
-	private String name;
+	protected String name;
 	
 	/**
 	 * The mangled name of the field
@@ -46,9 +49,8 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	/**
 	 * This constructor is for standard field declarations
 	 */
-	JavaField(boolean isStatic, GNode modifiers, JavaType type, int dimensions, JavaScope scope, Node n) {
-		super(scope, (GNode)n);
-		JavaStatic.dumpNode((GNode)n.get(2));
+	public JavaField(GNode modifiers, JavaType type, int dimensions, JavaScope scope, GNode n) {
+		super(scope, n);
 		setupVisibility(modifiers);
 		this.type = type;
 		this.dimensions = dimensions;
@@ -74,17 +76,30 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	public String getName() {
 		return this.name;
 	}
-
+	
+	/**
+	 * Does nothing.  Why would you use this?
+	 */
 	public String getName(boolean fullName) {
 		return this.getName();
 	}
 	
+	/**
+	 * Gets the mangled name.
+	 */
 	public String getCppName() {
+		if (this.mangledName == null)
+			this.mangledName = this.name;
+		
 		return this.mangledName;
+		
 	}
-
+	
+	/**
+	 * Does nothing.  Why would you use this?
+	 */
 	public String getCppName(boolean fullName) {
-		return this.mangledName;
+		return this.getCppName();
 	}
 	
 	/**
@@ -111,7 +126,8 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 			}
 		}
 		
-		fields.add(this.mangledName);
+		fields.add
+		(this.mangledName);
 	}
 	
 	/**
@@ -133,9 +149,9 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 
 	public void print(CodeBlock b) {
 		if ((this.getMyMethod() == null) || (this.assignment == null))
-			b.pln(this.type.getCppName() + " " + this.mangledName + ";");
+			b.pln(this.type.getCppName() + " " + this.getCppName() + ";");
 		else
-			b.pln(this.type.getCppName() + " " + this.mangledName + " = " + this.assignment.print() + ";");
+			b.pln(this.type.getCppName() + " " + this.getCppName() + " = " + this.assignment.print() + ";");
 	}
 
 	/**
@@ -151,5 +167,21 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 			for (Object o : (Node)n)
 				this.dimensions++;
 		}
+	}
+}
+
+/**
+ * A special-case class for Formal Parameters -- allows us to reuse code from JavaField while taking into
+ * account the different setup for FormalParameter.
+ */
+class FormalParameterField extends JavaField {
+	FormalParameterField(GNode modifiers, JavaType type, int dimensions, JavaScope scope, GNode n) {
+		super(modifiers, type, dimensions, scope, n);
+	}
+
+	protected void onInstantiate(GNode n) {
+		this.name = (String)n.get(3);
+		this.getScope().addField(this);
+		this.dispatch(n);	
 	}
 }

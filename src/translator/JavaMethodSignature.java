@@ -72,12 +72,10 @@ public class JavaMethodSignature {
 		String ret = "";
 		
 		for (TypeContainer c : this.sig) {
-			System.out.println(c.item.getClass().getName());
-			//ret += c.type.getCppName() + (withVariableNames ? c.item.getCppName() : "") + ",";
+			ret += c.type.getCppName() + (withVariableNames ? " " + ((JavaField)c.item).getCppName() : "") + ",";
 		} 
-		return "";
 		
-		//return ret.substring(0, ret.length() - 1);
+		return ret.substring(0, ret.length() - 1);
 	}
 	
 	/**

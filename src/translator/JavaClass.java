@@ -219,6 +219,9 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		if (!this.methods.containsKey(name))
 			return null;
 		
+		if (sig == null)
+			sig = new JavaMethodSignature();
+		
 		//we need to find all the methods that apply to the signature, and then
 		//find the most specific.
 		//let's see if we can do it in one loop without any major data structures
