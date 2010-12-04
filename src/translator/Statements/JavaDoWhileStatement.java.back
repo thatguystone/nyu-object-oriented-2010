@@ -20,6 +20,7 @@ class JavaWhileStatement extends JavaStatement{
 				/** if it is blockless, then we might just want to add a block around it in our translation
 				(and we might want to find a better way other than an instanceof test...) **/
 				b.add(((JavaStatement)o).printMe(new CodeBlock()));
+			}
 		}
 	}
 	public CodeBlock printMe(CodeBlock block){
