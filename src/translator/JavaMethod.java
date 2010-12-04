@@ -155,7 +155,9 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 			return;
 	
 		//in the future this will also print the sig
-		b = b.block(this.getName());
+		b = b.block(this.getJavaClass().getCppName(false) + "::" + this.getName() + "(" + this.sig.getCppArguments() + ")");
+		
+		
 		//Sets a temporary block to hold all the information from our statements.
 		//This also "activates" our method. Since this is guaranteed to only happen once, we can
 		//probably remove JavaMethod from activatible visitor.
@@ -304,12 +306,11 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	
 	/**
 	 * Visit our formal parameters and add them to our list of fields.
-	 * We're using this to take advantage of the scope searching already implemented
-	 * in fields.
-	 * JavaFieldDec isn't needed here because we can't pass multiple fields with the same type declaration.
+	 * We're using this to take advantage of the scope searching already implemented in fields.
 	 */
 	public void visitFormalParameter(GNode n) {
-		JavaStatic.dumpNode(n);
-		this.sig.add(JavaType.getType(this, ((GNode)((GNode)n.get(1)).get(0)).get(0).toString()), this);
+		FormalParameters d = new FormalParameters(this, n);
+		JavaField field = d.getField();
+		this.sig.add(field.getType(), field);
 	}
 }

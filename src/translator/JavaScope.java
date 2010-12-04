@@ -24,11 +24,6 @@ public class JavaScope extends Visitor {
 	private String pkg;
 
 	/**
-	 * The type of the object, for print debugging.
-	 */
-	private String objType;
-	
-	/**
 	 * The scope that this scope is in (ie the parent scope).
 	 */
 	private JavaScope scope;
@@ -37,7 +32,9 @@ public class JavaScope extends Visitor {
 	 * List of all fields in this scope.
 	 */
 	private LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
-
+	
+	public int depth = 0;
+	
 	/**
 	 * Do some frikking-sweet calling.
 	 */
@@ -45,8 +42,6 @@ public class JavaScope extends Visitor {
 		this(scope, null);
 	}
 
-	public int depth = 0;
-	
 	/**
 	 * Store our parent scope so that we can climb our scope tree.
 	 */
@@ -58,8 +53,6 @@ public class JavaScope extends Visitor {
 			this.pkg = scope.pkg;
 			this.depth = this.scope.depth + 1;	
 		}
-
-		this.objType = "hi";	
 
 		//do the construct call-back, alright, do the construct call-back, baby.
 		this.onInstantiate(n);
@@ -182,7 +175,7 @@ public class JavaScope extends Visitor {
 	 * so we can test without having to implement a print method for everything.
 	 */
 	public void print(CodeBlock b) {
-		b.pln(" /*** IMPLEMENT PRINT:  " + this.objType + " ***/ ");
+		b.pln(" /*** IMPLEMENT PRINT:  ***/ ");
 	}
 
 	/**

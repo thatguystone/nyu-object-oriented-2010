@@ -15,32 +15,31 @@ import xtc.tree.Visitor;
  * post-translation this is no longer possible
  */
 public class FieldDec extends Visitor {
-
-	/**
-	 * Is this declaration static.
-	 */
-	private boolean isStatic = false;
-
 	/**
 	 * The visibility of the declaration.
 	 */
-	private GNode modifiers;
+	protected GNode modifiers;
 
 	/**
 	 * Number of array dimensions, 0 means not an array.
 	 */
-	private int dimensions = 0;
+	protected int dimensions = 0;
 
 	/**
 	 * Type of the object represented as a string.
 	 */
-	private JavaType type;
+	protected JavaType type;
 
 	/**
 	 * Scope of this declaration
 	 */
-	private JavaScope scope;
-
+	protected JavaScope scope;
+	
+	/**
+	 * F'ing shutup, Java! (For FormalParameters)
+	 */
+	protected FieldDec() {}
+	
 	/**
 	 * Constructor. Not much else to say here.
 	 */
@@ -48,7 +47,7 @@ public class FieldDec extends Visitor {
 		this.scope = scope;
 		this.dispatch(n);
 	}
-
+	
 	/**
 	 * ==================================================================================================
 	 * Visitor Methods
@@ -87,14 +86,38 @@ public class FieldDec extends Visitor {
 	 */
 	public void visitDeclarator(GNode n) {
 	//Declarators always come after Modifiers and Type in our java AST
-		JavaField field = new JavaField(this.isStatic, this.modifiers, this.type, this.dimensions, this.scope, (Node)n);
+		JavaField field = new JavaField(this.modifiers, this.type, this.dimensions, this.scope, n);
 		//this.fields.add(field);
 	}
-
+	
 	public void visit(Node n) {
 		for (Object o : n) {
 			if (o instanceof Node)
 				this.dispatch((Node)o);
 		}
+	}
+}
+
+/**
+ * For building up FormalParameters for JavaMethod.
+ */
+class FormalParameters extends FieldDec {
+	/**
+	 * Storage for our little node.
+	 */
+	private GNode node;
+
+	/**
+	 * A nice little constructor so that we can use this for JavaMethod::FormalParameter.
+	 */
+	public FormalParameters(JavaScope s, GNode n) {
+		this.scope = s;
+		this.node = n;
+	}
+
+	public JavaField getField() {
+		this.visit((Node)this.node);
+		
+		return new FormalParameterField(this.modifiers, this.type, this.dimensions, this.scope, this.node);
 	}
 }
