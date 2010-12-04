@@ -6,11 +6,11 @@ import translator.Printer.CodeBlock;
 
 import xtc.tree.GNode;
 
-public class ExpressionStatement extends JavaStatement{
+public class ReturnStatement extends JavaStatement{
 
 	JavaExpression expression;
 
-	public ExpressionStatement (JavaScope scope, GNode n) {
+	public ReturnStatement (JavaScope scope, GNode n) {
 		super(scope, n);
 	}
 
@@ -19,8 +19,8 @@ public class ExpressionStatement extends JavaStatement{
 	}
 
 	public void print(CodeBlock b) {
-		if (expression != null)
-			b.pln(expression.print() + ";");
-		b.pln("NO EXPRESSION;");
+		if(expression != null)
+			b.pln("return" + expression.print() + ";");
+		b.pln("return NOTHING;");
 	}
 }

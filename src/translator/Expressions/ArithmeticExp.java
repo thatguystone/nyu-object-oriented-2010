@@ -2,7 +2,7 @@ package translator.Expressions;
 
 import translator.JavaType;
 import translator.JavaScope;
-import translator.JavaStatement;
+import translator.Statements.JavaStatement;
 import translator.Printer.CodeBlock;
 
 import xtc.tree.GNode;
@@ -39,7 +39,9 @@ public class ArithmeticExp extends JavaExpression {
 		//this.setType(JavaType.getType(first.getType(), second.getType()));
 	}
 
-	public void print(CodeBlock b) {
-		//second.print(first.print(b.p("(")).p(operator)).p(")");
+	public String print() {
+		//return second.print(first.print(b.p("(")).p(operator)).p(")");
+		//return first.print() + operator + second.print();
+		return "MATH";
 	}
 }

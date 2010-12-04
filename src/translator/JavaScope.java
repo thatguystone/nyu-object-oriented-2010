@@ -44,6 +44,8 @@ public class JavaScope extends Visitor {
 	public JavaScope(JavaScope scope) {
 		this(scope, null);
 	}
+
+	public int depth = 0;
 	
 	/**
 	 * Store our parent scope so that we can climb our scope tree.
@@ -52,11 +54,13 @@ public class JavaScope extends Visitor {
 		this.scope = scope;
 		
 		//if we have a scope, then save our package name
-		if (scope != null)
+		if (scope != null) {
 			this.pkg = scope.pkg;
+			this.depth = this.scope.depth + 1;	
+		}
 
-		this.objType = "hi";
-		
+		this.objType = "hi";	
+
 		//do the construct call-back, alright, do the construct call-back, baby.
 		this.onInstantiate(n);
 	}
@@ -185,7 +189,7 @@ public class JavaScope extends Visitor {
 	 * ==================================================================================================
 	 * Visitor Methods
 	 */
-/*	
+	
 	public JavaStatement visitExpressionStatement(GNode n) {
 		return new ExpressionStatement(this, n);		
 	}
@@ -205,7 +209,7 @@ public class JavaScope extends Visitor {
 	public JavaStatement visitConditionalStatement(GNode n) {
 		return new ConditionalStatement(this, n);
 	}
-*/
+
 
 	public JavaExpression visitCallExpression(GNode n) {
 		return new CallExpression(this, n);
@@ -221,18 +225,35 @@ public class JavaScope extends Visitor {
 
 	public JavaExpression visitSelectionExpression(GNode n) {
 		return new SelectionExpression(this, n);
-	} 
+	}
+
+	public JavaExpression visitExpression(GNode n) {
+		return new ArithmeticExp(this, n);
+	}
+
+	/**
+	 * Create a FieldDec object, the FieldDec will handle everything else so this is all we need to do.
+	 */
+	public void visitFieldDeclaration(GNode n) {
+		FieldDec f = new FieldDec(this, n);
+	}
 	
 	public CodeBlock visitBlock(GNode n) {
-		CodeBlock block = new CodeBlock();
+		CodeBlock block = new CodeBlock(depth);
 		for (Object o : n) {
 			if (o instanceof Node) {
 				JavaStatement temp = (JavaStatement)this.dispatch((Node)o);
-				temp.print(block);
+				if (temp != null)
+					temp.print(block);
+				else {
+					for (JavaField f : this.fields.values()) 
+						f.print(block);
+					fields.clear();
+				}
 			}
 		}
 		block.pln("When Statements print, they'll be here.");
-		block.close();
+		//block.close();
 		return block;
 	}
 	

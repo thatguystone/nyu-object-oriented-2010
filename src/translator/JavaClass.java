@@ -42,6 +42,16 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	JavaClass(JavaScope scope, GNode n) {
 		super(scope, n);
+		this.setDepth();
+	}
+
+	private void setDepth() {
+		String temp = this.getName();
+		int point = -1;
+		do {
+			depth++;
+			point = temp.indexOf(point + 1, '.');
+		}while (point != -1);
 	}
 	
 	/**
@@ -157,7 +167,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			}
 		}
 
-		b.pln("//END OF IMPLEMENTATION FOR : " + this.name);
+		b.pln("//END OF IMPLEMENTATION FOR : " + this.getCppName(false));
 		b.pln();
 	}
 	

@@ -101,10 +101,10 @@ public class CallExpression extends JavaExpression {
 		}
 	}
 
-	public String printMe() {
-		if (caller == null && method.isStatic())
-			return methodName + "(" /*+ sig.print()*/ /*not implemented*/ + ")";
-		return "hi";
+	public String print() {
+		//if (caller == null && method.isStatic())
+			//return method.getJavaClass().getCppName() + methodName + "(" +/*+ sig.print()*/ /*not implemented*/"SIGNATURE" + ")";
+		return /*caller.print() +*/ "->" + methodName + "(" +/*+ sig.print()*/ /*not implemented*/"SIGNATURE" + ")";
 	}
 
 	/**

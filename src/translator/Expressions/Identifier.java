@@ -81,4 +81,8 @@ public class Identifier extends JavaExpression {
 		}
 		*/
 	}
+
+	public String print() {
+		return this.value;
+	}
 }

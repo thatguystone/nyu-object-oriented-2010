@@ -31,6 +31,10 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 	public void setType(JavaType type) {
 		this.returnType = type;
 	}
+
+	public String print() {
+		return "expression?";
+	}
 	
 	/**
 	 * ==================================================================================================

@@ -57,6 +57,11 @@ public class CodeBlock {
 		this.indent++;
 	}
 	
+	public CodeBlock(int indent) {
+		this.empty = true;
+		this.indent = indent - 1;
+	}
+
 	public CodeBlock block(String header) {
 		return this.block(header, true);
 	}
@@ -117,6 +122,7 @@ public class CodeBlock {
 	 * For printing out empty lines.
 	 */
 	public CodeBlock pln() {
+		this.empty = false;
 		return this.pln("");
 	}
 	
@@ -124,8 +130,10 @@ public class CodeBlock {
 	 * Prints a line in the current block.
 	 */
 	public CodeBlock pln(String line) {
-		this.indent();
+		if (!this.empty)
+			this.indent();
 		this.code.append(line + "\n");
+		this.empty = false;
 		return this;
 	}
 	
