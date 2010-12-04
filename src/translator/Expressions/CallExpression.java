@@ -33,6 +33,8 @@ public class CallExpression extends JavaExpression {
 	 * The called method.
 	 */
 	JavaMethod method;
+	
+	boolean brokenSig;
 
 	/**
 	 * Is this expression part of a method chain?
@@ -84,6 +86,7 @@ public class CallExpression extends JavaExpression {
 	 * Populate our list of arguments and set our caller.
 	 */
 	public void onInstantiate(GNode n) {
+		brokenSig = true;
 		//we only need the method name to begin with
 		this.methodName = n.get(2).toString();
 		
@@ -118,12 +121,12 @@ public class CallExpression extends JavaExpression {
 	public String print() {
 		if (method != null) {
 			if (caller == null && method.isStatic())
-				return method.getJavaClass().getCppName() + method.getCppName() + "(" + /*sig.getCppArguments()*/"SIG" + ")";
-			return caller.print() + "->" + method.getCppName() + "(" + /*sig.getCppArguments()*/"SIG" + ")";
+				return method.getJavaClass().getCppName() + method.getCppName() + "(" + (brokenSig?sig.getCppArguments():"SIG") + ")";
+			return caller.print() + "->" + method.getCppName() + "(" + (brokenSig?sig.getCppArguments():"SIG") + ")";
 		}
 		if (caller == null)
-			return methodName + "(" + /*sig.getCppArguments()*/"SIG" + ")";
-		return caller.print() + "->" + methodName + "(" + /*sig.getCppArguments()*/"SIG" + ")";
+			return methodName + "(" + (brokenSig?sig.getCppArguments():"SIG") + ")";
+		return caller.print() + "->" + methodName + "(" + (brokenSig?sig.getCppArguments():"SIG") + ")";
 	}
 
 	/**
@@ -137,8 +140,11 @@ public class CallExpression extends JavaExpression {
 	public void visitArguments(GNode n) {
 		for (int i = 0; i < n.size(); i++) {
 			JavaExpression e = (JavaExpression)this.dispatch((GNode)n.get(i));
-			if (e != null)
+			if (e != null) {
 				this.sig.add(e.getType(), e);
+				if (e.getType() == null)
+					brokenSig = false;
+			}		
 		}
 	}
 }
