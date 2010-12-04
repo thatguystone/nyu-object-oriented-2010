@@ -3,6 +3,8 @@ package translator;
 import translator.Printer.CodeBlock;
 import xtc.tree.GNode;
 
+import java.util.HashSet;
+
 /**
  * A representation of a java method.
  *
@@ -86,7 +88,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	protected void process() {
 		this.dispatch(this.node);
 	}
-
+	
 	/**
 	 * ==================================================================================================
 	 * New Variable Methods(this/chain)
@@ -151,7 +153,6 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		//we only want to print to our defining class
 		if (cls != this.getJavaClass())
 			return;
-		
 	
 		//in the future this will also print the sig
 		b = b.block(this.getName());
@@ -176,7 +177,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		if (cls != this.getJavaClass())
 			return;
 		
-		b.pln("static " + this.returnType.getCppName() + " " + this.getName() + ";");
+		b.pln("static " + this.returnType.getCppName() + " " + this.getCppName(false) + "(" + this.sig.getCppArguments(false) + ");");
 	}
 	
 	/**
@@ -213,15 +214,39 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 * @param fullName Does nothing.
 	 */
 	public String getCppName(boolean fullName) {
-		return "Method names don't have C++ names yet.";
-		
-		/*
 		String name = "";
 		if (fullName)
 			name += this.getPackageName() + ".";
 		
-		return name + this.mangledName;
-		*/
+		return name.replace(".", "::") + this.mangledName;
+	}
+	
+	/**
+	 * Mangles the name of the method given the names of all the other methods.
+	 */
+	public void mangleName(HashSet<String> methodNames) {
+		//attempt just to use our name
+		this.mangledName = this.name;
+		
+		//if our name is used, we have to be more tricksy
+		if (methodNames.contains(mangledName)) {
+			String clsName = this.getJavaClass().getName().replace(".", "_");
+			String sig = this.sig.getCppMangledArgumentList();
+			
+			//try to use our name and our signature
+			this.mangledName = clsName + "__" + this.name + sig;
+			
+			//someone is screwing with our names to try to break it...outsmart them :)
+			if (methodNames.contains(this.mangledName)) {
+				//set up a counter, and just go until we find a name we can use
+				int i = 0;
+				while (methodNames.contains(this.mangledName)) {
+					this.mangledName = clsName + "__" + this.name + "__" + (i++) + sig;
+				}
+			}
+		}
+		
+		methodNames.add(this.mangledName);
 	}
 	
 	/**
@@ -284,6 +309,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 * JavaFieldDec isn't needed here because we can't pass multiple fields with the same type declaration.
 	 */
 	public void visitFormalParameter(GNode n) {
+		JavaStatic.dumpNode(n);
 		this.sig.add(JavaType.getType(this, ((GNode)((GNode)n.get(1)).get(0)).get(0).toString()), this);
 	}
 }

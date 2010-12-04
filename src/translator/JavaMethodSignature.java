@@ -39,6 +39,48 @@ public class JavaMethodSignature {
 	}
 	
 	/**
+	 * Goes through all of the arguments and returns a simple string representation of them for name mangling.
+	 */
+	public String getCppMangledArgumentList() {
+		if (this.sig.size() == 0)
+			return "";
+	
+		String ret = "_";
+		for (TypeContainer c : this.sig) {
+			ret += c.type.getName() + "_";
+		}
+		
+		return ret.substring(0, ret.length() - 1).replace(".", "_");
+	}
+	
+	/**
+	 * Gets a C++ printable version of the arguments.
+	 */
+	public String getCppArguments() {
+		return this.getCppArguments(true);
+	}
+	
+	/**
+	 * Gets a C++ printable version of the arguments.
+	 *
+	 * @param withVariableNames If the variable name should also be returned in the argument list.
+	 */
+	public String getCppArguments(boolean withVariableNames) {
+		if (this.sig.size() == 0)
+			return "";
+	
+		String ret = "";
+		
+		for (TypeContainer c : this.sig) {
+			System.out.println(c.item.getClass().getName());
+			//ret += c.type.getCppName() + (withVariableNames ? c.item.getCppName() : "") + ",";
+		} 
+		return "";
+		
+		//return ret.substring(0, ret.length() - 1);
+	}
+	
+	/**
 	 * Compares a signature to another to see if they are equal.
 	 */
 	public boolean equals(JavaMethodSignature sig) {

@@ -65,19 +65,12 @@ public class FieldDec extends Visitor {
 	 * Get the type of the field represented as a string
 	 */
 	public void visitType(GNode n) {
-		String name = ((GNode)n.get(0)).getName();
-		
-		if (name.equals("PrimitiveType")) {
-			this.type = JavaType.getType(((GNode)n.get(0)).get(0).toString());
-		} else if (name.equals("QualifiedIdentifier")) {
-			String type = "";
+		String type = "";
+		for (Object o : ((GNode)n.get(0)))
+			type += o + ".";
 			
-			for (Object o : ((GNode)n.get(0)))
-				type += o + ".";
-			
-			//Good times with strings
-			this.type = JavaType.getType(this.scope, type.substring(0, type.length() - 1));
-		}
+		//Good times with strings
+		this.type = JavaType.getType(this.scope, type.substring(0, type.length() - 1));
 	}
 
 	/**

@@ -4,6 +4,7 @@ import translator.Printer.CodeBlock;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 
+import java.util.Collection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -281,12 +282,29 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		//---------------------------------------------------------------------------------------
 		// Setup the vTable
 		
+		//store all method names so that we can mangle properly
+		HashSet<String> methodNames = new HashSet<String>();
+		
+		//we're going to take all of our local methods and store them locally then reset our methods table.
+		//
+		//we do this so that:
+		// 1) we can add all our parent's methods to our local table
+		// 2) we can populate a list of method names (for mangling) from our parent and add our parent's methods in 1 loop
+		// 3) we can then loop over all our class methods, without any interference from the parent methods that were added
+		HashMap<String, ArrayList<JavaMethod>> classMethods = this.methods;
+		this.methods = new HashMap<String, ArrayList<JavaMethod>>();
+		
 		//if we have a parent from whom we can steal methods
 		if (this.parent != null) {
 			//go through all the parent virtual methods and add them to our table
 			for (JavaMethod m : this.parent.vtable) {
+				//add our method name WITHOUT the C++ scope resolution stuff 
+				methodNames.add(m.getCppName(false));
+				
 				//if we're not overriding the method
-				if (this.getMethod(m) == null) {
+				//@TODO - Does this work properly?
+				JavaMethod local;
+				if ((local = this.getMethod(m)) == null || !local.equals(m)) {
 					this.addMethod(m);
 					this.vtable.add(m);
 				}
@@ -294,8 +312,14 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		}
 		
 		//and go through all our methods and add them back
-		for (ArrayList<JavaMethod> a : this.methods.values()) {
+		for (ArrayList<JavaMethod> a : classMethods.values()) {
 			for (JavaMethod m : a) {
+				//do some name mangling
+				m.mangleName(methodNames);
+				
+				//and re-storing the method locally
+				this.addMethod(m);
+				
 				//does the method belong in the vtable?
 				if (m.isAtLeastVisible(Visibility.PROTECTED) && !m.isStatic())
 					this.vtable.add(m);
@@ -326,7 +350,6 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 				this.addField(f);
 			
 			//either way, add the field to our list of parent fields
-			parentFields.add(f.getName());
 			parentFields.add(f.getCppName());
 		}
 		
@@ -383,7 +406,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		if (fullName)
 			name += this.getPackageName() + ".";
 		
-		return name.replace(".", "::") + "__" + this.name;
+		return name.replace(".", "::") + this.name;
 	}
 	
 	/**
