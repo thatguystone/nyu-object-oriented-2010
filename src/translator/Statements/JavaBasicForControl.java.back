@@ -28,7 +28,7 @@ class JavaBasicForControl extends JavaScope{
 	}
 	public String printMe(){
 		if (ForInit!=null){
-			return ForInit.printMe()+";"+ForExpression.printMe()+";"+ForUpdate.printMe();
+			return ForInit.print()+";"+ForExpression.print()+";"+ForUpdate.print();
 		}
 		ArrayList<JavaField> d=this.getAllFields();
 		int s=d.size();
@@ -37,6 +37,6 @@ class JavaBasicForControl extends JavaScope{
 		for (int i=1;i<s;++i){
 			init+=","+d.get(i).getName();
 		}
-		return init+";"+ForExpression.printMe()+";"+ForUpdate.printMe();
+		return init+";"+ForExpression.print()+";"+ForUpdate.print();
 	}
 }

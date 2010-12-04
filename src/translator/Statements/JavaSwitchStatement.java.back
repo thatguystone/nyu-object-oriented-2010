@@ -10,19 +10,18 @@ class JavaSwitchStatement extends JavaStatement{
 		super(scope, n);
 	}
 	public CodeBlock printMe(CodeBlock block){
-		int s=b.size()-1;
-		CodeBlock ret=block.block("switch ("+ ((JavaExpression)header).printMe() + ")",true);
+		int s=b.size();
+		CodeBlock ret=block.block("switch ("+ ((JavaExpression)header).print() + ")",true);
 		ret.attach((CodeBlock)b.get(0));
 		if (s>0){
 			for (int i=1;i<s;++i){
-				ret.block("else ").attach((CodeBlock)b.get(i));  /** the "else if" branch(es) (space required between "else" and "if") **/
+				ret.attach((CodeBlock)b.get(i));
 			}
-			ret.block("else").attach((CodeBlock)b.get(s));	/** the else branch **/
 		}
 		return ret.close();
         }
 	public CodeBlock visitCaseClause(GNode n){
-		CodeBlock ret=new CodeBlock().block("case "+((JavaExpression)dispatch((GNode)n.get(0))).printMe()+":",false);
+		CodeBlock ret=new CodeBlock().block("case "+((JavaExpression)dispatch((GNode)n.get(0))).print()+":",false);
 		for (int i=1;i<n.size();++i){
 			Object o=n.get(1);
 			if (o instanceof Node){
@@ -33,8 +32,8 @@ class JavaSwitchStatement extends JavaStatement{
 	}
 /*
 	public CodeBlock visitDefaultClause(GNode n){
-		CodeBlock ret=new CodeBlock().block("case "+((JavaExpression)dispatch((GNode)n.get(0))).printMe()+":",false);
-		for (int i=1;i<n.size();++i){
+		CodeBlock ret=new CodeBlock().block("default:",false);
+		for (int i=0;i<n.size();++i){
 			Object o=n.get(1);
 			if (o instanceof Node){
 				ret.attach((CodeBlock)dispatch((Node)o));

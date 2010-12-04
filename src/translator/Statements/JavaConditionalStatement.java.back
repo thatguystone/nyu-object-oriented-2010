@@ -12,7 +12,7 @@ class JavaConditionalStatement extends JavaStatement{
 	}
 	public CodeBlock printMe(CodeBlock block){
 		int s=b.size()-1;
-		CodeBlock ret=block.block("if ("+ ((JavaExpression)header).printMe() + ")",true);
+		CodeBlock ret=block.block("if ("+ ((JavaExpression)header).print() + ")",true);
 		ret.attach((CodeBlock)b.get(0));
 		if (s>0){
 			for (int i=1;i<s;++i){
