@@ -67,6 +67,20 @@ abstract public class JavaType {
 		public String getCppName() {
 			return this.cppTypeName;
 		}
+		
+		/**
+		 * Gets the name that is usable as a type in Java.
+		 */
+		public String getName() {
+			return this.typeName;
+		}
+		
+		/**
+		 * Primitives don't have a class.
+		 */
+		public JavaClass getJavaClass() {
+			return null;
+		}
 	}
 	
 	/**
@@ -100,6 +114,20 @@ abstract public class JavaType {
 		 */
 		public String getCppName() {
 			return this.cls.getCppName();
+		}
+		
+		/**
+		 * Gets the name that is usable as a type in Java.
+		 */
+		public String getName() {
+			return this.cls.getName();
+		}
+		
+		/**
+		 * Quick accessor for grabbing the class from a type.
+		 */
+		public JavaClass getJavaClass() {
+			return this.cls;
 		}
 	}
 	
@@ -169,6 +197,16 @@ abstract public class JavaType {
 	 * Gets the name that is usable as a type in C++.
 	 */
 	public abstract String getCppName();
+	
+	/**
+	 * Gets the java name of the type.
+	 */
+	public abstract String getName();
+	
+	/**
+	 * Get the class of a type.
+	 */
+	public abstract JavaClass getJavaClass();
 	
 	/**
 	 * ==================================================================================================
