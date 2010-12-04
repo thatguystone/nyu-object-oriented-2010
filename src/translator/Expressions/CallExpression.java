@@ -62,6 +62,20 @@ public class CallExpression extends JavaExpression {
 	}
 
 	/**
+	 * I have a worthless parent that pushes all its work onto its kid :(!
+	 */
+	public CallExpression(JavaScope scope, GNode n, String info) {
+		super(scope, n);
+		this.visit(n);
+		if ((this.caller instanceof CallExpression) && !this.method.isStatic()) {
+			this.chaining = true;
+			this.getMyMethod().hasChaining();
+		}
+		//Setting the selection expression's type for it.
+		((JavaExpression)this.getScope()).setType(this.method.getScope().getField(info).getType());
+	}
+
+	/**
 	 * Populate our list of arguments and set our caller.
 	 */
 	public void onInstantiate(GNode n) {

@@ -31,6 +31,17 @@ public class SelectionExpression extends JavaExpression {
 	}
 
 	/**
+	 * My parent in a selection expression, ono!
+	 * Luckily I am too, so I'll be pushing my parent's work(and my own) onto my kid! Yay!
+	 */
+	public SelectionExpression(JavaScope scope, GNode n, String info) {
+		//selecteeName = "." + info;
+		super(scope, n);
+		this.selecteeName = (String)n.get(1) + "." + info;
+		this.selector = (JavaExpression)this.dispatch((Node)n.get(0));
+	}
+
+	/**
 	 * This method will be called by the selection expression's child.
 	 * Basically selection expressions are too stupid to resolve their own problems so they
 	 * push their work onto their child... yea, a real role model.
@@ -40,22 +51,37 @@ public class SelectionExpression extends JavaExpression {
 	}
 
 	protected void onInstantiate(GNode n) {
-		this.selector = (JavaExpression)this.dispatch((Node)n.get(0));
-		if (this.getScope() instanceof SelectionExpression)
-			this.selecteeName = ((SelectionExpression)this.getScope()).getName() + ".";
-		this.selecteeName += (String)n.get(1);
-		if (this.selector.getType() == null) {
-			//this.selectee = this.getFile().getImport(selector.getName() + selecteeName);
-			//this.setReturnType((JavaClass)this.selectee);
-		}		
-		else {
-			//this.selectee = this.selector.getReturnType().getField(selecteeName);
-			//this.setReturnType(((JavaField)this.selectee).getType());
-		}
-		this.setType(((JavaExpression)this.getScope()).getType());
 	}
 
 	public String printMe() {
 		return "I am a selection expression. FEAR ME!";
 	}
+
+	/**
+	 * Selection expressions don't always know their return type.
+	 */
+	public JavaType getType() {
+		if(this.returnType != null)
+			return this.returnType;
+		return this.selector.getType();
+	}
+
+	/**
+	 * ==================================================================================================
+	 * Special Visitors for a special expression.
+	 */
+
+	public JavaExpression visitCallExpression(GNode n) {
+		return new CallExpression(this, n, selecteeName);
+	}
+	
+	public JavaExpression visitPrimaryIdentifier(GNode n) {
+		return new Identifier(this, n, selecteeName);
+	}
+
+	public JavaExpression visitSelectionExpression(GNode n) {
+		return new SelectionExpression(this, n, selecteeName);
+	}
+
+
 }

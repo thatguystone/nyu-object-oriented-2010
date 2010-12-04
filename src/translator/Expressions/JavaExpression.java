@@ -12,7 +12,7 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 	/**
 	 * The return type of this expression.
 	 */
-	private JavaType returnType;
+	protected JavaType returnType = null;
 	
 	JavaExpression(JavaScope scope, GNode n)	{
 		super(scope, n);

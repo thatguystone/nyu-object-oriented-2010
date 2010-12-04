@@ -105,6 +105,15 @@ public class CodeBlock {
 	}
 	
 	/**
+	 * Prints a string to the current block.
+	 */
+	public CodeBlock p(String text) {
+		this.code.append(text);
+		return this;
+	}
+	
+
+	/**
 	 * For printing out empty lines.
 	 */
 	public CodeBlock pln() {

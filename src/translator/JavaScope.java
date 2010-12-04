@@ -10,6 +10,7 @@ import xtc.tree.Visitor;
 
 //we need every expression type for visiting
 import translator.Expressions.*;
+import translator.Statements.*;
 import translator.Printer.CodeBlock;
 
 /**
@@ -184,7 +185,28 @@ public class JavaScope extends Visitor {
 	 * ==================================================================================================
 	 * Visitor Methods
 	 */
+/*	
+	public JavaStatement visitExpressionStatement(GNode n) {
+		return new ExpressionStatement(this, n);		
+	}
 	
+	public JavaStatement visitReturnStatement(GNode n) {
+		return new ReturnStatement(this, n);
+	}
+
+	public JavaStatement visitForStatement(GNode n) {
+		return new ForStatement(this, n);
+	}
+
+	public JavaStatement visitWhileStatement(GNode n) {
+		return new WhileStatement(this, n);
+	}
+
+	public JavaStatement visitConditionalStatement(GNode n) {
+		return new ConditionalStatement(this, n);
+	}
+*/
+
 	public JavaExpression visitCallExpression(GNode n) {
 		return new CallExpression(this, n);
 	}
@@ -204,8 +226,10 @@ public class JavaScope extends Visitor {
 	public CodeBlock visitBlock(GNode n) {
 		CodeBlock block = new CodeBlock();
 		for (Object o : n) {
-			if (o instanceof Node)
-				block.attach((CodeBlock)this.dispatch((Node)o));
+			if (o instanceof Node) {
+				JavaStatement temp = (JavaStatement)this.dispatch((Node)o);
+				temp.print(block);
+			}
 		}
 		block.pln("When Statements print, they'll be here.");
 		block.close();

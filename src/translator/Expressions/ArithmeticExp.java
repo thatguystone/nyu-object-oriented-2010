@@ -3,6 +3,7 @@ package translator.Expressions;
 import translator.JavaType;
 import translator.JavaScope;
 import translator.JavaStatement;
+import translator.Printer.CodeBlock;
 
 import xtc.tree.GNode;
 
@@ -38,10 +39,7 @@ public class ArithmeticExp extends JavaExpression {
 		//this.setType(JavaType.getType(first.getType(), second.getType()));
 	}
 
-	public String printMe() {
-		String temp = first.printMe() + operator + second.printMe();
-		if (this.getScope() instanceof JavaStatement)
-			return temp;
-		return "(" + temp + ")";
+	public void print(CodeBlock b) {
+		//second.print(first.print(b.p("(")).p(operator)).p(")");
 	}
 }
