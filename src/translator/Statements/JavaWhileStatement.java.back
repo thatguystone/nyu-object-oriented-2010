@@ -10,6 +10,6 @@ class JavaWhileStatement extends JavaStatement{
 		super(scope, n);
 	}
 	public CodeBlock printMe(CodeBlock block){
-		return block.block("for ("+ ((ConditionalExpression)header).printMe() + ")",true).attach((CodeBlock)b.get(0)).close();
+		return block.block("for ("+ ((ConditionalExpression)header).print() + ")",true).attach((CodeBlock)b.get(0)).close();
 	}
 }
