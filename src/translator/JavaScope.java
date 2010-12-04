@@ -190,6 +190,9 @@ public class JavaScope extends Visitor {
 	 * Visitor Methods
 	 */
 	
+	/**
+	 * Statement Visitors
+	 */
 	public JavaStatement visitExpressionStatement(GNode n) {
 		return new ExpressionStatement(this, n);		
 	}
@@ -211,6 +214,9 @@ public class JavaScope extends Visitor {
 	}
 
 
+	/**
+	 * Expressions Visitors
+	 */
 	public JavaExpression visitCallExpression(GNode n) {
 		return new CallExpression(this, n);
 	}
@@ -222,6 +228,14 @@ public class JavaScope extends Visitor {
 	public JavaExpression visitStringLiteral(GNode n) {
 		return new StringLiteral(this, n);
 	}
+	
+	public JavaExpression visitConditionalExpression(GNode n) {
+		return new ConditionalExpression(this, n);
+	}
+	
+	public JavaExpression visitComparativeExpression(GNode n) {
+		return new ComparativeExp(this, n);
+	}
 
 	public JavaExpression visitSelectionExpression(GNode n) {
 		return new SelectionExpression(this, n);
@@ -230,7 +244,32 @@ public class JavaScope extends Visitor {
 	public JavaExpression visitExpression(GNode n) {
 		return new ArithmeticExp(this, n);
 	}
+	
+	public JavaExpression visitAdditiveExpression(GNode n) {
+		return new ArithmeticExp(this, n);
+	}
+	
+	public JavaExpression visitMultiplicativeExpression(GNode n) {
+		return new ArithmeticExp(this, n);
+	}
+	
+	public JavaExpression visitIntegerLiteral(GNode n) {
+		return new Literal(this, n, JavaType.getType("int"));
+	}
+	
+	public JavaExpression visitCharacterLiteral(GNode n) {
+		return new Literal(this, n, JavaType.getType("char"));
+	}
+	
+	public JavaExpression visitFloatingPointLiteral(GNode n) {
+		return new Literal(this, n, JavaType.getType("float"));
+	}
 
+
+	/**
+	 * Other Visitors
+	 */
+	 
 	/**
 	 * Create a FieldDec object, the FieldDec will handle everything else so this is all we need to do.
 	 */

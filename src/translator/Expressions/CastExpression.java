@@ -37,6 +37,6 @@ public class CastExpression extends JavaExpression {
 	}
 
 	public String printMe() {
-		return "((" /*+ this.getType().print()*/ /*print method not yet implemented*/ + ")" + this.casted.printMe() + ")";
+		return "((" /*+ this.getType().print()*/ /*print method not yet implemented*/ + ")" + this.casted.print() + ")";
 	}
 }
