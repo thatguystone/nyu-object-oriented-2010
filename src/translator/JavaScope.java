@@ -31,7 +31,7 @@ public class JavaScope extends Visitor {
 	/**
 	 * List of all fields in this scope.
 	 */
-	private LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
+	public LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
 	
 	public int depth = 0;
 	
@@ -183,6 +183,9 @@ public class JavaScope extends Visitor {
 	 * Visitor Methods
 	 */
 	
+	/**
+	 * Statement Visitors
+	 */
 	public JavaStatement visitExpressionStatement(GNode n) {
 		return new ExpressionStatement(this, n);		
 	}
@@ -204,6 +207,9 @@ public class JavaScope extends Visitor {
 	}
 
 
+	/**
+	 * Expressions Visitors
+	 */
 	public JavaExpression visitCallExpression(GNode n) {
 		return new CallExpression(this, n);
 	}
@@ -215,6 +221,14 @@ public class JavaScope extends Visitor {
 	public JavaExpression visitStringLiteral(GNode n) {
 		return new StringLiteral(this, n);
 	}
+	
+	public JavaExpression visitConditionalExpression(GNode n) {
+		return new ConditionalExpression(this, n);
+	}
+	
+	public JavaExpression visitComparativeExpression(GNode n) {
+		return new ComparativeExp(this, n);
+	}
 
 	public JavaExpression visitSelectionExpression(GNode n) {
 		return new SelectionExpression(this, n);
@@ -223,7 +237,32 @@ public class JavaScope extends Visitor {
 	public JavaExpression visitExpression(GNode n) {
 		return new ArithmeticExp(this, n);
 	}
+	
+	public JavaExpression visitAdditiveExpression(GNode n) {
+		return new ArithmeticExp(this, n);
+	}
+	
+	public JavaExpression visitMultiplicativeExpression(GNode n) {
+		return new ArithmeticExp(this, n);
+	}
+	
+	public JavaExpression visitIntegerLiteral(GNode n) {
+		return new Literal(this, n, JavaType.getType("int"));
+	}
+	
+	public JavaExpression visitCharacterLiteral(GNode n) {
+		return new Literal(this, n, JavaType.getType("char"));
+	}
+	
+	public JavaExpression visitFloatingPointLiteral(GNode n) {
+		return new Literal(this, n, JavaType.getType("float"));
+	}
 
+
+	/**
+	 * Other Visitors
+	 */
+	 
 	/**
 	 * Create a FieldDec object, the FieldDec will handle everything else so this is all we need to do.
 	 */
@@ -232,6 +271,7 @@ public class JavaScope extends Visitor {
 	}
 	
 	public CodeBlock visitBlock(GNode n) {
+		ArrayList<String> usedFields = new ArrayList<String>();
 		CodeBlock block = new CodeBlock(depth);
 		for (Object o : n) {
 			if (o instanceof Node) {
@@ -240,12 +280,14 @@ public class JavaScope extends Visitor {
 					temp.print(block);
 				else {
 					for (JavaField f : this.fields.values()) 
-						f.print(block);
-					fields.clear();
+						if (!usedFields.contains(f.getName())) {
+							f.print(block);
+							usedFields.add(f.getName());
+						}
+					//fields.clear();
 				}
 			}
 		}
-		block.pln("When Statements print, they'll be here.");
 		//block.close();
 		return block;
 	}

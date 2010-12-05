@@ -2,6 +2,7 @@ package translator.Expressions;
 
 import java.util.ArrayList;
 
+import translator.JavaType;
 import translator.JavaClass;
 import translator.JavaMethod;
 import translator.JavaMethodSignature;
@@ -15,7 +16,7 @@ public class CallExpression extends JavaExpression {
 	/**
 	 * The object or class making this method call
 	 */
-	private JavaExpression caller = null;
+	private JavaExpression caller;
 	
 	/**
 	 * String holding the name of the method.
@@ -32,11 +33,13 @@ public class CallExpression extends JavaExpression {
 	 * The called method.
 	 */
 	JavaMethod method;
+	
+	boolean brokenSig;
 
 	/**
 	 * Is this expression part of a method chain?
 	 */
-	private boolean chaining = false;
+	private boolean chaining;
 	
 	/**
 	 * Why java, why?! Just override constructors :(
@@ -59,6 +62,8 @@ public class CallExpression extends JavaExpression {
 			this.chaining = true;
 			this.getMyMethod().hasChaining();
 		}
+		else
+			this.chaining = false;
 	}
 
 	/**
@@ -71,6 +76,8 @@ public class CallExpression extends JavaExpression {
 			this.chaining = true;
 			this.getMyMethod().hasChaining();
 		}
+		else
+			this.chaining = false;
 		//Setting the selection expression's type for it.
 		((JavaExpression)this.getScope()).setType(this.method.getScope().getField(info).getType());
 	}
@@ -79,6 +86,7 @@ public class CallExpression extends JavaExpression {
 	 * Populate our list of arguments and set our caller.
 	 */
 	public void onInstantiate(GNode n) {
+		brokenSig = true;
 		//we only need the method name to begin with
 		this.methodName = n.get(2).toString();
 		
@@ -98,13 +106,27 @@ public class CallExpression extends JavaExpression {
 			this.caller = null;
 		} else {
 			this.caller = (JavaExpression)this.dispatch(n);
-		}
+			System.out.println(methodName);
+			if (caller != null){
+				if (caller.getType() != null){
+					if (caller.getType().getJavaClass() != null) {
+						this.method = this.caller.getType().getJavaClass().getMethod(methodName, sig);
+					}
+				}
+				//JavaScope temp = this.caller.getType().getJavaClass();
+			}
+		} 
 	}
 
 	public String print() {
-		//if (caller == null && method.isStatic())
-			//return method.getJavaClass().getCppName() + methodName + "(" +/*+ sig.print()*/ /*not implemented*/"SIGNATURE" + ")";
-		return /*caller.print() +*/ "->" + methodName + "(" +/*+ sig.print()*/ /*not implemented*/"SIGNATURE" + ")";
+		if (method != null) {
+			if (caller == null && method.isStatic())
+				return method.getJavaClass().getCppName() + method.getCppName() + "(" + (brokenSig?sig.getCppArguments():"SIG") + ")";
+			return caller.print() + "->" + method.getCppName() + "(" + (brokenSig?sig.getCppArguments():"SIG") + ")";
+		}
+		if (caller == null)
+			return methodName + "(" + (brokenSig?sig.getCppArguments():"SIG") + ")";
+		return caller.print() + "->" + methodName + "(" + (brokenSig?sig.getCppArguments():"SIG") + ")";
 	}
 
 	/**
@@ -118,8 +140,11 @@ public class CallExpression extends JavaExpression {
 	public void visitArguments(GNode n) {
 		for (int i = 0; i < n.size(); i++) {
 			JavaExpression e = (JavaExpression)this.dispatch((GNode)n.get(i));
-			if (e != null)
+			if (e != null) {
 				this.sig.add(e.getType(), e);
+				if (e.getType() == null)
+					brokenSig = false;
+			}		
 		}
 	}
 }

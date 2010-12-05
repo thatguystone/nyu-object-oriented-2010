@@ -44,12 +44,12 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * Assignment statement associated with this field declaration.
 	 * May not exist.
 	 */
-	private JavaExpression assignment = null;
+	private JavaExpression assignment;
 
 	/**
 	 * This constructor is for standard field declarations
 	 */
-	JavaField(GNode modifiers, JavaType type, int dimensions, JavaScope scope, GNode n) {
+	public JavaField(GNode modifiers, JavaType type, int dimensions, JavaScope scope, GNode n) {
 		super(scope, n);
 		setupVisibility(modifiers);
 		this.type = type;
@@ -66,8 +66,8 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	protected void onInstantiate(GNode n) {
 		this.name = (String)n.get(0);
 		this.getScope().addField(this);
-
-		this.dispatch(n);	
+		this.dispatch((GNode)n.get(1));
+		this.assignment = (JavaExpression)this.dispatch((GNode)n.get(2));
 	}
 
 	/**
@@ -126,7 +126,8 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 			}
 		}
 		
-		fields.add(this.mangledName);
+		fields.add
+		(this.mangledName);
 	}
 	
 	/**
@@ -147,7 +148,10 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	}
 
 	public void print(CodeBlock b) {
-		b.pln(this.type.getCppName() + " " + this.mangledName + ";");
+		if ((this.getMyMethod() == null) || (this.assignment == null))
+			b.pln(this.type.getCppName() + " " + this.getCppName() + ";");
+		else
+			b.pln(this.type.getCppName() + " " + this.getCppName() + " = " + this.assignment.print() + ";");
 	}
 
 	/**

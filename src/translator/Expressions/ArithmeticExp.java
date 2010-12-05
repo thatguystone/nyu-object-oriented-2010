@@ -41,7 +41,9 @@ public class ArithmeticExp extends JavaExpression {
 
 	public String print() {
 		//return second.print(first.print(b.p("(")).p(operator)).p(")");
-		//return first.print() + operator + second.print();
-		return "MATH";
+		if (this.getScope() instanceof JavaStatement)
+			return first.print() + operator + second.print();
+		return "(" + first.print() + operator + second.print() + ")";
+		//return "MATH";
 	}
 }

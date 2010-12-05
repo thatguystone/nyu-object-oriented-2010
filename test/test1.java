@@ -36,7 +36,7 @@ class needsInherit extends inheritMe {
 		}
 		int x;
 		if (true) {
-			x = 4;
+			x = 4 + 7 * 3 - 8;
 		}
 		else {
 			x = 5;

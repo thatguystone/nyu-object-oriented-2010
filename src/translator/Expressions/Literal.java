@@ -22,7 +22,7 @@ public class Literal extends JavaExpression {
 		this.value = (String)n.get(0);
 	}
 
-	public String printMe() {
+	public String print() {
 		return value;
 	}
 }
