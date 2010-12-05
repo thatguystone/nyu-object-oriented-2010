@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 
 import java.util.Hashtable;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -238,18 +239,19 @@ class JavaPackages {
 	 * to be a reasonable alternative for our purposes. Also, we do NOT support using native for any translations;
 	 * this is just for our internal libraries / java api.
 	 */
-	public void importNative(String cls) {
-		if (this.loadedNatives.contains(cls))
+	public void importNative(JavaClass cls) {
+		String clsName = cls.getName();
+		if (this.loadedNatives.contains(clsName))
 			return;
 		
-		this.loadedNatives.add(cls);
+		this.loadedNatives.add(clsName);
 		
-		String cppFile = cls.replace(".", "/") + ".cpp";
-		String hFile = cls.replace(".", "/") + ".h";
+		String cppFile = clsName.replace(".", "/") + ".cpp";
+		String hFile = clsName.replace(".", "/") + ".h";
 		
 		//first, we're going to attempt to find the .cpp and .h files that correspond with this class
-		this.appendFileToOutput(cppFile, JavaStatic.cpp);
-		this.appendFileToOutput(hFile, JavaStatic.h);
+		this.appendFileToOutput(cppFile, JavaStatic.cpp, cls);
+		this.appendFileToOutput(hFile, JavaStatic.h, cls);
 	}
 	
 	/**
@@ -258,16 +260,43 @@ class JavaPackages {
 	 * @param f The file to read from.
 	 * @param printer The output to print to.
 	 */
-	private void appendFileToOutput(String f, CodePrinter printer) {
+	private void appendFileToOutput(String f, CodePrinter printer, JavaClass cls) {
 		try {
 			Scanner file = new Scanner(JavaStatic.runtime.locate(f));
 			
+			int iOverload;
+			int iOpenBracket, iCloseBracket;
 			while (file.hasNextLine()) {
 				String line = file.nextLine();
 				
 				if (line.startsWith("#include")) {
 					printer.b_pln(line);
 				} else {
+					//attempt to do overload replacement of the method names in the native files
+					if ((iOverload = line.indexOf("{overload:")) > -1) {
+						iOpenBracket = line.indexOf("[");
+						iCloseBracket = line.indexOf("]");
+						
+						//10 = length of "{overload:"
+						String name = line.substring(iOverload + 10, iOpenBracket);
+						JavaMethodSignature sig = new JavaMethodSignature();
+						
+						//loop through our arguments and add them to our signature
+						String args = line.substring(iOpenBracket + 1, iCloseBracket);
+						if (args.length() > 0) {
+							for (String t : args.split(","))
+								sig.add(JavaType.getType(cls, t.trim()), cls);
+						}
+						
+						JavaMethod m = cls.getClassMethod(name, sig);
+						
+						//if we didn't find the method, then that is an error in the native.cpp file, so send a warning
+						if (m == null)
+							JavaStatic.runtime.warning("In native file \"" + f + "\", the overloaded method \"" + name + "\" was not defined in the class definition");
+						else
+							line = line.replace(line.substring(iOverload, line.indexOf("}") + 1), m.getCppName(false));
+					}
+					
 					printer.pln(line);
 				}
 			}

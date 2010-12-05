@@ -46,9 +46,8 @@ public class JavaMethodSignature {
 			return "";
 	
 		String ret = "_";
-		for (TypeContainer c : this.sig) {
+		for (TypeContainer c : this.sig)
 			ret += c.type.getName() + "_";
-		}
 		
 		return ret.substring(0, ret.length() - 1).replace(".", "_");
 	}

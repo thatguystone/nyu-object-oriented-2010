@@ -196,12 +196,9 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 		}
 		
 		//if we have a class, activate him as he is going to be used.
-		if (retCls != null) {
-			System.out.println("Activating: " + retCls.getName());
+		if (retCls != null)
 			retCls.activate();
-		}
 		
-		//well, that wasn't imported...hmm
 		return retCls;
 	}
 	

@@ -17,7 +17,7 @@ namespace java {
 			 * Following the java standard for concat -- make a copy of the string
 			 * if adding anything.
 			 */
-			String& <java.lang.String.concat(String)>(String str) {
+			String {overload:concat[java.lang.String]}(String str) {
 				if (str.size() == 0) {
 					return *this;
 				} else {
@@ -28,35 +28,35 @@ namespace java {
 				}
 			}
 			
-			int length() {
+			int32_t {overload:length[]}() {
 				return (int)this->size();
 			}
 			
-			bool contains(String s) {
+			bool {overload:contains[java.lang.String]}(String s) {
 				return ((int)this->find(s)) > -1;
 			}
 			
-			bool endsWith(String s) {
+			bool {overload:endsWith[java.lang.String]}(String s) {
 				return (this->length() - s.length()) == this->lastIndexOf(s);
 			}
 			
-			int indexOf(char ch) {
+			int {overload:indexOf[char]}(char ch) {
 				return ((int)this->find(ch));
 			}
 			
-			int indexOf(String str) {
+			int {overload:indexOf[java.lang.String]}(String str) {
 				return ((int)this->find(str));
 			}
 			
-			int lastIndexOf(char ch) {
+			int {overload:lastIndexOf[char]}(char ch) {
 				return ((int)this->rfind(ch));
 			}
 			
-			int lastIndexOf(String str) {
+			int {overload:lastIndexOf[java.lang.String]}(String str) {
 				return ((int)this->rfind(str));
 			}
 			
-			String& replace(char old, char newChar) {
+			String {overload:replace[char,char]}(char old, char newChar) {
 				String *ret = new String();
 				
 				int l = this->length();
@@ -70,19 +70,19 @@ namespace java {
 				return *ret;
 			}
 			
-			bool startsWith(String s) {
+			bool {overload:startsWith[java.lang.String]}(String s) {
 				return this->indexOf(s) == 0;
 			}
 			
-			String substring(int start) {
+			String {overload:substring[int]}(int32_t start) {
 				return this->substr(start);
 			}
 			
-			String substring(int start, int end) {
+			String {overload:substring[int]}(int32_t start, int32_t end) {
 				return this->substr(start, end - start);
 			}
 			
-			String& toLowerCase() {
+			String {overload:toLowerCase[]}() {
 				String *ret = new String();
 				
 				int l = this->length();
@@ -97,7 +97,7 @@ namespace java {
 				return *ret;
 			}
 			
-			String& toUpperCase() {
+			String {overload:toUpperCase[]}() {
 				String *ret = new String();
 				
 				int l = this->length();

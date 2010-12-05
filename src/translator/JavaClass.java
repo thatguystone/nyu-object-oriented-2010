@@ -27,6 +27,11 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	private HashMap<String, ArrayList<JavaMethod>> methods = new HashMap<String, ArrayList<JavaMethod>>();
 	
 	/**
+	 * The list of all the methods that are defined in this class.
+	 */
+	private HashMap<String, ArrayList<JavaMethod>> classMethods; 
+	
+	/**
 	 * The VTable list of methods (in the order they need to appear). This is used for nothing but maintaining
 	 * the order of the VTable.
 	 */
@@ -83,6 +88,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	
 	/**
 	 * Only to be used upon activation.  Does everything we need to get this class ready for translation.
+	 * The first phase of class activation.
 	 */
 	protected void process() {
 		//go for a nice visit to see everyone
@@ -92,19 +98,39 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		this.setParent("java.lang.Object");
 		
 		//attempt to load our data layout -- might fail if our parent hasn't been setup yet
-		this.setupDataLayout();
+		this.checkParentReady(this);
 		
 		for (JavaClass child : this.childClasses)
-			child.registerParentSetup();
+			child.alertParentSetup();
 	}
 	
-	private void registerParentSetup() {
+	/**
+	 * The second phase of the class activation.  This is only called when the parent has been setup and we can access
+	 * the parent's data layout.
+	 */
+	private void alertParentSetup() {
 		//once we're sure we have a parent, then add all our inherited methods
 		this.setupDataLayout();
-	
+		
 		//activate the parent file so that all the classes with him are included
 		//delay this until the parent is setup so that we can load our data layout properly
 		this.getJavaFile().activate();
+	}
+	
+	/**
+	 * Checks if the data layout for this class has been setup.  If it has not been, then it adds the class that checked
+	 * to see if it is setup to the list of "children" classes of this guy, and when the parent has been setup, the child
+	 * classes will be alerted so that they can setup their data.
+	 */
+	private void checkParentReady(JavaClass child) {
+		//if we're setup, the child doesn't need to delay his initilization (how do you speelellelel that?)
+		//always make sure java.lang.Object loads its layout as it doesn't have a parent to activate it
+		if (this.parent == null || this.parent.isSetup)
+			child.alertParentSetup();
+		
+		//our parent isn't ready, so just tell him to alert us when he is
+		else
+			this.parent.childClasses.add(child);
 	}
 	
 	/**
@@ -136,7 +162,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * @param implm The code block for the implementation.
 	 */
 	public void print(CodeBlock prot, CodeBlock header, CodeBlock implm) {
-		JavaStatic.pkgs.importNative(this.getName());
+		JavaStatic.pkgs.importNative(this);
 		this.printPrototype(prot);
 		this.printHeader(header);
 		this.printImplementation(implm);
@@ -154,6 +180,9 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * Gets that header out.
 	 */
 	private void printHeader(CodeBlock b) {
+		//---------------------------------------------------------------------------------------
+		// Print the data layout
+		
 		String name = this.getCppName(false, false);
 		CodeBlock block = b.block("struct " + name);
 		
@@ -178,10 +207,21 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		
 		block.close();
 		
+		//---------------------------------------------------------------------------------------
+		// Print the vTable
+		
 		block = b.block("struct " + name + "_VT");
 		
 		//emit the "__isa"...that was fun.
 		block.pln(this.getJavaFile().getImport("Class").getCppName() + " __isa;");
+		
+		//we only need to print our OWN methods into the class definition
+		for (ArrayList<JavaMethod> a : this.methods.values()) {
+			for (JavaMethod m : a) {
+				//ask the method to print himself to our class definition in the header block
+				m.printToVTable(block, this);
+			}
+		}
 		
 		block.close();
 	}
@@ -237,17 +277,28 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	public JavaMethod getMyMethod() {
 		return null;
 	}
+	
+	/**
+	 * An extra wrapper that passes onto the search method which group of methods we should be searching through.
+	 */
+	public JavaMethod getMethod(String name, JavaMethodSignature sig) {
+		return this.getMethod(name, sig, this.methods);
+	}
 
 	/**
 	 * Replaces the older version of getMethod() to take into account overaloding: it will find the method
 	 * that has the signature closest to the one provided.
 	 *
+	 * @param name The name of the method.
+	 * @param sig The method signature.
+	 * @param searchMethods Which set of methods should be searched for the requested method.
+	 *
 	 * @return The method that is the closest match to the requested method signature.  Null if no method
 	 * was found (but since the Java is assumed to compile, this should be considered a fatal internal error.
 	 */ 
-	public JavaMethod getMethod(String name, JavaMethodSignature sig) {
+	public JavaMethod getMethod(String name, JavaMethodSignature sig, HashMap<String, ArrayList<JavaMethod>> searchMethods) {
 		//let's see if we actually have that method defined in the first place before we start searching
-		if (!this.methods.containsKey(name))
+		if (!searchMethods.containsKey(name))
 			return null;
 		
 		//we need to find all the methods that apply to the signature, and then
@@ -257,7 +308,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		//assuming it compiles, we're all good with being naïve and just
 		//finding some method
 		JavaMethod found = null;
-		for (JavaMethod m : this.methods.get(name)) {
+		for (JavaMethod m : searchMethods.get(name)) {
 			//only look at the method if it actually applies to the signature we have
 			if (m.canBeUsedAs(sig)) {
 				//if we're on our first round
@@ -274,6 +325,13 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		}
 		
 		return found;
+	}
+	
+	/**
+	 * Only searches through the class methods in order to find the specified method.
+	 */
+	public JavaMethod getClassMethod(String name, JavaMethodSignature sig) {
+		return this.getMethod(name, sig, this.classMethods);
 	}
 	
 	/**
@@ -299,20 +357,6 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	}
 	
 	/**
-	 * Checks if the data layout for this class has been setup.  If it has not been, then it adds the class that checked
-	 * to see if it is setup to the list of "children" classes of this guy, and when the parent has been setup, the child
-	 * classes will be alerted so that they can setup their data.
-	 */
-	private boolean isSetup(JavaClass child) {
-		//if we're setup, the child doesn't need to delay his initilization (how do you speelellelel that?)
-		if (this.isSetup)
-			return true;
-		
-		this.childClasses.add(child);
-		return false;
-	}
-
-	/**
 	 * Go through all the parents and get their virtual methods, then just add them.  To do this, we test
 	 * if we first have a parent (java.lang.Object doesn't); if we have a parent, grab his virtual methods,
 	 * see if we override them, if we don't, then add them, otherwise, ignore.
@@ -321,11 +365,6 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * fields, and we use the names of our parent fields to mangle the names of our local fields.
 	 */
 	private void setupDataLayout() {
-		System.out.println("Data layout: " + this.getName());
-		//always let java.lang.Object do his field initialization as everyone depends on him
-		if (this.isSetup || (this.parent != null && !this.parent.isSetup(this)))
-			return;
-		
 		this.isSetup = true;
 		
 		//---------------------------------------------------------------------------------------
@@ -340,7 +379,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		// 1) we can add all our parent's methods to our local table
 		// 2) we can populate a list of method names (for mangling) from our parent and add our parent's methods in 1 loop
 		// 3) we can then loop over all our class methods, without any interference from the parent methods that were added
-		HashMap<String, ArrayList<JavaMethod>> classMethods = this.methods;
+		this.classMethods = this.methods;
 		this.methods = new HashMap<String, ArrayList<JavaMethod>>();
 		
 		//if we have a parent from whom we can steal methods
@@ -361,7 +400,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		}
 		
 		//and go through all our methods and add them back
-		for (ArrayList<JavaMethod> a : classMethods.values()) {
+		for (ArrayList<JavaMethod> a : this.classMethods.values()) {
 			for (JavaMethod m : a) {
 				//do some name mangling
 				m.mangleName(methodNames);
