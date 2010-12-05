@@ -36,6 +36,11 @@ public class CodePrinter extends Printer {
 	private String fileName;
 	
 	/**
+	 * A code block that is dumped before everything else.
+	 */
+	private CodeBlock before;
+	
+	/**
 	 * The list of all the blocks that still need to be printed here.  We must cache them so that we can get their orders right
 	 * for printing -> the prototypes, headers, and includes need to come in a specific order in the file, so we can't just
 	 * allow the blocks to print out as they come in.  This blows.
@@ -49,6 +54,7 @@ public class CodePrinter extends Printer {
 		super(w);
 		this.filePath = fileName;
 		this.fileName = new File(fileName).getName();
+		this.before = new CodeBlock();
 	}
 	
 	/**
@@ -60,7 +66,7 @@ public class CodePrinter extends Printer {
 		
 		//and 1 cpp file
 		JavaStatic.cpp = CodePrinter.factory("cpp");
-		JavaStatic.cpp.pln("#include \"" + JavaStatic.h.getBaseName() + "\"").pln();
+		JavaStatic.cpp.pln("#include \"" + JavaStatic.h.getBaseName() + "\"");
 	}
 	
 	/**
@@ -75,6 +81,9 @@ public class CodePrinter extends Printer {
 	 * We're done, so get everything dumped to a file.
 	 */
 	private void dump() {
+		this.before.pln();
+		this.p(before);
+	
 		for (PrintOrder p : PrintOrder.values()) {
 			if (this.blocks.containsKey(p)) {
 				for (CodeBlock b : this.blocks.get(p)) {
@@ -138,6 +147,13 @@ public class CodePrinter extends Printer {
 			
 			this.blocks.get(o).add(block);
 		}
+	}
+	
+	/** 
+	 * Prints a line to the beginning of the output file.
+	 */
+	public void b_pln(String s) {
+		this.before.pln(s);
 	}
 	
 	/**

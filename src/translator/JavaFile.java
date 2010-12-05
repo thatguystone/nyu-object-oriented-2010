@@ -177,24 +177,32 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 	 * that it could be typed in the code.
 	 */
 	public JavaClass getImport(String cls) {
+		JavaClass retCls = null;
+	
 		//see which form of class name we are using
 		if (cls.indexOf(".") > -1) {
-			return JavaStatic.pkgs.getClass(cls);
+			retCls = JavaStatic.pkgs.getClass(cls);
 		} else {
 			//first, check our local classes
 			if (this.classes.containsKey(cls))
-				return this.classes.get(cls);
+				retCls = this.classes.get(cls);
 			
-			if (this.imports.containsKey(cls))
-				return this.imports.get(cls);
+			else if (this.imports.containsKey(cls))
+				retCls = this.imports.get(cls);
 				
 			//well, we didn't find it anywhere else, so give the current package a shot
-			if (JavaStatic.pkgs.classInPackage(this.getPackageName(), cls))
-				return JavaStatic.pkgs.getClass(this.getPackageName() + "." + cls);
+			else if (JavaStatic.pkgs.classInPackage(this.getPackageName(), cls))
+				retCls = JavaStatic.pkgs.getClass(this.getPackageName() + "." + cls);
+		}
+		
+		//if we have a class, activate him as he is going to be used.
+		if (retCls != null) {
+			System.out.println("Activating: " + retCls.getName());
+			retCls.activate();
 		}
 		
 		//well, that wasn't imported...hmm
-		return null;
+		return retCls;
 	}
 	
 	/**

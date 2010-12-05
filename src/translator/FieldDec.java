@@ -59,6 +59,13 @@ public class FieldDec extends Visitor {
 	public void visitModifier(GNode n) {
 		this.modifiers = n;
 	}
+	
+	/**
+	 * Make sure to account for things that can have multiple modifiers.
+	 */
+	public void visitModifiers(GNode n) {
+		this.modifiers = n;
+	}
 
 	/**
 	 * Get the type of the field represented as a string

@@ -38,6 +38,17 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	private ArrayList<JavaField> fieldTable;
 	
 	/**
+	 * A flag that indicates if we have loaded our data layout and methods completely.  It stops circular resolution
+	 * that kills child loading.
+	 */
+	private boolean isSetup = false;
+	
+	/**
+	 * A list of the children that need to be alerted when our data layout has been setup.
+	 */
+	private ArrayList<JavaClass> childClasses = new ArrayList<JavaClass>(); 
+	
+	/**
 	 * SAEKJFA;WIE JF K;LSDFJ ASILD JFASD;IFJ!!!!!!! WHY DOES JAVA NOT INHERIT CONSTRUCTORS?!?!?!?!?!?!?!?!?!??!
 	 * This feels so dirty and wrong.
 	 */
@@ -80,10 +91,19 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		//check if we have a parent; if we don't, then java.lang.Object is our parent
 		this.setParent("java.lang.Object");
 		
-		//once we're sure we have a parent, then add all our inherited methods
+		//attempt to load our data layout -- might fail if our parent hasn't been setup yet
 		this.setupDataLayout();
 		
+		for (JavaClass child : this.childClasses)
+			child.registerParentSetup();
+	}
+	
+	private void registerParentSetup() {
+		//once we're sure we have a parent, then add all our inherited methods
+		this.setupDataLayout();
+	
 		//activate the parent file so that all the classes with him are included
+		//delay this until the parent is setup so that we can load our data layout properly
 		this.getJavaFile().activate();
 	}
 	
@@ -116,6 +136,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * @param implm The code block for the implementation.
 	 */
 	public void print(CodeBlock prot, CodeBlock header, CodeBlock implm) {
+		JavaStatic.pkgs.importNative(this.getName());
 		this.printPrototype(prot);
 		this.printHeader(header);
 		this.printImplementation(implm);
@@ -125,21 +146,25 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * Prints out the prototype for this class.
 	 */
 	private void printPrototype(CodeBlock b) {
-		b.pln("class " + this.getCppName(false) + ";");
+		b.pln("struct " + this.getCppName(false, false) + ";");
+		b.pln("typedef __rt::Ptr<" + this.getCppName(false, false) + "> " + this.getCppName(false) + ";");
 	}
 	
 	/**
 	 * Gets that header out.
 	 */
 	private void printHeader(CodeBlock b) {
-		CodeBlock block = b.block("class " + this.getCppName(false));
+		String name = this.getCppName(false, false);
+		CodeBlock block = b.block("struct " + name);
 		
 		System.out.println("Method size (" + this.getName() + "): " + this.methods.size());
 
 		//we need to print all the fields out to each class definition
 		block.pln("//Field layout");
-		for (JavaField f : this.fieldTable) 
+		block.pln(name + "_VT* __vptr;");
+		for (JavaField f : this.fieldTable) {
 			f.print(block);
+		}
 		
 		block.pln();
 		block.pln("//Methods");
@@ -150,6 +175,13 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 				m.printToClassDefinition(block, this);
 			}
 		}
+		
+		block.close();
+		
+		block = b.block("struct " + name + "_VT");
+		
+		//emit the "__isa"...that was fun.
+		block.pln(this.getJavaFile().getImport("Class").getCppName() + " __isa;");
 		
 		block.close();
 	}
@@ -164,7 +196,6 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			for (JavaMethod m : a) {
 				//somehow activate the method and give it something to print with
 				m.print(b, this);
-				//b.pln("wowowow");
 			}
 		}
 
@@ -260,14 +291,25 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			
 			//set our parent from its name in import
 			this.parent = this.getJavaFile().getImport(parent);
-			
-			//with the extension, we need to activate it (ie. process it) before we can use it
-			this.parent.activate();
 		}
 	}
 
 	public JavaClass getParent() {
 		return this.parent;
+	}
+	
+	/**
+	 * Checks if the data layout for this class has been setup.  If it has not been, then it adds the class that checked
+	 * to see if it is setup to the list of "children" classes of this guy, and when the parent has been setup, the child
+	 * classes will be alerted so that they can setup their data.
+	 */
+	private boolean isSetup(JavaClass child) {
+		//if we're setup, the child doesn't need to delay his initilization (how do you speelellelel that?)
+		if (this.isSetup)
+			return true;
+		
+		this.childClasses.add(child);
+		return false;
 	}
 
 	/**
@@ -279,6 +321,13 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * fields, and we use the names of our parent fields to mangle the names of our local fields.
 	 */
 	private void setupDataLayout() {
+		System.out.println("Data layout: " + this.getName());
+		//always let java.lang.Object do his field initialization as everyone depends on him
+		if (this.isSetup || (this.parent != null && !this.parent.isSetup(this)))
+			return;
+		
+		this.isSetup = true;
+		
 		//---------------------------------------------------------------------------------------
 		// Setup the vTable
 		
@@ -325,7 +374,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 					this.vtable.add(m);
 			}
 		}
-		
+
 		//---------------------------------------------------------------------------------------
 		// Setup the inherited/local fields
 		
@@ -402,11 +451,15 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	}
 	
 	public String getCppName(boolean fullName) {
+		return this.getCppName(fullName, true);
+	}
+	
+	public String getCppName(boolean fullName, boolean asPointer) {
 		String name = "";
 		if (fullName)
 			name += this.getPackageName() + ".";
 		
-		return name.replace(".", "::") + this.name;
+		return name.replace(".", "::") + (asPointer ? "" : "__") + this.name;
 	}
 	
 	/**
@@ -430,13 +483,6 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	public void visitMethodDeclaration(GNode n) {
 		JavaMethod m = new JavaMethod(this, n);
 		this.addMethod(m);
-	}
-	
-	/**
-	 * Create a FieldDec object, the FieldDec will handle everything else so this is all we need to do.
-	 */
-	public void visitFieldDeclaration(GNode n) {
-		FieldDec f = new FieldDec(this, n);
 	}
 	
 	/**

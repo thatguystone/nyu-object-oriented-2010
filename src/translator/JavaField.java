@@ -54,7 +54,6 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		setupVisibility(modifiers);
 		this.type = type;
 		this.dimensions = dimensions;
-
 	}
 	
 	/**
