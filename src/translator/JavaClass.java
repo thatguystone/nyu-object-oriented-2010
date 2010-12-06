@@ -172,8 +172,11 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * Prints out the prototype for this class.
 	 */
 	private void printPrototype(CodeBlock b) {
-		b.pln("struct " + this.getCppName(false, false) + ";");
-		b.pln("typedef __rt::Ptr<" + this.getCppName(false, false) + "> " + this.getCppName(false) + ";");
+		b
+			.pln("struct " + this.getCppName(false, false) + ";")
+			.pln("typedef __rt::Ptr<" + this.getCppName(false, false) + "> " + this.getCppName(false) + ";")
+			.pln()
+		;
 	}
 	
 	/**

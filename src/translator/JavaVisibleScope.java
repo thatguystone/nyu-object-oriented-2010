@@ -16,6 +16,11 @@ abstract class JavaVisibleScope extends JavaScope implements ItemVisibility {
 	 * If we are static.
 	 */
 	private boolean isStatic = false;
+	
+	/**
+	 * If we are native.
+	 */
+	private boolean isNative = false;
 
 	/**
 	 * We don't have a node.  Cool.
@@ -49,6 +54,13 @@ abstract class JavaVisibleScope extends JavaScope implements ItemVisibility {
 	 */
 	public boolean isStatic() {
 		return this.isStatic;
+	}
+	
+	/**
+	 * Tell people if we're native or not.
+	 */
+	public boolean isNative() {
+		return this.isNative;
 	}
 	
 	/**
@@ -100,6 +112,8 @@ abstract class JavaVisibleScope extends JavaScope implements ItemVisibility {
 				this.visibility = Visibility.PRIVATE;
 			} else if (mod.equals("static")) {
 				this.isStatic = true;
+			} else if (mod.equals("native")) {
+				this.isNative = true;
 			}
 		}
 	}

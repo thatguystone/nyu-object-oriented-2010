@@ -56,6 +56,11 @@ public class SelectionExpression extends JavaExpression {
 	}
 
 	public String print() {
+		if (selector == null) {
+			System.out.println("Selector null");
+			return "";
+		}
+		
 		return selector.print();
 	}
 

@@ -151,11 +151,12 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	public void print(CodeBlock b, JavaClass cls) {
 		//we only want to print to our defining class
-		if (cls != this.getJavaClass())
+		//and make sure we're not native -- that would just be a drag!
+		if (cls != this.getJavaClass() || this.isNative())
 			return;
 	
 		//in the future this will also print the sig
-		b = b.block(this.getJavaClass().getCppName(false) + "::" + this.getName() + "(" + this.sig.getCppArguments() + ")");
+		b = b.block(this.returnType.getCppName() + " " + this.getJavaClass().getCppName(false, false) + "::" + this.getName() + "(" + this.sig.getCppArguments() + ")");
 		
 		
 		//Sets a temporary block to hold all the information from our statements.

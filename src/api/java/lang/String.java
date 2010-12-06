@@ -1,6 +1,6 @@
 package java.lang;
 
-public class String {
+public final class String {
 	public native String concat(String str);
 	public native int length();
 	public native boolean contains(String str);
