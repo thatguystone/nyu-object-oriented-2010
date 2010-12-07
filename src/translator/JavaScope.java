@@ -196,6 +196,7 @@ public class JavaScope extends Visitor {
 
 	public JavaStatement visitForStatement(GNode n) {
 		return new ForStatement(this, n);
+//		return new JavaForStatement(this, n);
 	}
 
 	public JavaStatement visitWhileStatement(GNode n) {
