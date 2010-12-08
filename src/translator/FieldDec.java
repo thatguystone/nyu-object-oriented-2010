@@ -93,8 +93,7 @@ public class FieldDec extends Visitor {
 	 */
 	public void visitDeclarator(GNode n) {
 	//Declarators always come after Modifiers and Type in our java AST
-		JavaField field = new JavaField(this.modifiers, this.type, this.dimensions, this.scope, n);
-		//this.fields.add(field);
+		this.scope.addField(new JavaField(this.modifiers, this.type, this.dimensions, this.scope, n));
 	}
 	
 	public void visit(Node n) {

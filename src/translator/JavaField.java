@@ -146,12 +146,15 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	public JavaType getType() {
 		return this.type;
 	}
-
+	
+	/** this change might be necessary because otherwise for loop would have to allocate a codeblock each time it prints initializations**/
+	public String printMe(){
+		return ((this.getMyMethod() == null) || (this.assignment == null)) ? this.type.getCppName() + " " + this.getCppName() + ";" : this.type.getCppName() + " " + this.getCppName() + " = " + this.assignment.print() + ";";
+	}
+	
+	/** of course the samething will be printed in the CodeBlock **/
 	public void print(CodeBlock b) {
-		if ((this.getMyMethod() == null) || (this.assignment == null))
-			b.pln(this.type.getCppName() + " " + this.getCppName() + ";");
-		else
-			b.pln(this.type.getCppName() + " " + this.getCppName() + " = " + this.assignment.print() + ";");
+		b.pln(this.printMe());
 	}
 
 	/**

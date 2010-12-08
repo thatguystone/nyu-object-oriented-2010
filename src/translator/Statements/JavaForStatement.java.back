@@ -4,9 +4,10 @@ import translator.Printer.CodeBlock;
 import java.util.ArrayList;
 import xtc.tree.Node;
 import xtc.tree.GNode;
-class JavaForStatement extends JavaStatement{
-	JavaForStatement(JavaScope scope, GNode n){
+public class JavaForStatement extends JavaStatement{
+	public JavaForStatement(JavaScope scope, GNode n){
 		super(scope, n);
+System.out.println("FOR HEADER == "+((JavaBasicForControl)header).printMe());
 	}
 	public JavaScope visitBasicForControl(GNode n){
 		return new JavaBasicForControl(this,n);

@@ -196,6 +196,7 @@ public class JavaScope extends Visitor {
 
 	public JavaStatement visitForStatement(GNode n) {
 		return new ForStatement(this, n);
+//		return new JavaForStatement(this, n);
 	}
 
 	public JavaStatement visitWhileStatement(GNode n) {
@@ -222,7 +223,7 @@ public class JavaScope extends Visitor {
 		return new ConditionalExpression(this, n);
 	}
 	
-	public JavaExpression visitComparativeExpression(GNode n) {
+	public JavaExpression visitRelationalExpression(GNode n) {
 		return new ComparativeExp(this, n);
 	}
 
