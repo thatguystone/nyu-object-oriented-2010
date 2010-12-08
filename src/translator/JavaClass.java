@@ -241,7 +241,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * Gets the methods all printed.
 	 */
 	private void printImplementation(CodeBlock b) {
-		b.pln("//METHODS AND FIELD INITIALIZATIONS FOR : " + this.getCppName(false));
+		b.pln("//Methods and field implementations for: " + this.getCppName(false));
 		
 		for (ArrayList<JavaMethod> a : this.methods.values()) {
 			for (JavaMethod m : a) {
@@ -250,7 +250,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			}
 		}
 
-		b.pln("//END OF IMPLEMENTATION FOR : " + this.getCppName(false));
+		b.pln("//End implementation for: " + this.getCppName(false));
 		b.pln();
 	}
 	
@@ -349,7 +349,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	}
 	
 	/**
-	 * Setup our parent.  Can only be run once, then everything is permanent.
+	 * Setup our parent. Can only be run once, then everything is permanent.
 	 */
 	private void setParent(String parent) {
 		//java.lang.Object has no parent
@@ -380,6 +380,8 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	private void setupDataLayout() {
 		this.isSetup = true;
+		
+		System.out.println("Setup data layout for: " + this.getName());
 		
 		//---------------------------------------------------------------------------------------
 		// Setup the vTable

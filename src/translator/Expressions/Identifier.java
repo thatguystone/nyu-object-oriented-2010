@@ -70,24 +70,6 @@ public class Identifier extends JavaExpression {
 			this.doClass(this.value);
 		else
 			this.resolve(this.value);
-		
-		/*
-		//a temporary storage so that we don't have to do numerous calls to
-		//getField(), getType() when we find a Field / Class.
-		JavaScope type;
-		String temp;
-		int point;
-		if ((point = value.indexOf(".")) != -1) {
-			temp = value.substring(0, point);
-			if ((type = this.getField(temp)) != null) {
-				this.cppValue = temp;
-				this.fieldFinder(value.substring(point+1), ((JavaField)type).getType());
-			}
-			else {
-				this.classFinder(value);
-			}
-		}
-		*/
 	}
 	
 	/**

@@ -226,6 +226,10 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		if (fullName)
 			name += this.getJavaClass().getName() + ".";
 		
+		if (this.mangledName == null) {
+			System.out.println(this.getJavaClass().getName() + " -- " + this.name + " -- " + this.mangledName);
+		}
+		
 		return name.replace(".", "::") + this.mangledName;
 	}
 	

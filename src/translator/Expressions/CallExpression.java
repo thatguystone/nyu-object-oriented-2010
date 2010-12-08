@@ -56,7 +56,7 @@ public class CallExpression extends JavaExpression {
 		//this.sig is not yet instantiated...so we can't use it.
 		//seriously, wtf, java?
 		this.visit(n);
-		this.checkChaining();
+		this.finishSetup();
 	}
 
 	/**
@@ -65,21 +65,33 @@ public class CallExpression extends JavaExpression {
 	public CallExpression(JavaScope scope, GNode n, String info) {
 		super(scope, n);
 		this.visit(n);
-		this.checkChaining();
+		this.finishSetup();
 		
 		//Setting the selection expression's type for it.
 		((JavaExpression)this.getScope()).setType(this.method.getScope().getField(info).getType());
 	}
 	
 	/**
-	 * Checks to see if we have chaining going on with this call.
+	 * Does some final work on all our new data.
 	 */
-	private void checkChaining() {
+	private void finishSetup() {
 		if ((this.caller instanceof CallExpression) && (this.method != null && !this.method.isStatic())) {
 			this.chaining = true;
 			this.getMyMethod().hasChaining();
 		} else {
 			this.chaining = false;
+		}
+		
+		//use our caller to setup our method and return type
+		if (this.caller.getType() != null && this.caller.getType().getJavaClass() != null) {
+			this.method = this.caller.getType().getJavaClass().getMethod(this.methodName, this.sig);
+			
+			if (this.method != null)
+				this.setType(this.method.getType());
+			else
+				JavaStatic.runtime.error("Expressions.CallExpression: Method not found: " + this.methodName);
+		} else {
+			JavaStatic.runtime.warning("Expressions.CallExpression: No suitable caller could be found for: " + this.methodName);
 		}
 	}
 	
@@ -116,17 +128,13 @@ public class CallExpression extends JavaExpression {
 	public String print() {
 		String ret = "";
 		
-		//by now, all of our stuff should be setup, so let's find the method we're calling
-		if (this.caller.getType() != null && this.caller.getType().getJavaClass() != null) {
-			this.method = this.caller.getType().getJavaClass().getMethod(this.methodName, this.sig);
-		} else {
-			JavaStatic.runtime.warning("Expressions.CallExpression: No suitable caller could be found for: " + this.methodName);
-		}
-		
 		//already issued a warning if we couldn't find a caller
 		if (this.method != null) {
+			this.setType(this.method.getType());
+			
+			//check if we have a "__this" or something else
 			if (this.impliedThis)
-				ret += "__this->";
+				ret += "__this->__vptr->";
 			else
 				ret += this.caller.print() + (this.caller.isTypeStatic() ? "::" : "->__vptr->");
 			
@@ -135,8 +143,6 @@ public class CallExpression extends JavaExpression {
 				ret += ((JavaExpression)s).print();
 			
 			ret += ")";
-		} else {
-			JavaStatic.runtime.error("Expressions.CallExpression: Method not found: " + this.methodName);
 		}
 		
 		return ret;
@@ -153,11 +159,11 @@ public class CallExpression extends JavaExpression {
 	public void visitArguments(GNode n) {
 		for (int i = 0; i < n.size(); i++) {
 			JavaExpression e = (JavaExpression)this.dispatch((GNode)n.get(i));
-
+			
 			if (e != null) {
 				this.sig.add(e.getType(), e);
 				if (e.getType() == null)
-					JavaStatic.runtime.error("Expressions.CallExpression: Argument type for method \"" + this.methodName + "\" could not be determined");
+					JavaStatic.runtime.error("Expressions.CallExpression: Argument type for method \"" + this.getJavaClass().getName() + "." + this.methodName + "\" could not be determined");
 			} else {
 				JavaStatic.runtime.error("Expressions.CallExpression: Type could not be found for method argument.");
 			}

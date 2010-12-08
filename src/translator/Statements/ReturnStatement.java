@@ -21,6 +21,5 @@ public class ReturnStatement extends JavaStatement{
 	public void print(CodeBlock b) {
 		if(expression != null)
 			b.pln("return " + expression.print() + ";");
-		b.pln("return NOTHING;");
 	}
 }

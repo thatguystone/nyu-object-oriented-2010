@@ -9,8 +9,7 @@ import xtc.tree.GNode;
  * A literal. Should probably merge StringLiteral with this class
  */
 public class Literal extends JavaExpression {
-
-	String value;
+	public String value;
 
 	//My God. A different constructor!!!!!!!!!
 	public Literal(JavaScope scope, GNode n, JavaType type) {
@@ -23,6 +22,6 @@ public class Literal extends JavaExpression {
 	}
 
 	public String print() {
-		return value;
+		return this.value;
 	}
 }

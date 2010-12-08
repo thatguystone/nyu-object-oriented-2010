@@ -255,7 +255,11 @@ public class JavaScope extends Visitor {
 	}
 	
 	public JavaExpression visitStringLiteral(GNode n) {
-		return new Literal(this, n, JavaType.getType("java.lang.String"));
+		return new Literal(this, n, JavaType.getType("java.lang.String")) {
+			public String print() {
+				return "((" + this.getJavaFile().getImport("java.lang.String").getCppName(true, false) + ")" + this.value + ")";
+			}
+		};
 	}
 	
 	public JavaExpression visitThisExpression(GNode n) {
@@ -286,22 +290,24 @@ public class JavaScope extends Visitor {
 	public CodeBlock visitBlock(GNode n) {
 		ArrayList<String> usedFields = new ArrayList<String>();
 		CodeBlock block = new CodeBlock(depth);
+		
 		for (Object o : n) {
 			if (o instanceof Node) {
 				JavaStatement temp = (JavaStatement)this.dispatch((Node)o);
 				if (temp != null)
 					temp.print(block);
 				else {
-					for (JavaField f : this.fields.values()) 
+					JavaStatic.runtime.warning("JavaScope.visitBlock(): Fix me: I'm printing fields stupidly! (I'm the one printing `args` for main)");
+					for (JavaField f : this.fields.values()) { 
 						if (!usedFields.contains(f.getName())) {
 							f.print(block);
 							usedFields.add(f.getName());
 						}
-					//fields.clear();
+					}
 				}
 			}
 		}
-		//block.close();
+		
 		return block;
 	}
 	
