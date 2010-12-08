@@ -187,10 +187,6 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 * Prints the method signature to the vTable, if it is part of the class.
 	 */
 	public void printToVTable(CodeBlock b, JavaClass cls) {
-		//we only want to print to our defining class
-		if (cls != this.getJavaClass())
-			return;
-		
 		b.pln(this.returnType.getCppName() + " (*" + this.getCppName(false) + ")(" + this.sig.getCppArguments(false) + ");");
 	}
 	

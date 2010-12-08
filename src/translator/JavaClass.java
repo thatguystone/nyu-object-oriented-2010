@@ -162,7 +162,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * @param implm The code block for the implementation.
 	 */
 	public void print(CodeBlock prot, CodeBlock header, CodeBlock implm) {
-		JavaStatic.pkgs.importNative(this);
+		JavaStatic.pkgs.importNative(this, header, implm);
 		this.printPrototype(prot);
 		this.printHeader(header);
 		this.printImplementation(implm);
@@ -193,13 +193,22 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 
 		//we need to print all the fields out to each class definition
 		block.pln("//Field layout");
+		
+		//print our default internal stuff
 		block.pln(name + "_VT* __vptr;");
+		block.pln("static Class __class();");
+		
+		//then print out the declared fields
 		for (JavaField f : this.fieldTable) {
 			f.print(block);
 		}
 		
 		block.pln();
 		block.pln("//Methods");
+		
+		//the default __delete method
+		block.pln("static void __delete(" + this.getCppName(false, false) + "*);");
+		
 		//we only need to print our OWN methods into the class definition
 		for (ArrayList<JavaMethod> a : this.methods.values()) {
 			for (JavaMethod m : a) {
@@ -217,13 +226,12 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		
 		//emit the "__isa"...that was fun.
 		block.pln(this.getJavaFile().getImport("Class").getCppName() + " __isa;");
+		//and the __delete() method
+		block.pln("void (*__delete)(" + this.getCppName(false, false) + "*);");
 		
-		//we only need to print our OWN methods into the class definition
-		for (ArrayList<JavaMethod> a : this.methods.values()) {
-			for (JavaMethod m : a) {
-				//ask the method to print himself to our class definition in the header block
-				m.printToVTable(block, this);
-			}
+		for (JavaMethod m : this.vtable) {
+			//ask the method to print himself to our class definition in the header block
+			m.printToVTable(block, this);
 		}
 		
 		block.close();

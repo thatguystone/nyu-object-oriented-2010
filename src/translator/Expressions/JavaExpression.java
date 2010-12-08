@@ -12,9 +12,14 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 	/**
 	 * The return type of this expression.
 	 */
-	protected JavaType returnType = null;
+	protected JavaType returnType;
 	
-	JavaExpression(JavaScope scope, GNode n)	{
+	/**
+	 * If our type is being used in a static context.
+	 */
+	private boolean isTypeStatic = false;
+	
+	public JavaExpression(JavaScope scope, GNode n)	{
 		super(scope, n);
 	}
 
@@ -29,11 +34,23 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 	 * Set the return type of this expression.
 	 */
 	public void setType(JavaType type) {
+		this.setType(type, false);
+	}
+	
+	/**
+	 * Set the return type of this expression.
+	 */
+	public void setType(JavaType type, boolean isStatic) {
 		this.returnType = type;
+		this.isTypeStatic = isStatic;
 	}
 
 	public String print() {
 		return "expression?";
+	}
+	
+	public boolean isTypeStatic() {
+		return this.isTypeStatic;
 	}
 	
 	/**

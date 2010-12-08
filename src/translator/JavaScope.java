@@ -218,10 +218,6 @@ public class JavaScope extends Visitor {
 		return new Identifier(this, n);
 	}
 	
-	public JavaExpression visitStringLiteral(GNode n) {
-		return new StringLiteral(this, n);
-	}
-	
 	public JavaExpression visitConditionalExpression(GNode n) {
 		return new ConditionalExpression(this, n);
 	}
@@ -256,6 +252,23 @@ public class JavaScope extends Visitor {
 	
 	public JavaExpression visitFloatingPointLiteral(GNode n) {
 		return new Literal(this, n, JavaType.getType("float"));
+	}
+	
+	public JavaExpression visitStringLiteral(GNode n) {
+		return new Literal(this, n, JavaType.getType("java.lang.String"));
+	}
+	
+	public JavaExpression visitThisExpression(GNode n) {
+		//this is so simple it should just go inline
+		return new JavaExpression(this, n) {
+			protected void onInstantiate(GNode n) {
+				this.setType(this.getJavaClass().getType());
+			}
+			
+			public String print() {
+				return "__this";
+			}
+		};
 	}
 
 

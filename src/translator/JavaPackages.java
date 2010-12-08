@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import translator.Printer.CodeBlock;
 import translator.Printer.CodePrinter;
 
 /**
@@ -239,7 +240,7 @@ class JavaPackages {
 	 * to be a reasonable alternative for our purposes. Also, we do NOT support using native for any translations;
 	 * this is just for our internal libraries / java api.
 	 */
-	public void importNative(JavaClass cls) {
+	public void importNative(JavaClass cls, CodeBlock header, CodeBlock implm) {
 		String clsName = cls.getName();
 		if (this.loadedNatives.contains(clsName))
 			return;
@@ -250,8 +251,8 @@ class JavaPackages {
 		String hFile = clsName.replace(".", "/") + ".h";
 		
 		//first, we're going to attempt to find the .cpp and .h files that correspond with this class
-		this.appendFileToOutput(cppFile, JavaStatic.cpp, cls);
-		this.appendFileToOutput(hFile, JavaStatic.h, cls);
+		this.appendFileToOutput(cppFile, JavaStatic.cpp, implm, cls);
+		this.appendFileToOutput(hFile, JavaStatic.h, header, cls);
 	}
 	
 	/**
@@ -260,7 +261,7 @@ class JavaPackages {
 	 * @param f The file to read from.
 	 * @param printer The output to print to.
 	 */
-	private void appendFileToOutput(String f, CodePrinter printer, JavaClass cls) {
+	private void appendFileToOutput(String f, CodePrinter printer, CodeBlock block, JavaClass cls) {
 		try {
 			Scanner file = new Scanner(JavaStatic.runtime.locate(f));
 			
@@ -297,7 +298,7 @@ class JavaPackages {
 							line = line.replace(line.substring(iOverload, line.indexOf("}") + 1), m.getCppName(false));
 					}
 					
-					printer.pln(line);
+					block.pln(line);
 				}
 			}
 		} catch (FileNotFoundException e) { } //doesn't matter if we couldn't find the file, maybe they just didn't want to have it

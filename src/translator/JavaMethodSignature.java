@@ -39,6 +39,17 @@ public class JavaMethodSignature {
 	}
 	
 	/**
+	 * Gets an array list of all of the arugments passed in.
+	 */
+	public ArrayList<JavaScope> getArguments() {
+		ArrayList<JavaScope> ret = new ArrayList<JavaScope>();
+		for (TypeContainer t : this.sig)
+			ret.add(t.item);
+		
+		return ret;
+	}
+	
+	/**
 	 * Goes through all of the arguments and returns a simple string representation of them for name mangling.
 	 */
 	public String getCppMangledArgumentList() {

@@ -7,6 +7,7 @@ import translator.JavaClass;
 import translator.JavaMethod;
 import translator.JavaMethodSignature;
 import translator.JavaScope;
+import translator.JavaStatic;
 import xtc.tree.GNode;
 
 /**
@@ -33,13 +34,16 @@ public class CallExpression extends JavaExpression {
 	 * The called method.
 	 */
 	JavaMethod method;
-	
-	boolean brokenSig;
 
 	/**
 	 * Is this expression part of a method chain?
 	 */
 	private boolean chaining;
+	
+	/**
+	 * If we have an implied "this" for this expression.
+	 */
+	private boolean impliedThis;
 	
 	/**
 	 * Why java, why?! Just override constructors :(
@@ -52,18 +56,7 @@ public class CallExpression extends JavaExpression {
 		//this.sig is not yet instantiated...so we can't use it.
 		//seriously, wtf, java?
 		this.visit(n);
-		
-		//get our method from our caller's type, the method name, and the method signature.
-		//can no longer get a class from a type, will need to fix this once types are complete
-		//this.method = ((JavaClass)this.caller.getType()).getMethod(this.methodName, this.sig);
-
-
-		if ((this.caller instanceof CallExpression) && !this.method.isStatic()) {
-			this.chaining = true;
-			this.getMyMethod().hasChaining();
-		}
-		else
-			this.chaining = false;
+		this.checkChaining();
 	}
 
 	/**
@@ -72,21 +65,28 @@ public class CallExpression extends JavaExpression {
 	public CallExpression(JavaScope scope, GNode n, String info) {
 		super(scope, n);
 		this.visit(n);
-		if ((this.caller instanceof CallExpression) && !this.method.isStatic()) {
-			this.chaining = true;
-			this.getMyMethod().hasChaining();
-		}
-		else
-			this.chaining = false;
+		this.checkChaining();
+		
 		//Setting the selection expression's type for it.
 		((JavaExpression)this.getScope()).setType(this.method.getScope().getField(info).getType());
 	}
-
+	
+	/**
+	 * Checks to see if we have chaining going on with this call.
+	 */
+	private void checkChaining() {
+		if ((this.caller instanceof CallExpression) && (this.method != null && !this.method.isStatic())) {
+			this.chaining = true;
+			this.getMyMethod().hasChaining();
+		} else {
+			this.chaining = false;
+		}
+	}
+	
 	/**
 	 * Populate our list of arguments and set our caller.
 	 */
 	public void onInstantiate(GNode n) {
-		brokenSig = true;
 		//we only need the method name to begin with
 		this.methodName = n.get(2).toString();
 		
@@ -102,31 +102,44 @@ public class CallExpression extends JavaExpression {
 	 * Find out who is calling us.
 	 */
 	private void setupCaller(GNode n) {
-		if (n == null) {
-			this.caller = null;
-		} else {
+		this.impliedThis = false;
+	
+		//well, that was easy: we don't have a caller, so it's an implied "this"
+		if (n == null)
+			this.impliedThis = true; //if no caller is specified, it's assumed local to "this"
+			
+		//there is a caller!
+		else
 			this.caller = (JavaExpression)this.dispatch(n);
-			System.out.println(methodName);
-			if (caller != null){
-				if (caller.getType() != null){
-					if (caller.getType().getJavaClass() != null) {
-						this.method = this.caller.getType().getJavaClass().getMethod(methodName, sig);
-					}
-				}
-				//JavaScope temp = this.caller.getType().getJavaClass();
-			}
-		} 
 	}
 
 	public String print() {
-		if (method != null) {
-			if (caller == null && method.isStatic())
-				return method.getJavaClass().getCppName() + method.getCppName() + "(" + (brokenSig?sig.getCppArguments():"SIG") + ")";
-			return caller.print() + "->" + method.getCppName() + "(" + (brokenSig?sig.getCppArguments():"SIG") + ")";
+		String ret = "";
+		
+		//by now, all of our stuff should be setup, so let's find the method we're calling
+		if (this.caller.getType() != null && this.caller.getType().getJavaClass() != null) {
+			this.method = this.caller.getType().getJavaClass().getMethod(this.methodName, this.sig);
+		} else {
+			JavaStatic.runtime.warning("Expressions.CallExpression: No suitable caller could be found for: " + this.methodName);
 		}
-		if (caller == null)
-			return methodName + "(" + (brokenSig?sig.getCppArguments():"SIG") + ")";
-		return caller.print() + "->" + methodName + "(" + (brokenSig?sig.getCppArguments():"SIG") + ")";
+		
+		//already issued a warning if we couldn't find a caller
+		if (this.method != null) {
+			if (this.impliedThis)
+				ret += "__this->";
+			else
+				ret += this.caller.print() + (this.caller.isTypeStatic() ? "::" : "->__vptr->");
+			
+			ret += this.method.getCppName(false) + "(";
+			for (JavaScope s : this.sig.getArguments())
+				ret += ((JavaExpression)s).print();
+			
+			ret += ")";
+		} else {
+			JavaStatic.runtime.error("Expressions.CallExpression: Method not found: " + this.methodName);
+		}
+		
+		return ret;
 	}
 
 	/**
@@ -140,11 +153,14 @@ public class CallExpression extends JavaExpression {
 	public void visitArguments(GNode n) {
 		for (int i = 0; i < n.size(); i++) {
 			JavaExpression e = (JavaExpression)this.dispatch((GNode)n.get(i));
+
 			if (e != null) {
 				this.sig.add(e.getType(), e);
 				if (e.getType() == null)
-					brokenSig = false;
-			}		
+					JavaStatic.runtime.error("Expressions.CallExpression: Argument type for method \"" + this.methodName + "\" could not be determined");
+			} else {
+				JavaStatic.runtime.error("Expressions.CallExpression: Type could not be found for method argument.");
+			}
 		}
 	}
 }
