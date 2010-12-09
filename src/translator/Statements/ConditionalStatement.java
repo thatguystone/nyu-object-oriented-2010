@@ -29,7 +29,10 @@ public class ConditionalStatement extends JavaStatement {
 		
 		//do we have an "else"?
 		//elses are the third (2) node
-		if (this.node.get(2) != null) {
+		if (this.node.get(2) == null) {
+			//only close the block if we don't have an else
+			b.close();
+		} else {
 			//we have an else, so close our previous statement
 			b = b.close(false);
 		
@@ -50,10 +53,6 @@ public class ConditionalStatement extends JavaStatement {
 				//that close themselves.
 				b.close();
 			}
-		
-		//only close the block if we don't have an else
-		} else {
-			b.close();
 		}
 	}
 }
