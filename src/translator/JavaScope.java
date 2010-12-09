@@ -224,6 +224,10 @@ public class JavaScope extends Visitor {
 	public JavaExpression visitRelationalExpression(GNode n) {
 		return new ComparativeExp(this, n);
 	}
+	
+	public JavaExpression visitEqualityExpression(GNode n) {
+		return new ComparativeExp(this, n);
+	}
 
 	public JavaExpression visitSelectionExpression(GNode n) {
 		return new SelectionExpression(this, n);
