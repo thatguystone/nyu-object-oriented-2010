@@ -290,7 +290,6 @@ public class JavaScope extends Visitor {
 		};
 	}
 
-
 	/**
 	 * Other Visitors
 	 */
