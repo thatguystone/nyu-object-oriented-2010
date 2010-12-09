@@ -23,9 +23,9 @@ public class JavaBasicForControl extends JavaScope{
 			new FieldDec(this, n);  /** assuming FieldDec adds field to this.field, then the for loop initialization
 						    would be just printed as a field, and ForInit would be null and would not be printed**/
 			ArrayList<JavaField> d=this.getAllFields();
-			ctrl+=d.get(0).printMe();
+			ctrl+=d.get(0).getCppField();
 			for (int i=1,s=d.size();i<s;++i){
-				ctrl+=","+d.get(i).printMe();
+				ctrl+=","+d.get(i).getCppField();
 			}
 		}else if (Init!=null){  /** otherwise it is a single expression or expression list (assuming JavaScope will add field to parent scope) **/
 			//ForInit=(JavaExpression)dispatch(Init);

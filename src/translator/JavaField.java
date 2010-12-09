@@ -45,6 +45,11 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * May not exist.
 	 */
 	private JavaExpression assignment;
+	
+	/**
+	 * Determines if we have already printed ourself out so that we don't do it multiple times.  That would be a disaster.
+	 */
+	private boolean isPrinted = false;
 
 	/**
 	 * This constructor is for standard field declarations
@@ -147,14 +152,18 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		return this.type;
 	}
 	
-	/** this change might be necessary because otherwise for loop would have to allocate a codeblock each time it prints initializations**/
-	public String printMe(){
+	public String getCppField() {
 		return ((this.getMyMethod() == null) || (this.assignment == null)) ? this.type.getCppName() + " " + this.getCppName() + ";" : this.type.getCppName() + " " + this.getCppName() + " = " + this.assignment.print() + ";";
 	}
 	
 	/** of course the samething will be printed in the CodeBlock **/
 	public void print(CodeBlock b) {
-		b.pln(this.printMe());
+		if (this.isPrinted)
+			return;
+
+		this.isPrinted = true;
+		
+		b.pln(this.getCppField());
 	}
 
 	/**
@@ -187,4 +196,9 @@ class FormalParameterField extends JavaField {
 		this.getScope().addField(this);
 		this.dispatch(n);	
 	}
+	
+	/**
+	 * Formal parameters never print to the method body.
+	 */
+	public void print(CodeBlock b) { }
 }

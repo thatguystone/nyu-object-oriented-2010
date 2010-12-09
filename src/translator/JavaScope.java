@@ -297,22 +297,22 @@ public class JavaScope extends Visitor {
 	}
 	
 	public CodeBlock visitBlock(GNode n) {
-		ArrayList<String> usedFields = new ArrayList<String>();
 		CodeBlock block = new CodeBlock(depth);
 		
 		for (Object o : n) {
 			if (o instanceof Node) {
 				JavaStatement temp = (JavaStatement)this.dispatch((Node)o);
-				if (temp != null)
+				
+				//are we safe to print?
+				if (temp != null) {
 					temp.print(block);
-				else {
-					JavaStatic.runtime.warning("JavaScope.visitBlock(): Fix me: I'm printing fields stupidly! (I'm the one printing `args` for main)");
-					for (JavaField f : this.fields.values()) { 
-						if (!usedFields.contains(f.getName())) {
-							f.print(block);
-							usedFields.add(f.getName());
-						}
-					}
+				
+				//that was probably a field declaration...let's print out everything it declared
+				} else {
+					//since we don't know which field was just added (we only have a list of all fields),
+					//just trigger print them all again -- only the new ones will print
+					for (JavaField f : this.fields.values()) 
+						f.print(block);
 				}
 			}
 		}
