@@ -16,23 +16,7 @@ public class JavaStatement extends JavaScope {
 	JavaScope header;
 	ArrayList<CodeBlock> b;
 	public JavaStatement(JavaScope scope, GNode n){
-		super(scope, n);	//super calls onInstantiate
-/*
-		header=(JavaScope)dispatch((GNode)n.get(0));
-		for (int i=1;i<n.size();++i){
-			final GNode g=(GNode)n.get(i);
-			if (g!=null){
-				Object o=dispatch(g);
-				if (o instanceof CodeBlock){
-					b.add((CodeBlock)o);
-				}else{
-					/** if it is blockless, then we might just want to add a block around it in our translation
-                                        (and we might want to find a better way other than an instanceof test...) **//*
-					b.add(((JavaStatement)o).printMe(new CodeBlock()));
-				}
-			}
-		}
-*/
+		super(scope, n);
 	}
 	protected void onInstantiate(GNode n){
 		b=new ArrayList<CodeBlock>();
