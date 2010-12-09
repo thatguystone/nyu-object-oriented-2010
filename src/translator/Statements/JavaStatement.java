@@ -1,54 +1,53 @@
-
 package translator.Statements;
-import translator.JavaScope;
-import translator.Printer.CodeBlock;
-import java.util.ArrayList;
-import xtc.tree.GNode;
-/**
- * Handles anything that can have its own scope, from a File to a Block.
- */
 
-public class JavaStatement extends JavaScope {
+import translator.JavaScope;
+import translator.JavaStatic;
+import translator.Printer.CodeBlock;
+import translator.Expressions.JavaExpression;
+import xtc.tree.GNode;
+
+public abstract class JavaStatement extends JavaScope {
 	/**
-	 * SAEKJFA;WIE JF K;LSDFJ ASILD JFASD;IFJ!!!!!!! WHY DOES JAVA NOT INHERIT CONSTRUCTORS?!?!?!?!?!?!?!?!?!??!
-	 * This feels so dirty and wrong.
+	 * Holds our node for printing.
 	 */
-	JavaScope header;
-	ArrayList<CodeBlock> b;
+	protected GNode node;
+	
+	/**
+	 * Pass on our values to JavaScope, and save our node.
+	 */
 	public JavaStatement(JavaScope scope, GNode n){
 		super(scope, n);
+		this.node = n;
 	}
-	protected void onInstantiate(GNode n){
-		b=new ArrayList<CodeBlock>();
-		header=(JavaScope)dispatch((GNode)n.get(0));
-		if (n.size()>1){
-			final GNode g=(GNode)n.get(1);
-			if (g!=null){
-				final Object o=dispatch(g);
-				if (o!=null){
-					if (o instanceof CodeBlock){
-						b.add((CodeBlock)o);
-					}else{
-                                        /** if it is blockless, then we might just want to add a block around it in our translation
-                                        (and we might want to find a better way other than an instanceof test...) **/
-                                        //b.add(((JavaStatement)o).printMe(new CodeBlock())
-						CodeBlock block=new CodeBlock();
-						((JavaStatement)o).print(block);
-						b.add(block);	//maybe?
-					}
-                                }
-                        }
-                }
-/*
-		for (int i=2;i<n.size();++i){
-			final GNode g=(GNode)n.get(i);
-				if (g!=null){
-					final Object o=dispatch(g);
-					if (o!=null){
-*/
+	
+	/**
+	 * A generic way for statements to print their bodies without worrying about return type.
+	 *
+	 * @param b The code block to which to print the body.
+	 * @param n The GNode that defines the body.
+	 */
+	protected void printBody(CodeBlock b, GNode n) {
+		//we can go a few different routes with our body here:
+		Object body = this.dispatch(n);
+		//perhaps we have an expression
+		if (body instanceof JavaExpression)
+			b.pln(((JavaExpression)body).print());
+		
+		//might have been a block
+		else if (body instanceof CodeBlock)
+			b.attach((CodeBlock)body);
+		
+		else if (body instanceof JavaStatement)
+			((JavaStatement)body).print(b);
+		
+		//we don't know what that was -- that's an error
+		else
+			JavaStatic.runtime.error("Statements.JavaStatement: Undefined body type: " + body.getClass().getName());
 	}
-	CodeBlock printMe(CodeBlock block){
-		return null;
-	}
+	
+	/**
+	 * Print out the statement.
+	 */
+	public abstract void print(CodeBlock b);
 }
 

@@ -2,6 +2,7 @@ package translator.Expressions;
 
 import translator.JavaType;
 import translator.JavaScope;
+import translator.JavaStatic;
 import translator.Statements.JavaStatement;
 import translator.Printer.CodeBlock;
 
@@ -10,7 +11,7 @@ import xtc.tree.GNode;
 /**
  * An expression with two operands and an operator.
  */
-public class ArithmeticExp extends JavaExpression {
+public class ArithmeticExpression extends JavaExpression {
 	/**
 	 * The operator being used here.
 	 */
@@ -26,7 +27,7 @@ public class ArithmeticExp extends JavaExpression {
 	 */
 	JavaExpression second;
 
-	public ArithmeticExp(JavaScope scope, GNode n) {
+	public ArithmeticExpression(JavaScope scope, GNode n) {
 		super(scope, n);
 	}
 
@@ -35,15 +36,16 @@ public class ArithmeticExp extends JavaExpression {
 
 		this.first = (JavaExpression)this.dispatch((GNode)n.get(0));
 		this.second = (JavaExpression)this.dispatch((GNode)n.get(2));
-
+		
+		JavaStatic.runtime.warning("Expressions.ArithmeticExpression: There is no return type set for arithmetic expressions yet.");
 		//this.setType(JavaType.getType(first.getType(), second.getType()));
 	}
 
 	public String print() {
 		//return second.print(first.print(b.p("(")).p(operator)).p(")");
 		if (this.getScope() instanceof JavaStatement)
-			return first.print() + operator + second.print();
+			return first.print() + " " + operator + " " + second.print();
+		
 		return "(" + first.print() + " " + operator + " " + second.print() + ")";
-		//return "MATH";
 	}
 }

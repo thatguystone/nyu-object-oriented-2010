@@ -6,7 +6,7 @@ import translator.Printer.CodeBlock;
 
 import xtc.tree.GNode;
 
-public class WhileStatement extends JavaStatement{
+public class WhileStatement extends JavaStatement {
 
 	JavaExpression expression;
 
@@ -17,12 +17,9 @@ public class WhileStatement extends JavaStatement{
 		this.blk = (GNode)n.get(1);
 	}
 
-	protected void onInstantiate(GNode n) {
-	}
-
 	public void print(CodeBlock b) {
 		b
-			.block("while( d(^O^)b )")
+			.block("while(" + ((JavaExpression)this.dispatch((GNode)this.node.get(0))).print() + ")")
 				.attach((CodeBlock)this.dispatch(blk))
 			.close()
 		;

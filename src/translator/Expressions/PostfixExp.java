@@ -3,7 +3,6 @@ package translator.Expressions;
 import translator.JavaType;
 import translator.JavaScope;
 import translator.Statements.JavaStatement;
-import translator.Statements.JavaBasicForControl;
 import translator.Printer.CodeBlock;
 
 import xtc.tree.GNode;

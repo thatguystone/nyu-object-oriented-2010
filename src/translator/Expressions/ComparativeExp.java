@@ -37,8 +37,7 @@ public class ComparativeExp extends JavaExpression {
 		//this.setType(JavaType.getType(null, "boolean"));
 	}
 
-	public String printMe() {
-		return "(" + first.print() + operator + second.print() + ")";
+	public String print() {
+		return "(" + first.print() + " " + operator + " " + second.print() + ")";
 	}
-
 }

@@ -269,7 +269,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * Gets the methods all printed.
 	 */
 	private void printImplementation(CodeBlock b) {
-		b.pln("//Methods and field implementations for: " + this.getCppName(false));
+		b.pln("//Generated method and field implementations for: " + this.getCppName(false));
 		
 		for (ArrayList<JavaMethod> a : this.methods.values()) {
 			for (JavaMethod m : a) {

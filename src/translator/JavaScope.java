@@ -168,14 +168,6 @@ public class JavaScope extends Visitor {
 	}
 	
 	/**
-	 * The universal print method. It should be abstract, but it isn't for now
-	 * so we can test without having to implement a print method for everything.
-	 */
-	public void print(CodeBlock b) {
-		b.pln(" /*** IMPLEMENT PRINT:  ***/ ");
-	}
-
-	/**
 	 * ==================================================================================================
 	 * Visitor Methods
 	 */
@@ -183,17 +175,20 @@ public class JavaScope extends Visitor {
 	/**
 	 * Statement Visitors
 	 */
+	
 	public JavaStatement visitExpressionStatement(GNode n) {
-		return new ExpressionStatement(this, n);		
+		return new ExpressionStatement(this, n);
 	}
 	
 	public JavaStatement visitReturnStatement(GNode n) {
 		return new ReturnStatement(this, n);
 	}
-
+	
+	/*
 	public JavaStatement visitForStatement(GNode n) {
 		return new JavaForStatement(this, n);
 	}
+	*/
 
 	public JavaStatement visitWhileStatement(GNode n) {
 		return new WhileStatement(this, n);
@@ -201,6 +196,14 @@ public class JavaScope extends Visitor {
 
 	public JavaStatement visitConditionalStatement(GNode n) {
 		return new ConditionalStatement(this, n);
+	}
+	
+	public JavaStatement visitEmptyStatement(GNode n) {
+		return new JavaStatement(this, n) {
+			public void print(CodeBlock b) {
+				b.pln(";");
+			}
+		};
 	}
 
 	/**
@@ -227,15 +230,15 @@ public class JavaScope extends Visitor {
 	}
 
 	public JavaExpression visitExpression(GNode n) {
-		return new ArithmeticExp(this, n);
+		return new ArithmeticExpression(this, n);
 	}
 	
 	public JavaExpression visitAdditiveExpression(GNode n) {
-		return new ArithmeticExp(this, n);
+		return new ArithmeticExpression(this, n);
 	}
 	
 	public JavaExpression visitMultiplicativeExpression(GNode n) {
-		return new ArithmeticExp(this, n);
+		return new ArithmeticExpression(this, n);
 	}
 	
 	public JavaExpression visitPostfixExpression(GNode n) {
@@ -256,6 +259,14 @@ public class JavaScope extends Visitor {
 	
 	public JavaExpression visitFloatingPointLiteral(GNode n) {
 		return new Literal(this, n, JavaType.getType("float"));
+	}
+	
+	public JavaExpression visitBooleanLiteral(GNode n) {
+		return new Literal(this, n, JavaType.getType("boolean")) {
+			public String print() {
+				return this.value;
+			}
+		};
 	}
 	
 	public JavaExpression visitStringLiteral(GNode n) {

@@ -6,21 +6,15 @@ import translator.Printer.CodeBlock;
 
 import xtc.tree.GNode;
 
-public class ExpressionStatement extends JavaStatement{
-
-	JavaExpression expression;
-
+public class ExpressionStatement extends JavaStatement {
 	public ExpressionStatement (JavaScope scope, GNode n) {
 		super(scope, n);
 	}
 
-	protected void onInstantiate(GNode n) {
-		expression = (JavaExpression)this.dispatch((GNode)n.get(0));
-	}
-
 	public void print(CodeBlock b) {
-		if (expression != null)
-			b.pln(expression.print() + ";");
+		JavaExpression e = (JavaExpression)this.dispatch((GNode)this.node.get(0));
+		if (e != null)
+			b.pln(e.print() + ";");
 		else
 			b.pln("NO EXPRESSION;");
 	}

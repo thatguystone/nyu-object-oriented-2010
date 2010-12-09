@@ -41,17 +41,27 @@ class needsInherit extends inheritMe {
 	java.lang.Object tmp2;
 
 	public void printCls(){
+		/*
 		for (int i = 1; i < 10; i++) {
 			char cat = 'a';
 			int k, j;
 			double d = 2.2;
 			cat = 'b';
 		}
+		*/
+		
 		int x;
+		
+		if (true)
+			x = 4 + 7 * 3 - 8;
+		
 		if (true) {
 			x = 4 + 7 * 3 - 8;
-		}
-		else {
+		} else if (false) {
+			;
+		} else if (1 == 2) {
+			;
+		} else {
 			x = 5;
 		}
 

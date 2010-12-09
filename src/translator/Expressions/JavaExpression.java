@@ -46,13 +46,14 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 		this.isTypeStatic = isStatic;
 	}
 
-	public String print() {
-		return "expression?";
-	}
-	
 	public boolean isTypeStatic() {
 		return this.isTypeStatic;
 	}
+	
+	/**
+	 * The print method...really, it returns a string to be printed.
+	 */
+	public abstract String print();
 	
 	/**
 	 * ==================================================================================================

@@ -26,7 +26,7 @@ public class ConditionalExpression extends JavaExpression {
 		this.setType(expressions[1].getType());
 	}
 
-	public String printMe() {
+	public String print() {
 		return "(" + expressions[0].print() + "?" + expressions[1].print() + ":" + expressions[2].print() + ")";
 	}
 
