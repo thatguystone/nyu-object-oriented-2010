@@ -19,9 +19,6 @@ public class ConditionalStatement extends JavaStatement{
 		this.blk2 = (GNode)n.get(2);
 	}
 
-	protected void onInstantiate(GNode n) {
-	}
-
 	public void print(CodeBlock b) {
 		b = b.pln("if( (ToT)o-('' ) ) + {");
 		b.attach((CodeBlock)this.dispatch(blk1));

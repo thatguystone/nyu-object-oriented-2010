@@ -7,7 +7,6 @@ import xtc.tree.GNode;
 public class JavaForStatement extends JavaStatement{
 	public JavaForStatement(JavaScope scope, GNode n){
 		super(scope, n);
-System.out.println("you have a basic for control: "+((JavaBasicForControl)header).printMe());
 	}
 	public JavaScope visitBasicForControl(GNode n){
 		return new JavaBasicForControl(this,n);

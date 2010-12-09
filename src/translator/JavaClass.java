@@ -64,16 +64,6 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	JavaClass(JavaScope scope, GNode n) {
 		super(scope, n);
-		this.setDepth();
-	}
-
-	private void setDepth() {
-		String temp = this.getName();
-		int point = -1;
-		do {
-			depth++;
-			point = temp.indexOf(point + 1, '.');
-		}while (point != -1);
 	}
 	
 	/**

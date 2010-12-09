@@ -7,7 +7,6 @@ import translator.Printer.CodeBlock;
 import xtc.tree.GNode;
 
 public class ReturnStatement extends JavaStatement{
-
 	JavaExpression expression;
 
 	public ReturnStatement (JavaScope scope, GNode n) {
@@ -19,7 +18,7 @@ public class ReturnStatement extends JavaStatement{
 	}
 
 	public void print(CodeBlock b) {
-		if(expression != null)
+		if (expression != null)
 			b.pln("return " + expression.print() + ";");
 	}
 }

@@ -33,8 +33,6 @@ public class JavaScope extends Visitor {
 	 */
 	public LinkedHashMap<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
 	
-	public int depth = 0;
-	
 	/**
 	 * Do some frikking-sweet calling.
 	 */
@@ -51,7 +49,6 @@ public class JavaScope extends Visitor {
 		//if we have a scope, then save our package name
 		if (scope != null) {
 			this.pkg = scope.pkg;
-			this.depth = this.scope.depth + 1;	
 		}
 
 		//do the construct call-back, alright, do the construct call-back, baby.
@@ -195,7 +192,6 @@ public class JavaScope extends Visitor {
 	}
 
 	public JavaStatement visitForStatement(GNode n) {
-//		return new ForStatement(this, n);
 		return new JavaForStatement(this, n);
 	}
 
@@ -206,7 +202,6 @@ public class JavaScope extends Visitor {
 	public JavaStatement visitConditionalStatement(GNode n) {
 		return new ConditionalStatement(this, n);
 	}
-
 
 	/**
 	 * Expressions Visitors
@@ -297,7 +292,7 @@ public class JavaScope extends Visitor {
 	}
 	
 	public CodeBlock visitBlock(GNode n) {
-		CodeBlock block = new CodeBlock(depth);
+		CodeBlock block = new CodeBlock();
 		
 		for (Object o : n) {
 			if (o instanceof Node) {

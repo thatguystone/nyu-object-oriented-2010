@@ -74,8 +74,20 @@ public class CodeBlock {
 	 * Attach a CodeBlock to the current block.
 	 */
 	public CodeBlock attach(CodeBlock b) {
-		if (b != null)
-			this.pln(b.toString());
+		if (b != null) {
+			String tmp = b.toString();
+			int i;
+			
+			//grab all the new lines and print them to our guy, with indentation
+			while ((i = tmp.indexOf("\n")) > -1) {
+				this.pln(tmp.substring(0, i).trim());
+				tmp = tmp.substring(i + 1);
+			}
+			
+			//print the last line that is skipped in the while loop
+			this.pln(tmp);
+		}
+		
 		return this;
 	}
 	
