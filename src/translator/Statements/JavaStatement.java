@@ -37,10 +37,10 @@ public class JavaStatement extends JavaScope {
 	protected void onInstantiate(GNode n){
 		b=new ArrayList<CodeBlock>();
 		header=(JavaScope)dispatch((GNode)n.get(0));
-                for (int i=1;i<n.size();++i){
-                        final GNode g=(GNode)n.get(i);
-                        if (g!=null){
-                                final Object o=dispatch(g);
+		if (n.size()>1){
+			final GNode g=(GNode)n.get(1);
+			if (g!=null){
+				final Object o=dispatch(g);
 				if (o!=null){
 					if (o instanceof CodeBlock){
 						b.add((CodeBlock)o);
@@ -51,10 +51,17 @@ public class JavaStatement extends JavaScope {
 						CodeBlock block=new CodeBlock();
 						((JavaStatement)o).print(block);
 						b.add(block);	//maybe?
-                                	}
-				}
+					}
+                                }
                         }
                 }
+/*
+		for (int i=2;i<n.size();++i){
+			final GNode g=(GNode)n.get(i);
+				if (g!=null){
+					final Object o=dispatch(g);
+					if (o!=null){
+*/
 	}
 	CodeBlock printMe(CodeBlock block){
 		return null;
