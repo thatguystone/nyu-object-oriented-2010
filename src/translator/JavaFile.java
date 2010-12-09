@@ -88,14 +88,14 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 	protected void process() {
 		for (JavaClass cls : this.classes.values())
 			cls.activate();
-		
-		this.print();
 	}
 	
 	/**
-	 * Prints out all our junk.
+	 * Prints out the junk for 1 class. We do not print the entire file because there are order activation issues:
+	 * JavaClass handles getting everything to activate and process in the right order, so we only take a command
+	 * to print out a single class in our file.  
 	 */
-	public void print() {
+	public void print(JavaClass cls) {
 		//the simplest way to get the namespaces injected into all these blocks...fun
 		CodeBlock proto = new CodeBlock(), header = new CodeBlock(), implm = new CodeBlock();
 		CodeBlock origProto = proto, origHeader = header, origImplm = implm;
@@ -108,10 +108,8 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 			implm = implm.block("namespace " + n);
 		}
 		
-		//print out the classes
-		for (JavaClass cls : this.classes.values()) {
-			cls.print(proto, header, implm);
-		}
+		//print out our given class
+		cls.print(proto, header, implm);
 		
 		//make sure the namespace declarations are closed
 		implm.closeAll();

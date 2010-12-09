@@ -2,6 +2,7 @@ package translator.Expressions;
 
 import translator.JavaScope;
 import translator.JavaType;
+import translator.JavaClass;
 import translator.Typed;
 import xtc.tree.GNode;
 

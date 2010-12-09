@@ -49,6 +49,11 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	private boolean isSetup = false;
 	
 	/**
+	 * A flag that indicates if we have printed yet.  This stops classes from printing before their data layouts have been setup.
+	 */
+	private boolean isPrinted = false;
+	
+	/**
 	 * A list of the children that need to be alerted when our data layout has been setup.
 	 */
 	private ArrayList<JavaClass> childClasses = new ArrayList<JavaClass>(); 
@@ -93,15 +98,28 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	protected void process() {
 		//go for a nice visit to see everyone
 		this.dispatch(this.node);
-	
+		
 		//check if we have a parent; if we don't, then java.lang.Object is our parent
 		this.setParent("java.lang.Object");
 		
 		//attempt to load our data layout -- might fail if our parent hasn't been setup yet
 		this.checkParentReady(this);
 		
-		for (JavaClass child : this.childClasses)
+		//alert the children to setup
+		for (JavaClass child : this.childClasses) {
 			child.alertParentSetup();
+		}
+		
+		//go for the second phase of our activation -- printing
+		//we only do so if our parent has already printed.  Otherwise, we wait for him to print and trigger us to print.
+		
+		//see if we can print -- we only want to print once all our children have their data layouts (solves circular dependencies)
+		this.checkParentPrinted(this);
+		
+		//and print our children
+		for (JavaClass child : this.childClasses) {
+			child.alertPrint();
+		}
 	}
 	
 	/**
@@ -118,6 +136,17 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	}
 	
 	/**
+	 * We have an alert print method so that, once our parent has finished all his setup. Because once a file is activate it
+	 * triggers activation of all the children classes, we can be assured that all children will print once their parents
+	 * have resolved all their dependencies and printed.  This ensures that things print out in the right order and that
+	 * circular dependencies don't cause things to break.
+	 */
+	private void alertPrint() {
+		this.isPrinted = true;
+		this.getJavaFile().print(this);
+	}
+	
+	/**
 	 * Checks if the data layout for this class has been setup.  If it has not been, then it adds the class that checked
 	 * to see if it is setup to the list of "children" classes of this guy, and when the parent has been setup, the child
 	 * classes will be alerted so that they can setup their data.
@@ -131,6 +160,14 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		//our parent isn't ready, so just tell him to alert us when he is
 		else
 			this.parent.childClasses.add(child);
+	}
+	
+	/**
+	 * We can only print if our parent is printed and setup.  We do this so that circular dependencies don't cause errors.
+	 */
+	private void checkParentPrinted(JavaClass child) {
+		if (this.parent == null || this.parent.isPrinted)
+			child.alertPrint();
 	}
 	
 	/**
@@ -188,8 +225,9 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		
 		String name = this.getCppName(false, false);
 		CodeBlock block = b.block("struct " + name);
-		
-		System.out.println("Method size (" + this.getName() + "): " + this.methods.size());
+	
+		if (JavaStatic.runtime.test("debug"))
+			System.out.println("Method size (" + this.getName() + "): " + this.methods.size());
 
 		//we need to print all the fields out to each class definition
 		block.pln("//Field layout");
@@ -381,7 +419,8 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	private void setupDataLayout() {
 		this.isSetup = true;
 		
-		System.out.println("Setup data layout for: " + this.getName());
+		if (JavaStatic.runtime.test("debug"))
+			System.out.println("Setup data layout for: " + this.getName());
 		
 		//---------------------------------------------------------------------------------------
 		// Setup the vTable

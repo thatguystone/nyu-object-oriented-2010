@@ -1,3 +1,5 @@
+class noDependenciesButObject { }
+
 class inheritMe {
 
 	int test;
@@ -19,6 +21,17 @@ class inheritMe {
 		System.out.println(cls.getName());
 	}
 
+}
+
+public class test1 extends inheritMe {
+	int test;
+	
+	public static void main(String[] args) {
+		needsInherit inheritor = new needsInherit();
+		
+		inheritor.printCls();
+		inheritor.printInherit();
+	}
 }
 
 class needsInherit extends inheritMe {
@@ -65,15 +78,4 @@ class doubleRainbowExtension extends needsInherit {
 	int defaultPkg_needsInherit__0_test;
 	char defaultPkg_doubleRainbowExtension__1_defaultPkg_needsInherit__0_test;
 	char defaultPkg_doubleRainbowExtension__0_defaultPkg_needsInherit__0_test;
-}
-
-public class test1 extends inheritMe {
-	int test;
-	
-	public static void main(String[] args) {
-		needsInherit inheritor = new needsInherit();
-		
-		inheritor.printCls();
-		inheritor.printInherit();
-	}
 }

@@ -187,7 +187,10 @@ abstract public class JavaType {
 		//if we have the type cached, throw it back to him
 		if (!types.containsKey(type)) {
 			//the class isnt here yet, so add it on-demand
-			new Object(JavaStatic.pkgs.getClass(type));
+			JavaClass cls = JavaStatic.pkgs.getClass(type);
+			new Object(cls);
+			//cls.activate();
+			//System.out.println("Creating: " + cls.getName());
 		}
 		
 		return types.get(type);
