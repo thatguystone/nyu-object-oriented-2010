@@ -5,4 +5,5 @@ public class SystemOut {
 	public native void print(String s);
 	public native void println();
 	public native void println(String s);
+	public native void println(int i);
 }

@@ -40,7 +40,7 @@ abstract public class JavaType {
 		 */
 		Primitive(String javaTypeName, String cppTypeName, Primitive parent) {
 			super(javaTypeName);
-			this.typeName = typeName;
+			this.typeName = javaTypeName;
 			this.cppTypeName = cppTypeName;
 			this.parent = parent;
 		}

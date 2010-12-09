@@ -9,3 +9,7 @@ void __SystemOut::{overload:println[]}() {
 void __SystemOut::{overload:println[String]}(String s) {
 	std::cout << s << std::endl;
 }
+
+void __SystemOut::{overload:println[int]}(int32_t i) {
+	std::cout << i << std::endl;
+}
