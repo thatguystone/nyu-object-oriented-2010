@@ -23,7 +23,7 @@ public class CodeBlock {
 	/**
 	 * The amount of indentation we have.
 	 */
-	private int indent = 0;
+	public int indent;
 	
 	/**
 	 * If we're an empty, place-holding code block.
@@ -52,7 +52,10 @@ public class CodeBlock {
 		if (parent != null) {
 			this.parent = parent;
 			this.indent = parent.indent;
+		} else {
+			this.indent = 0;
 		}
+		
 		this.pln(header + (withBrace ? " {" : ""));
 		this.indent++;
 	}
@@ -80,12 +83,13 @@ public class CodeBlock {
 			
 			//grab all the new lines and print them to our guy, with indentation
 			while ((i = tmp.indexOf("\n")) > -1) {
-				this.pln(tmp.substring(0, i).trim());
+				this.pln(tmp.substring(0, i));
 				tmp = tmp.substring(i + 1);
 			}
 			
-			//print the last line that is skipped in the while loop
-			this.pln(tmp);
+			//print the last line that is skipped in the while loop -- only if it's not blank
+			if (tmp.length() > 0)
+				this.pln(tmp);
 		}
 		
 		return this;
@@ -102,7 +106,7 @@ public class CodeBlock {
 		//are we not empty and therefore need to close ourself?
 		if (!this.empty) {
 			this.indent--;
-			this.pln("}" + (withSemicolon ? ";" : "") + "\n");
+			this.pln("}" + (withSemicolon ? ";\n" : ""));
 		}
 		
 		//if we have a parent, append our code to him

@@ -20,11 +20,13 @@ public class ConditionalStatement extends JavaStatement{
 	}
 
 	public void print(CodeBlock b) {
-		b = b.pln("if( (ToT)o-('' ) ) + {");
-		b.attach((CodeBlock)this.dispatch(blk1));
-		b.pln("}");
-		b = b.pln("else {");
-		b.attach((CodeBlock)this.dispatch(blk2));
-		b.pln("}");		
+		b
+			.block("if( (ToT)o-('' ) )")
+				.attach((CodeBlock)this.dispatch(blk1))
+			.close(false)
+			.block("else")
+				.attach((CodeBlock)this.dispatch(blk2))
+			.close()
+		;
 	}
 }

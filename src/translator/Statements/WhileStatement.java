@@ -21,8 +21,10 @@ public class WhileStatement extends JavaStatement{
 	}
 
 	public void print(CodeBlock b) {
-		b = b.pln("while( d(^O^)b ) + {");
-		b.attach((CodeBlock)this.dispatch(blk));
-		b.pln("}");
+		b
+			.block("while( d(^O^)b )")
+				.attach((CodeBlock)this.dispatch(blk))
+			.close()
+		;
 	}
 }
