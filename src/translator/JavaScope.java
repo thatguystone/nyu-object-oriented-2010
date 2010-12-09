@@ -195,8 +195,8 @@ public class JavaScope extends Visitor {
 	}
 
 	public JavaStatement visitForStatement(GNode n) {
-		return new ForStatement(this, n);
-//		return new JavaForStatement(this, n);
+//		return new ForStatement(this, n);
+		return new JavaForStatement(this, n);
 	}
 
 	public JavaStatement visitWhileStatement(GNode n) {
@@ -241,6 +241,14 @@ public class JavaScope extends Visitor {
 	
 	public JavaExpression visitMultiplicativeExpression(GNode n) {
 		return new ArithmeticExp(this, n);
+	}
+	
+	public JavaExpression visitPostfixExpression(GNode n) {
+		return new PostfixExp(this, n);
+	}
+	
+	public JavaExpression visitExpressionList(GNode n){
+		return new ExpressionList(this,n);
 	}
 	
 	public JavaExpression visitIntegerLiteral(GNode n) {
