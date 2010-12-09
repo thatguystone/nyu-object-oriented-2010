@@ -152,8 +152,23 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		return this.type;
 	}
 	
+	/**
+	 * Gets the C++ field name with its type.  There is no semicolon included.
+	 */
 	public String getCppField() {
-		return ((this.getMyMethod() == null) || (this.assignment == null)) ? this.type.getCppName() + " " + this.getCppName() + ";" : this.type.getCppName() + " " + this.getCppName() + " = " + this.assignment.print() + ";";
+		return this.getCppField(true);
+	}
+	
+	/**
+	 * @param withType If the type should be returned with the C++ field name.
+	 */
+	public String getCppField(boolean withType) {
+		String ret = (withType ? this.type.getCppName() + " " : "") + this.getCppName();
+		
+		if (this.assignment != null)
+			ret += " = " + this.assignment.print();
+		
+		return ret;
 	}
 	
 	/** of course the samething will be printed in the CodeBlock **/

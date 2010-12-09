@@ -184,11 +184,9 @@ public class JavaScope extends Visitor {
 		return new ReturnStatement(this, n);
 	}
 	
-	/*
 	public JavaStatement visitForStatement(GNode n) {
-		return new JavaForStatement(this, n);
+		return new ForStatement(this, n);
 	}
-	*/
 
 	public JavaStatement visitWhileStatement(GNode n) {
 		return new WhileStatement(this, n);
