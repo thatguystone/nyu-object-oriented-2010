@@ -11,7 +11,7 @@ public class SwitchStatement extends JavaStatement{
 	}
 	public void print(CodeBlock b){
 		int s=this.node.size();
-		b.block("switch ("+ ((JavaExpression)this.dispatch((GNode)this.node.get(0))).print() + ")",true);
+		b=b.block("switch ("+ ((JavaExpression)this.dispatch((GNode)this.node.get(0))).print() + ")",true);
 //System.out.println("switch ("+ ((JavaExpression)this.dispatch((GNode)this.node.get(0))).print() + ")");
 		for (int i=1;i<s;++i){
 			b.attach((CodeBlock)dispatch((GNode)this.node.get(i)));
