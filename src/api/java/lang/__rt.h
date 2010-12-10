@@ -36,9 +36,9 @@ namespace __rt {
 			return *this;
 		}
 
-		inline T& operator*()  const { TRACE(); return *addr; }
-		inline T* operator->() const { TRACE(); return addr;  }
-		inline T* raw()        const { TRACE(); return addr;  }
+		inline T& operator*()  const { return *addr; }
+		inline T* operator->() const { return addr;  }
+		inline T* raw()        const { return addr;  }
 
 		template<typename U>
 		friend class Ptr;
@@ -59,4 +59,10 @@ namespace __rt {
 			return addr != (T*)other.addr;
 		}
 	};
+	
+	template<typename T>
+	void __delete(T* ptr) {
+		delete ptr;
+	}
 }
+

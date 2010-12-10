@@ -201,7 +201,7 @@ public class Identifier extends JavaExpression {
 				}
 				
 				//since we have a class, and THAT'S IT, the only thing we can be doing to it is a static access
-				this.cppValue += lCls.getCppName();
+				this.cppValue += lCls.getCppName(true, false);
 				this.setType(lCls.getType(), true);
 			} else {
 				if (this.cppValue.length() > 0)

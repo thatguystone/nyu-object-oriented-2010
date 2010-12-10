@@ -147,6 +147,19 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	
 	/**
+	 * Gets the arguments for printing.
+	 */
+	private String getPrintArguments(boolean withNames) {
+		String args = this.sig.getCppArguments(withNames);
+		
+		String __this = "";
+		if (!this.isStatic())
+			__this = this.getJavaClass().getCppName() + (withNames ? " __this" : "") + (args.length() > 0 ? ", " : "");
+		
+		return __this + args;
+	}
+		
+	/**
 	 * Prints the implementation of this method.
 	 */
 	public void print(CodeBlock b, JavaClass cls) {
@@ -156,7 +169,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 			return;
 	
 		//in the future this will also print the sig
-		b = b.block(this.returnType.getCppName() + " " + this.getJavaClass().getCppName(false, false) + "::" + this.getName() + "(" + this.sig.getCppArguments() + ")");
+		b = b.block(this.returnType.getCppName() + " " + this.getJavaClass().getCppName(false, false) + "::" + this.getName() + "(" + this.getPrintArguments(true) + ")");
 		
 		//Sets a temporary block to hold all the information from our statements.
 		//This also "activates" our method. Since this is guaranteed to only happen once, we can
@@ -169,7 +182,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		b.attach(block);
 		b.close();
 	}
-
+	
 	/**
 	 * Prints the method signature to the class definition in the header, if the method is part of
 	 * the class.
@@ -178,15 +191,15 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		//we only want to print to our defining class
 		if (cls != this.getJavaClass())
 			return;
-		
-		b.pln("static " + this.returnType.getCppName() + " " + this.getCppName(false) + "(" + this.sig.getCppArguments(false) + ");");
+
+		b.pln("static " + this.returnType.getCppName() + " " + this.getCppName(false, false) + "(" + this.getPrintArguments(false) + ");");
 	}
 	
 	/**
-	 * Prints the method signature to the vTable, if it is part of the class.
+	 * Prints the method signature to the vTable.
 	 */
 	public void printToVTable(CodeBlock b, JavaClass cls) {
-		b.pln(this.returnType.getCppName() + " (*" + this.getCppName(false) + ")(" + this.sig.getCppArguments(false) + ");");
+		b.pln(this.returnType.getCppName() + " (*" + this.getCppName(false, false) + ")(" + this.getPrintArguments(false) + ");");
 	}
 	
 	/**
@@ -221,17 +234,28 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 * Gets the C++ name.
 	 */
 	public String getCppName(boolean fullName) {
+		return this.getCppName(fullName, true);
+	}
+	
+	
+	/**
+	 * Gets the C++ name.
+	 *
+	 * @param fullName If true, returns something like "java::lang::Object::getClass", otherwise just "getClass".
+	 * @param asPointer Only used if fullName is true; if asPointer is true, returns something like "java::lang::Object::getClass", otherwise just "java::lang::__Object::getClass".
+	 */
+	public String getCppName(boolean fullName, boolean asPointer) {
 		String name = "";
 		if (fullName)
-			name += this.getJavaClass().getName() + ".";
+			name += this.getJavaClass().getCppName(true, asPointer) + ".";
 		
-		if (this.mangledName == null) {
-			//JavaStatic.stackTrace();
-			System.out.println(this.getJavaClass().getName() + " -- " + this.name + " -- " + this.mangledName);
-		}
+		if (this.mangledName == null)
+			JavaStatic.runtime.error("JavaMethod.getCppName(): Method without a mangled name found in \"" + this.getJavaClass().getName() + "\"; method: " + this.name);
 		
 		return name.replace(".", "::") + this.mangledName;
+
 	}
+	
 	
 	/**
 	 * Mangles the name of the method given the names of all the other methods.
@@ -319,7 +343,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 * We're using this to take advantage of the scope searching already implemented in fields.
 	 */
 	public void visitFormalParameter(GNode n) {
-		FormalParameters d = new FormalParameters(this, n);
+		FieldDec.FormalParameters d = new FieldDec.FormalParameters(this, n);
 		JavaField field = d.getField();
 		this.sig.add(field.getType(), field);
 	}

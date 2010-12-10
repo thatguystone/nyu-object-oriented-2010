@@ -20,7 +20,7 @@ public class StringLiteral extends JavaExpression {
 		this.value = n.get(0).toString();
 	}
 
-	public String printMe() {
+	public String print() {
 		return value;
 	}
 }

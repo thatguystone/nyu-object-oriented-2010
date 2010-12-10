@@ -41,6 +41,56 @@ public class FieldDec extends Visitor {
 	protected FieldDec() {}
 	
 	/**
+	 * For building up FormalParameters for JavaMethod.
+	 */
+	public static class FormalParameters extends FieldDec {
+		/**
+		 * Storage for our little node.
+		 */
+		private GNode node;
+
+		/**
+		 * A nice little constructor so that we can use this for JavaMethod::FormalParameter.
+		 */
+		public FormalParameters(JavaScope s, GNode n) {
+			this.scope = s;
+			this.node = n;
+		}
+		
+		public JavaField getField() {
+			this.visit((Node)this.node);
+			
+			return new JavaField.FormalParameter(this.modifiers, this.type, this.dimensions, this.scope, this.node);
+		}
+	}
+	
+	/**
+	 * For building up local variables in for declarations, and etc.
+	 */
+	public static class ScopeParameters extends FieldDec {
+		/**
+		 * Store the field.
+		 */
+		private JavaField field;
+
+		/**
+		 * A nice little constructor so that we can use this for JavaMethod::FormalParameter.
+		 */
+		public ScopeParameters(JavaScope s, GNode n) {
+			this.scope = s;
+			this.visit((Node)n);
+		}
+		
+		public void visitDeclarator(GNode n) {
+			this.field = new JavaField.ScopeField(this.modifiers, this.type, this.dimensions, this.scope, n);
+		}
+
+		public JavaField getField() {
+			return this.field;
+		}
+	}
+	
+	/**
 	 * Constructor. Not much else to say here.
 	 */
 	public FieldDec(JavaScope scope, GNode n) {
@@ -101,29 +151,5 @@ public class FieldDec extends Visitor {
 			if (o instanceof Node)
 				this.dispatch((Node)o);
 		}
-	}
-}
-
-/**
- * For building up FormalParameters for JavaMethod.
- */
-class FormalParameters extends FieldDec {
-	/**
-	 * Storage for our little node.
-	 */
-	private GNode node;
-
-	/**
-	 * A nice little constructor so that we can use this for JavaMethod::FormalParameter.
-	 */
-	public FormalParameters(JavaScope s, GNode n) {
-		this.scope = s;
-		this.node = n;
-	}
-
-	public JavaField getField() {
-		this.visit((Node)this.node);
-		
-		return new FormalParameterField(this.modifiers, this.type, this.dimensions, this.scope, this.node);
 	}
 }

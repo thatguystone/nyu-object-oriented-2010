@@ -160,6 +160,10 @@ abstract public class JavaType {
 		new Primitive("void", "void", null);
 		new Primitive("boolean", "bool", null);
 		
+		//this is a shameless hack -- we need to be able to access std::string for our
+		//implementation of string, so declare it as a primitive so that it translates correctly
+		new Primitive("cString", "std::string", null);
+		
 		//and get the C++ types that we need
 		JavaStatic.h.pln("#include <stdint.h>");
 		JavaStatic.h.pln("typedef unsigned char char_t;");

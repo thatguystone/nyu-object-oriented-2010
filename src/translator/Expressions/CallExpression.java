@@ -139,6 +139,14 @@ public class CallExpression extends JavaExpression {
 				ret += this.caller.print() + (this.caller.isTypeStatic() ? "::" : "->__vptr->");
 			
 			ret += this.method.getCppName(false) + "(";
+			
+			//do we need to pass in a "this"?
+			if (!this.method.isStatic()) {
+				//if we're operating on a class and not a primitive
+				if (this.method.getType().getJavaClass() != null)
+					ret += this.caller.print() + (this.sig.size() > 0 ? ", " : "");
+			}
+			
 			for (JavaScope s : this.sig.getArguments())
 				ret += ((JavaExpression)s).print();
 			

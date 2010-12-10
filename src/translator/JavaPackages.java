@@ -34,7 +34,7 @@ import translator.Printer.CodePrinter;
  * any language), is represented by a string, so this is the quickest and easiest
  * way to store all our information.
  */
-class JavaPackages {
+public class JavaPackages {
 	/**
 	 * The list of all imported packages.
 	 * Name of package -> list of classes in that package
@@ -261,7 +261,7 @@ class JavaPackages {
 	 * @param f The file to read from.
 	 * @param printer The output to print to.
 	 */
-	private void appendFileToOutput(String f, CodePrinter printer, CodeBlock block, JavaClass cls) {
+	public void appendFileToOutput(String f, CodePrinter printer, CodeBlock block, JavaClass cls) {
 		try {
 			Scanner file = new Scanner(JavaStatic.runtime.locate(f));
 			

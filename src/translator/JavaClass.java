@@ -132,8 +132,11 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * circular dependencies don't cause things to break.
 	 */
 	private void alertPrint() {
-		this.isPrinted = true;
+		if (this.isPrinted)
+			return;
+		
 		this.getJavaFile().print(this);
+		this.isPrinted = true;
 	}
 	
 	/**
@@ -158,6 +161,8 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	private void checkParentPrinted(JavaClass child) {
 		if (this.parent == null || this.parent.isPrinted)
 			child.alertPrint();
+		else
+			this.parent.childClasses.add(child);
 	}
 	
 	/**
@@ -201,6 +206,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	private void printPrototype(CodeBlock b) {
 		b
 			.pln("struct " + this.getCppName(false, false) + ";")
+			.pln("struct " + this.getCppName(false, false) + "_VT;")
 			.pln("typedef __rt::Ptr<" + this.getCppName(false, false) + "> " + this.getCppName(false) + ";")
 			.pln()
 		;
@@ -215,27 +221,36 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		
 		String name = this.getCppName(false, false);
 		CodeBlock block = b.block("struct " + name);
-	
+		
 		if (JavaStatic.runtime.test("debug"))
 			System.out.println("Method size (" + this.getName() + "): " + this.methods.size());
-
+		
 		//we need to print all the fields out to each class definition
 		block.pln("//Field layout");
 		
 		//print our default internal stuff
 		block.pln(name + "_VT* __vptr;");
-		block.pln("static Class __class();");
+		block.pln("static java::lang::Class __class();");
 		
 		//then print out the declared fields
 		for (JavaField f : this.fieldTable) {
 			f.print(block);
 		}
 		
+		//add any extra fields we might need
+		SpecialCases.addExtraFields(this, block); 
+		
+		block.pln();
+		block.pln("//Constructors");
+		
+		//add any extra constructors we might need
+		SpecialCases.addExtraConstructors(this, block); 
+		
 		block.pln();
 		block.pln("//Methods");
 		
 		//the default __delete method
-		block.pln("static void __delete(" + this.getCppName(false, false) + "*);");
+		//block.pln("static void __delete(" + this.getCppName(false, false) + "*);");
 		
 		//we only need to print our OWN methods into the class definition
 		for (ArrayList<JavaMethod> a : this.methods.values()) {
@@ -257,12 +272,37 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		//and the __delete() method
 		block.pln("void (*__delete)(" + this.getCppName(false, false) + "*);");
 		
+		//print out the method pointers
 		for (JavaMethod m : this.vtable) {
 			//ask the method to print himself to our class definition in the header block
 			m.printToVTable(block, this);
 		}
 		
-		block.close();
+		//go for the constructor
+		block = block
+			.pln()
+			.block(name + "_VT() :", false)
+				.pln("__isa(" + name + "::__class()),")
+				.pln("__delete(&__rt::__delete<" + name + ">),")
+		;
+		
+		int size = this.vtable.size();
+		
+		//there are always methods inherited from Object, so we don't need to worry about the "0 methods case".
+		//print out the method pointers
+		for (int i = 0; i < size; i++) {
+			JavaMethod m = this.vtable.get(i);
+			
+			String point = m.getCppName(false) + "(&" + m.getCppName(true, false) +")";
+			
+			if (i == (size - 1)) {
+				block = block.block(point).close();
+			} else {
+				block.pln(point + ",");
+			}
+		}
+		
+		block.close().close();
 	}
 	
 	/**
@@ -407,6 +447,9 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * fields, and we use the names of our parent fields to mangle the names of our local fields.
 	 */
 	private void setupDataLayout() {
+		if (this.isSetup)
+			return;
+		
 		this.isSetup = true;
 		
 		if (JavaStatic.runtime.test("debug"))

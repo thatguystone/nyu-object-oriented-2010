@@ -203,6 +203,14 @@ public class JavaScope extends Visitor {
 			}
 		};
 	}
+	
+	public JavaStatement visitBreakStatement(GNode n) {
+		return new JavaStatement(this, n) {
+			public void print(CodeBlock b) {
+				b.pln("break;");
+			}
+		};
+	}
 
 	/**
 	 * Expressions Visitors

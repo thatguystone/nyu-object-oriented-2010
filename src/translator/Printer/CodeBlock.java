@@ -31,6 +31,11 @@ public class CodeBlock {
 	private boolean empty = false;
 	
 	/**
+	 * Keeps track of if we're in a block with a brace.
+	 */
+	private boolean withBrace;
+	
+	/**
 	 * If we just have a block without a header
 	 */
 	public CodeBlock() {
@@ -49,6 +54,8 @@ public class CodeBlock {
 	 * for our header, then we indent further.
 	 */
 	public CodeBlock(CodeBlock parent, String header, boolean withBrace) {
+		this.withBrace = withBrace;
+	
 		if (parent != null) {
 			this.parent = parent;
 			this.indent = parent.indent;
@@ -106,7 +113,8 @@ public class CodeBlock {
 		//are we not empty and therefore need to close ourself?
 		if (!this.empty) {
 			this.indent--;
-			this.pln("}" + (withSemicolon ? ";\n" : ""));
+			if (this.withBrace)
+				this.pln("}" + (withSemicolon ? ";\n" : ""));
 		}
 		
 		//if we have a parent, append our code to him

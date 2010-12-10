@@ -2,7 +2,7 @@ include ../Makebase
 
 .PHONY: translator java xtc
 
-default: translator java xtc
+default: translator java specialCases xtc
 
 #java has to be made from the parent directory, otherwise it fails (packages break)
 #  * cd-ing from the child directory (java) to here in the makefile causes an error because none of java's rules are in this file
@@ -16,6 +16,9 @@ java:
 #for the same reason as java, translator was moved here
 translator:
 	$(MAKE) `../make.srcs translator`
+	
+specialCases:
+	$(MAKE) `../make.srcs SpecialCases`
 
 #for our xtc base
 xtc:
@@ -26,5 +29,8 @@ clean-api:
 
 clean-translator:
 	find translator -name "*.class" -exec rm {} \;
+	
+clean-specialCases:
+	find SpecialCases -name "*.class" -exec rm {} \;
 
-clean: clean-api clean-translator
+clean: clean-api clean-translator clean-specialCases

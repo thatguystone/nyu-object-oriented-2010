@@ -44,13 +44,49 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * Assignment statement associated with this field declaration.
 	 * May not exist.
 	 */
-	private JavaExpression assignment;
+	protected JavaExpression assignment;
 	
 	/**
 	 * Determines if we have already printed ourself out so that we don't do it multiple times.  That would be a disaster.
 	 */
 	private boolean isPrinted = false;
+	
+	/**
+	 * A special-case class for Formal Parameters -- allows us to reuse code from JavaField while taking into
+	 * account the different setup for FormalParameter.
+	 */
+	public static class FormalParameter extends JavaField {
+		FormalParameter(GNode modifiers, JavaType type, int dimensions, JavaScope scope, GNode n) {
+			super(modifiers, type, dimensions, scope, n);
+		}
 
+		protected void onInstantiate(GNode n) {
+			this.name = (String)n.get(3);
+			this.getScope().addField(this);
+			this.dispatch(n);	
+		}
+	
+		/**
+		 * Formal parameters never print to the method body.
+		 */
+		public void print(CodeBlock b) { }
+	}
+	
+	/**
+	 * For variables that should never be printed. (ie. for (int i = .... ) -- the "int i" shouldn't be printed
+	 * to the list of statements (it will be picked up in JavaScope.visitBlock()), so we ignore it here.
+	 */
+	public static class ScopeField extends JavaField {
+		ScopeField(GNode modifiers, JavaType type, int dimensions, JavaScope scope, GNode n) {
+			super(modifiers, type, dimensions, scope, n);
+		}
+	
+		/**
+		 * Formal parameters never print to the method body.
+		 */
+		public void print(CodeBlock b) { }
+	}
+	
 	/**
 	 * This constructor is for standard field declarations
 	 */
@@ -131,8 +167,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 			}
 		}
 		
-		fields.add
-		(this.mangledName);
+		fields.add(this.mangledName);
 	}
 	
 	/**
@@ -178,7 +213,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 
 		this.isPrinted = true;
 		
-		b.pln(this.getCppField());
+		b.pln(this.getCppField() + ";");
 	}
 
 	/**
@@ -195,25 +230,4 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 				this.dimensions++;
 		}
 	}
-}
-
-/**
- * A special-case class for Formal Parameters -- allows us to reuse code from JavaField while taking into
- * account the different setup for FormalParameter.
- */
-class FormalParameterField extends JavaField {
-	FormalParameterField(GNode modifiers, JavaType type, int dimensions, JavaScope scope, GNode n) {
-		super(modifiers, type, dimensions, scope, n);
-	}
-
-	protected void onInstantiate(GNode n) {
-		this.name = (String)n.get(3);
-		this.getScope().addField(this);
-		this.dispatch(n);	
-	}
-	
-	/**
-	 * Formal parameters never print to the method body.
-	 */
-	public void print(CodeBlock b) { }
 }

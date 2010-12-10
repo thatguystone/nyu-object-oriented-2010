@@ -63,10 +63,19 @@ public class CodePrinter extends Printer {
 	public static void prepare() {
 		//we'll need 1 header
 		JavaStatic.h = CodePrinter.factory("h");
+		JavaStatic.h.pln("#pragma once");
+		JavaStatic.h.pln("#include <string>");
 		
 		//and 1 cpp file
 		JavaStatic.cpp = CodePrinter.factory("cpp");
+		
+		//include our header file in the cpp file
 		JavaStatic.cpp.pln("#include \"" + JavaStatic.h.getBaseName() + "\"");
+		
+		//print out __rt stuff to the header file
+		CodeBlock b = new CodeBlock();
+		JavaStatic.pkgs.appendFileToOutput("java/lang/__rt.h", JavaStatic.h, b, null);
+		JavaStatic.h.p(PrintOrder.PROTOTYPE, b);
 	}
 	
 	/**
