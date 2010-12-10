@@ -65,6 +65,7 @@ public class CodePrinter extends Printer {
 		JavaStatic.h = CodePrinter.factory("h");
 		JavaStatic.h.pln("#pragma once");
 		JavaStatic.h.pln("#include <string>");
+		JavaStatic.h.pln("#include <iostream>");
 		
 		//and 1 cpp file
 		JavaStatic.cpp = CodePrinter.factory("cpp");

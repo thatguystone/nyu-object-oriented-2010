@@ -107,7 +107,7 @@ public class Identifier extends JavaExpression {
 				JavaStatic.runtime.error("Expressions.Identifier: class was not found: " + value);
 			} else {
 				this.setType(cls.getType());
-				this.cppValue = cls.getCppName();
+				//this.cppValue = cls.getCppName();
 				value = value.replace(clsSelector, "");
 			}
 		}
@@ -201,12 +201,11 @@ public class Identifier extends JavaExpression {
 				}
 				
 				//since we have a class, and THAT'S IT, the only thing we can be doing to it is a static access
-				this.cppValue += lCls.getCppName(true, false);
+				this.cppValue = lCls.getCppName(true, false);
 				this.setType(lCls.getType(), true);
 			} else {
-				if (this.cppValue.length() > 0)
-					this.cppValue += (f.isStatic() ? "::" : "->");
-				this.cppValue += f.getCppName();
+				//be sure that static accesses go to the __`Class` struct
+				this.cppValue = s.getJavaClass().getCppName(true, !f.isStatic()) + (f.isStatic() ? "::" : "->") + f.getCppName();
 				
 				this.setType(f.getType(), f.isStatic());
 			}

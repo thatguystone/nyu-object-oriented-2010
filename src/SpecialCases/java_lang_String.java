@@ -12,6 +12,11 @@ public class java_lang_String extends SpecialCase {
 	}
 	
 	public String[] getExtraConstructors() {
-		return new String[]{"__String(char* s) : __data(s) {}"};
+		return new String[]{
+			"__String() : __data() {}",
+			"__String(const char* s) : __data(s) {}",
+			"__String(const std::string& s) : __data(s) {}"
+			//"__String(std::string s) : __data(s) {}"
+		};
 	}
 }
