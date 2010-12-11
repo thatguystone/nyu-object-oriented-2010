@@ -16,17 +16,17 @@ public class SwitchStatement extends JavaStatement{
 		for (int i=1;i<s;++i){
 			b.attach((CodeBlock)dispatch((GNode)this.node.get(i)));
 		}
-		b.close();
+		b.close(false);
 	}
 	public CodeBlock visitCaseClause(GNode n){
 		CodeBlock ret=new CodeBlock().block("case "+((JavaExpression)dispatch((GNode)n.get(0))).print()+":",false);
 //System.out.println("case");
-		return handleClause(ret,n,1).close();
+		return handleClause(ret,n,1).close(false);
 	}
 	public CodeBlock visitDefaultClause(GNode n){
 //System.out.println("default");
 		CodeBlock ret=new CodeBlock().block("default:",false);
-		return handleClause(ret,n,0).close();
+		return handleClause(ret,n,0).close(false);
 	}
 	private CodeBlock handleClause(CodeBlock b,GNode n,int first){
 		for (int i=first;i<n.size();++i){
