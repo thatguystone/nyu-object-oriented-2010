@@ -60,17 +60,20 @@ public class CallExpression extends JavaExpression {
 	}
 
 	/**
-	 * I have a worthless parent that pushes all its work onto its kid :(!
+	 * Populate our list of arguments and set our caller.
 	 */
-	public CallExpression(JavaScope scope, GNode n, String info) {
-		super(scope, n);
-		this.visit(n);
-		this.finishSetup();
+	public void onInstantiate(GNode n) {
+		//we only need the method name to begin with
+		this.methodName = n.get(2).toString();
 		
-		//Setting the selection expression's type for it.
-		((JavaExpression)this.getScope()).setType(this.method.getScope().getField(info).getType());
+		//our caller
+		this.setupCaller((GNode)n.get(0));
+		
+		//remove our caller from the visitor since we had to do him manually 
+		//(each n[0] could be any number of things, so visitors didnt work)
+		n.set(0, null);
 	}
-	
+
 	/**
 	 * Does some final work on all our new data.
 	 */
@@ -93,21 +96,6 @@ public class CallExpression extends JavaExpression {
 		} else {
 			JavaStatic.runtime.warning("Expressions.CallExpression: No suitable caller could be found for: " + this.methodName);
 		}
-	}
-	
-	/**
-	 * Populate our list of arguments and set our caller.
-	 */
-	public void onInstantiate(GNode n) {
-		//we only need the method name to begin with
-		this.methodName = n.get(2).toString();
-		
-		//our caller
-		this.setupCaller((GNode)n.get(0));
-		
-		//remove our caller from the visitor since we had to do him manually 
-		//(each n[0] could be any number of things, so visitors didnt work)
-		n.set(0, null);
 	}
 	
 	/**
@@ -171,7 +159,7 @@ public class CallExpression extends JavaExpression {
 			if (e != null) {
 				this.sig.add(e.getType(), e);
 				if (e.getType() == null)
-					JavaStatic.runtime.error("Expressions.CallExpression: Argument type for method \"" + this.getJavaClass().getName() + "." + this.methodName + "\" could not be determined");
+					JavaStatic.runtime.error("Expressions.CallExpression: Argument type for method \"" + this.methodName + "\" could not be determined (argument " + (i + 1) + " of " + n.size() + ").");
 			} else {
 				JavaStatic.runtime.error("Expressions.CallExpression: Type could not be found for method argument.");
 			}

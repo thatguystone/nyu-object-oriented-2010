@@ -4,6 +4,7 @@ class inheritMe {
 
 	int test;
 	char test2;
+	String tmp = "test";
 	
 	int defaultPkg_needsInherit__test;
 
@@ -19,6 +20,10 @@ class inheritMe {
 		Class cls = this.getClass();
 		System.out.print("I am of class type (printing from inheritMe): ");
 		System.out.println(cls.getName());
+		
+		Object o = new java.lang.Object();
+		
+		System.out.println(this.tmp);
 	}
 
 }

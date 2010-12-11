@@ -119,28 +119,39 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	}
 	
 	/**
-	 * Does nothing.  Why would you use this?
+	 * Gets the mangled name.
+	 *
+	 * @param fullName If true, includes the acessor.
 	 */
 	public String getName(boolean fullName) {
-		return this.getName();
+		if (this.mangledName == null)
+			this.mangledName = this.name;
+		
+		String accessor = "";
+		
+		//if we're a field at the class level, then we need to include an accessor to get the field
+		if (fullName && this.getScope() == this.getJavaClass()) {
+			if (this.isStatic())
+				accessor = this.getJavaClass().getCppName(true, !false) + "::";
+			else
+				accessor = "__this->";
+		}
+		
+		return accessor + this.mangledName;
 	}
 	
 	/**
 	 * Gets the mangled name.
 	 */
 	public String getCppName() {
-		if (this.mangledName == null)
-			this.mangledName = this.name;
-		
-		return this.mangledName;
-		
+		return this.getCppName(true);
 	}
 	
 	/**
 	 * Does nothing.  Why would you use this?
 	 */
 	public String getCppName(boolean fullName) {
-		return this.getCppName();
+		return this.getName(fullName);
 	}
 	
 	/**
