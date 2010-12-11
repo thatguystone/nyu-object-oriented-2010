@@ -71,7 +71,7 @@ public class CodePrinter extends Printer {
 		JavaStatic.cpp = CodePrinter.factory("cpp");
 		
 		//include our header file in the cpp file
-		JavaStatic.cpp.pln("#include \"" + JavaStatic.h.getBaseName() + "\"");
+		JavaStatic.cpp.pln("#include \"" + JavaStatic.h.getBaseName() + "\"").pln();
 		
 		//print out __rt stuff to the header file
 		CodeBlock b = new CodeBlock();

@@ -249,10 +249,14 @@ public class JavaPackages {
 		
 		String cppFile = clsName.replace(".", "/") + ".cpp";
 		String hFile = clsName.replace(".", "/") + ".h";
+		String overloadFile = clsName.replace(".", "/") + ".overload.cpp";
+		
+		System.out.println(overloadFile);
 		
 		//first, we're going to attempt to find the .cpp and .h files that correspond with this class
 		this.appendFileToOutput(cppFile, JavaStatic.cpp, implm, cls);
 		this.appendFileToOutput(hFile, JavaStatic.h, header, cls);
+		this.appendFileToOutput(overloadFile, JavaStatic.cpp, implm, cls, true);
 	}
 	
 	/**
@@ -260,8 +264,23 @@ public class JavaPackages {
 	 *
 	 * @param f The file to read from.
 	 * @param printer The output to print to.
+	 * @param block The block into which to print.
+	 * @param cls The class that requested printing.
 	 */
 	public void appendFileToOutput(String f, CodePrinter printer, CodeBlock block, JavaClass cls) {
+		this.appendFileToOutput(f, printer, block, cls, false);
+	}
+	 
+	/**
+	 * Given the pointer to a file, it outputs the contents of the file to the proper output file.
+	 *
+	 * @param f The file to read from.
+	 * @param printer The output to print to.
+	 * @param block The block into which to print.
+	 * @param cls The class that requested printing.
+	 * @param before If all the contents of the file should be printed out of namespace blocks to the beginning of the file
+	 */
+	public void appendFileToOutput(String f, CodePrinter printer, CodeBlock block, JavaClass cls, boolean before) {
 		try {
 			Scanner file = new Scanner(JavaStatic.runtime.locate(f));
 			
@@ -270,7 +289,7 @@ public class JavaPackages {
 			while (file.hasNextLine()) {
 				String line = file.nextLine();
 				
-				if (line.startsWith("#include")) {
+				if (before || line.startsWith("#include")) {
 					printer.b_pln(line);
 				} else {
 					//attempt to do overload replacement of the method names in the native files

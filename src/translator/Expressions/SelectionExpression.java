@@ -37,6 +37,6 @@ public class SelectionExpression extends Identifier {
 	}
 
 	public String print() {
-		return this.selector.print() + (this.selectee.isStatic() ? "::" : "-->") + this.selectee.getCppName(false);
+		return this.selector.print() + (this.selectee.isStatic() ? "::" : "->") + this.selectee.getCppName(false);
 	}
 }

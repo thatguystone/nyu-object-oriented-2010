@@ -224,7 +224,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 
 		this.isPrinted = true;
 		
-		b.pln((this.isStatic() ? "static " : "") + this.getCppField() + ";");
+		b.pln((this.isStatic() ? "static " : "") + this.type.getCppName() + " " + this.getCppName(false) + ";");
 	}
 
 	/**

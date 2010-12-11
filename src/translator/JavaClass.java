@@ -194,10 +194,10 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * @param implm The code block for the implementation.
 	 */
 	public void print(CodeBlock prot, CodeBlock header, CodeBlock implm) {
-		JavaStatic.pkgs.importNative(this, header, implm);
 		this.printPrototype(prot);
 		this.printHeader(header);
 		this.printImplementation(implm);
+		JavaStatic.pkgs.importNative(this, header, implm);
 	}
 	
 	/**

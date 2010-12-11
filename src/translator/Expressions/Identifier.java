@@ -52,6 +52,7 @@ public class Identifier extends JavaExpression {
 			if (this.fieldScope != null) {
 				this.cppValue = ((JavaClass)this.fieldScope).getCppName(true, false);
 				this.setType(((JavaClass)this.fieldScope).getType());
+				System.out.println(this.getType().getName());
 			} else {
 				this.cppValue = "EXPRESSIONS.IDENTIFIER_ERROR";
 				JavaStatic.runtime.error("Expressions.Identifier: Found an indentifier that wasn't a class or a field: " + name);

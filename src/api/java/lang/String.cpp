@@ -99,7 +99,3 @@ String __String::{overload:toUpperCase[]}(String __this) {
 String operator+(String a, String b) {
 	return a->__vptr->{overload:concat[java.lang.String]}(a, b);
 }
-
-inline String asString(std::string s) {
-	return new java::lang::__String(s);
-}

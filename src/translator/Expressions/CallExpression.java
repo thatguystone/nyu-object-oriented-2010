@@ -124,7 +124,7 @@ public class CallExpression extends JavaExpression {
 			if (this.impliedThis)
 				ret += "__this->__vptr->";
 			else
-				ret += this.caller.print() + (this.caller.isTypeStatic() ? "::" : "->__vptr->");
+				ret += this.caller.print() + (this.method.isStatic() ? "::" : "->__vptr->");
 			
 			ret += this.method.getCppName(false) + "(";
 			
