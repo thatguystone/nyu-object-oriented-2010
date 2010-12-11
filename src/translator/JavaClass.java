@@ -311,6 +311,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	private void printImplementation(CodeBlock b) {
 		b.pln("//Generated method and field implementations for: " + this.getCppName(false));
 		
+		//print out the method implementations
 		for (ArrayList<JavaMethod> a : this.methods.values()) {
 			for (JavaMethod m : a) {
 				//somehow activate the method and give it something to print with
@@ -318,6 +319,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			}
 		}
 		
+		//print out any static initializations to the cpp file
 		for (JavaField f : this.fieldTable) {
 			f.initializeInImplementation(b, this);
 		}

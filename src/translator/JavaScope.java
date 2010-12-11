@@ -300,6 +300,10 @@ public class JavaScope extends Visitor {
 			}
 		};
 	}
+	
+	public void visitNewClassExpression(GNode n) {
+		JavaStatic.dumpNode(n);
+	}
 
 	/**
 	 * Other Visitors

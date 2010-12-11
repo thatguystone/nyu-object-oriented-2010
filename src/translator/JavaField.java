@@ -137,8 +137,6 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 				accessor = "__this->";
 		}
 		
-		System.out.println(this.getJavaClass().getName() + " -- " + this.mangledName + " -- " + this.isStatic() + " ==== " + accessor);
-		
 		return accessor + this.mangledName;
 	}
 	
@@ -236,10 +234,11 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	}
 	
 	public void initializeInImplementation(CodeBlock b, JavaClass c) {
+		System.out.println(this.getJavaClass().getName() + " -- " + this.getName() + " -- " + this.assignment);
 		if (this.assignment == null || !this.isStatic())
 			return;
 		
-		b.pln(this.getType().getCppName() + " " + c.getJavaClass().getCppName() + "::" + this.mangledName + " = " + this.assignment.print() + ";");
+		b.pln(this.getType().getCppName() + " " + c.getJavaClass().getCppName(true, false) + "::" + this.mangledName + " = " + this.assignment.print() + ";");
 	}
 
 	/**
