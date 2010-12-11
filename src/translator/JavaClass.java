@@ -317,6 +317,10 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 				m.print(b, this);
 			}
 		}
+		
+		for (JavaField f : this.fieldTable) {
+			f.initializeInImplementation(b, this);
+		}
 
 		b.pln("//End implementation for: " + this.getCppName(false));
 		b.pln();
@@ -526,8 +530,10 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 				this.addField(f);
 			
 			//either way, add the field to our list of parent fields
-			parentFields.add(f.getCppName());
+			parentFields.add(f.getCppName(false));
 		}
+		
+		
 		
 		//MANGLE MANGLE MANGLE
 		for (JavaField f : localFields) {

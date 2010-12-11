@@ -328,7 +328,7 @@ public class JavaScope extends Visitor {
 					//since we don't know which field was just added (we only have a list of all fields),
 					//just trigger print them all again -- only the new ones will print
 					for (JavaField f : this.fields.values()) 
-						f.print(block);
+						f.printToBlock(block);
 				}
 			}
 		}

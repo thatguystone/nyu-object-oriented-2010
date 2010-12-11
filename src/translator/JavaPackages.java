@@ -251,8 +251,6 @@ public class JavaPackages {
 		String hFile = clsName.replace(".", "/") + ".h";
 		String overloadFile = clsName.replace(".", "/") + ".overload.cpp";
 		
-		System.out.println(overloadFile);
-		
 		//first, we're going to attempt to find the .cpp and .h files that correspond with this class
 		this.appendFileToOutput(cppFile, JavaStatic.cpp, implm, cls);
 		this.appendFileToOutput(hFile, JavaStatic.h, header, cls);

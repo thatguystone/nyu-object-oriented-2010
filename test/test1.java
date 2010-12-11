@@ -4,7 +4,7 @@ class inheritMe {
 
 	int test;
 	char test2;
-	String tmp = "test";
+	static String tmp = "test";
 	
 	int defaultPkg_needsInherit__test;
 

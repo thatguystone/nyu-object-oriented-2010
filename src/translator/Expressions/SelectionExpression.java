@@ -13,30 +13,53 @@ public class SelectionExpression extends Identifier {
 	/**
 	 * The JavaExpression making the selection.
 	 */
-	JavaExpression selector;
+	protected JavaExpression selector;
 
 	/**
 	 * The item that is being selected.
 	 */
-	JavaField selectee;
+	protected JavaField selectee;
+	
+	/**
+	 * If our selector is a "this" expression.
+	 */
+	private boolean selectorIsThis;
 
 	public SelectionExpression(JavaScope scope, GNode n) {
 		super(scope, n);
 	}
 	
 	protected void onInstantiate(GNode n) {
+		this.selectorIsThis = false;
 		this.selector = (JavaExpression)this.dispatch((GNode)n.get(0));
+		
 		this.selectee = this.selector.getField(n.get(1).toString());
 		
 		if (this.selectee == null) {
 			JavaStatic.runtime.warning("Expressions.SelectionExpression: the selectee \"" + n.get(1).toString() + "\" could not be found in scope \"" + this.selector.getJavaClass().getName() + "\"");
 		} else {
-			this.fieldScope = ((JavaField)this.selectee).getType().getJavaClass();
-			this.setType(this.selectee.getType());
+			this.fieldScope = this.selectee.getType().getJavaClass();
+			this.setType(this.selectee.getType(), this.selectee.isStatic());
 		}
 	}
 
 	public String print() {
-		return this.selector.print() + (this.selectee.isStatic() ? "::" : "->") + this.selectee.getCppName(false);
+		String ret = "";
+		if (this.selectorIsThis && this.selectee.isStatic())
+			ret += this.selectee.getJavaClass().getCppName(true, false);
+		else if (this.selectorIsThis)
+			ret += "__this";
+		else
+			ret = this.selector.print();
+		
+		return ret + (this.selectee.isStatic() ? "::" : "->") + this.selectee.getCppName(false);
+	}
+	
+	/**
+	 * A special case to handle a "this" selector.
+	 */
+	public JavaExpression visitThisExpression(GNode n) {
+		this.selectorIsThis = true;
+		return this;
 	}
 }

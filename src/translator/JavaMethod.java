@@ -169,7 +169,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 			return;
 	
 		//in the future this will also print the sig
-		b = b.block(this.returnType.getCppName() + " " + this.getJavaClass().getCppName(false, false) + "::" + this.getName() + "(" + this.getPrintArguments(true) + ")");
+		b = b.block(this.returnType.getCppName() + " " + this.getJavaClass().getCppName(false, false) + "::" + this.getCppName(false) + "(" + this.getPrintArguments(true) + ")");
 		
 		//Sets a temporary block to hold all the information from our statements.
 		//This also "activates" our method. Since this is guaranteed to only happen once, we can

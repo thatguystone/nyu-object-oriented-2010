@@ -39,17 +39,17 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * Class this obj belongs to.
 	 */
 	private JavaType type;
-
+	
+	/**
+	 * Makes sure that a field only prints himself to a block once.
+	 */
+	private boolean isPrinted = false;
+	
 	/**
 	 * Assignment statement associated with this field declaration.
 	 * May not exist.
 	 */
 	protected JavaExpression assignment;
-	
-	/**
-	 * Determines if we have already printed ourself out so that we don't do it multiple times.  That would be a disaster.
-	 */
-	private boolean isPrinted = false;
 	
 	/**
 	 * A special-case class for Formal Parameters -- allows us to reuse code from JavaField while taking into
@@ -125,8 +125,8 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 */
 	public String getName(boolean fullName) {
 		if (this.mangledName == null)
-			this.mangledName = this.name;
-		
+			this.mangledName = name; //local fields are never mangled, so their mangled name is their name
+	
 		String accessor = "";
 		
 		//if we're a field at the class level, then we need to include an accessor to get the field
@@ -136,6 +136,8 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 			else
 				accessor = "__this->";
 		}
+		
+		System.out.println(this.getJavaClass().getName() + " -- " + this.mangledName + " -- " + this.isStatic() + " ==== " + accessor);
 		
 		return accessor + this.mangledName;
 	}
@@ -219,12 +221,25 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	
 	/** of course the samething will be printed in the CodeBlock **/
 	public void print(CodeBlock b) {
+		b.pln((this.isStatic() ? "static " : "") + this.type.getCppName() + " " + this.getCppName(false) + ";");
+	}
+	
+	/**
+	 * A protected version of print that only allows a field to print itself to a block once.
+	 */
+	public void printToBlock(CodeBlock b) {
 		if (this.isPrinted)
 			return;
-
 		this.isPrinted = true;
 		
-		b.pln((this.isStatic() ? "static " : "") + this.type.getCppName() + " " + this.getCppName(false) + ";");
+		this.print(b);
+	}
+	
+	public void initializeInImplementation(CodeBlock b, JavaClass c) {
+		if (this.assignment == null || !this.isStatic())
+			return;
+		
+		b.pln(this.getType().getCppName() + " " + c.getJavaClass().getCppName() + "::" + this.mangledName + " = " + this.assignment.print() + ";");
 	}
 
 	/**
