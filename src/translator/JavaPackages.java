@@ -274,7 +274,7 @@ public class JavaPackages {
 					printer.b_pln(line);
 				} else {
 					//attempt to do overload replacement of the method names in the native files
-					if ((iOverload = line.indexOf("{overload:")) > -1) {
+					while ((iOverload = line.indexOf("{overload:")) > -1) {
 						iOpenBracket = line.indexOf("[");
 						iCloseBracket = line.indexOf("]");
 						

@@ -1,15 +1,15 @@
-void __SystemOut::{overload:print[String]}(String s) {
-	std::cout << s;
+void __SystemOut::{overload:print[String]}(SystemOut __this, String s) {
+	std::cout << s->__data;
 }
 
-void __SystemOut::{overload:println[]}() {
+void __SystemOut::{overload:println[]}(SystemOut __this) {
 	std::cout << std::endl;
 }
 
-void __SystemOut::{overload:println[String]}(String s) {
-	std::cout << s << std::endl;
+void __SystemOut::{overload:println[String]}(SystemOut __this, String s) {
+	std::cout << s->__data << std::endl;
 }
 
-void __SystemOut::{overload:println[int]}(int32_t i) {
+void __SystemOut::{overload:println[int]}(SystemOut __this, int32_t i) {
 	std::cout << i << std::endl;
 }

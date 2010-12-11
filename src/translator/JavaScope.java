@@ -282,7 +282,8 @@ public class JavaScope extends Visitor {
 	public JavaExpression visitStringLiteral(GNode n) {
 		return new Literal(this, n, JavaType.getType("java.lang.String")) {
 			public String print() {
-				return "((" + this.getJavaFile().getImport("java.lang.String").getCppName(true, false) + ")" + this.value + ")";
+				this.getJavaFile().getImport("java.lang.String");
+				return "java::lang::asString(" + this.value + ")";
 			}
 		};
 	}
