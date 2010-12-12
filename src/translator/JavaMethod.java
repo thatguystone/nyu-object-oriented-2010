@@ -17,7 +17,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	/**
 	 * Our overloadable method name.
 	 */
-	private String name;
+	protected String name;
 	
 	/**
 	 * The mangled name of the method.
@@ -27,17 +27,88 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	/**
 	 * Does this method have chaining?
 	 */
-	private boolean chaining = false;
+	protected boolean chaining = false;
 
 	/**
 	 * Our method signature.
 	 */
-	private JavaMethodSignature sig;
+	protected JavaMethodSignature sig;
 	
 	/**
 	 * The type this method returns.
 	 */
-	private JavaType returnType;
+	protected JavaType returnType;
+	
+	/**
+	 * A quick-and-dirty way to get at constructors.
+	 */
+	public static class Constructor extends JavaMethod {
+		Constructor(JavaScope s, GNode n) {
+			super(s, n);
+		}
+		
+		protected void onNodeSetup() {
+			//yes java, we know you don't create fields in classes until after
+			//the constructors are done. F-you, too.
+			this.sig = new JavaMethodSignature();
+		
+			//the nodes that we are going to visit NOW
+			GNode visitFirst = this.node;
+		
+			//save our block for visiting later
+			this.node = (GNode)this.node.get(5);
+		
+			//and remove the block from what we're visiting NOW
+			visitFirst.set(5, null);
+		
+			//that name thing
+			this.name = visitFirst.get(2).toString();
+		
+			//and go visit on our basic method info
+			this.dispatch(visitFirst);
+		}
+		
+		/**
+		 * Prints the implementation of this method.
+		 */
+		public void print(CodeBlock b, JavaClass cls) {
+			//all of our implementation goes in the header
+		}
+	
+		/**
+		 * Prints the method signature to the class definition in the header, if the method is part of
+		 * the class.
+		 */
+		public void printToClassDefinition(CodeBlock b, JavaClass cls) {
+			//we only want to print to our defining class
+			if (cls != this.getJavaClass())
+				return;
+
+			b
+				.block("__" + this.getCppName(false, false) + "(" + this.sig.getCppArguments(true) + ") :", false)
+					.block("__vptr(&__vtable)")
+						//simulate "__this"
+						.pln(this.getJavaClass().getCppName(false, false) + "* __this = this;")
+						.attach((CodeBlock)this.dispatch(this.node))
+					.close()
+				.close()
+			;
+		}
+	
+		/**
+		 * Prints the method signature to the vTable.
+		 */
+		public void printToVTable(CodeBlock b, JavaClass cls) {
+			//constructors don't go in the vTable
+		}
+		
+		/**
+		 * Determines if we are a constructor.
+		 */
+		public boolean isConstructor() {
+			return true;
+		}
+	}
 	
 	/**
 	 * SAEKJFA;WIE JF K;LSDFJ ASILD JFASD;IFJ!!!!!!! WHY DOES JAVA NOT INHERIT CONSTRUCTORS?!?!?!?!?!?!?!?!?!??!
@@ -109,6 +180,13 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	}
 	
 	/**
+	 * Determines if we are a constructor.
+	 */
+	public boolean isConstructor() {
+		return false;
+	}
+	
+	/**
 	 * ==================================================================================================
 	 * New Variable Methods(this/chain)
 	 */
@@ -168,7 +246,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	/**
 	 * Gets the arguments for printing.
 	 */
-	private String getPrintArguments(boolean withNames) {
+	protected String getPrintArguments(boolean withNames) {
 		String args = this.sig.getCppArguments(withNames);
 		
 		String __this = "";
@@ -347,14 +425,6 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	public void visitVoidType(GNode n) {
 		this.returnType = JavaType.getType("void");
-	}
-	
-	/**
-	 * Grabs the formal parameters and adds them to our signature.
-	 */
-	public void visitFormalParameters(GNode n) {
-		//just call down to our FormalParameter visitor
-		this.visit(n);
 	}
 	
 	/**

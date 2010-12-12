@@ -91,6 +91,9 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		//go for a nice visit to see everyone
 		this.dispatch(this.node);
 		
+		//if we don't have a default constructor, give us one
+		this.checkDefaultConstructor();
+		
 		//check if we have a parent; if we don't, then java.lang.Object is our parent
 		this.setParent("java.lang.Object");
 		
@@ -236,12 +239,6 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			.pln("static java::lang::Class __class();")
 			
 			.pln()
-			
-			//print out a constructor to initialize the vptr
-			.block(name + "() :", false)
-				.block("__vptr(&__vtable)")
-				.close()
-			.close()
 		;
 		
 		//then print out the declared fields
@@ -254,6 +251,16 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		
 		block.pln();
 		block.pln("//Constructors");
+		for (JavaMethod m : this.methods.get(this.getName(false))) {
+			//make the constructors print before the methods
+			m.printToClassDefinition(block, this);
+		}
+		
+		//remove the constructors so that they don't print below again
+		this.methods.remove(this.getName(false));
+		
+		block.pln();
+		block.pln("//Extra Constructors");
 		
 		//add any extra constructors we might need
 		SpecialCases.addExtraConstructors(this, block); 
@@ -353,8 +360,9 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			//print out the getClass() initializer
     		.block("java::lang::Class " + name + "::__class()")
     			.block("static java::lang::Class k = new java::lang::__Class(", false)
-    				//.pln("java::lang::asString(\"" + this.getName() + "\"),")
-    				//.pln("__rt::null()")
+    				.pln("java::lang::asString(\"" + this.getName() + "\"),")
+    				.pln("__rt::null,")
+    				.pln("false") //we're not a primitive...we're a class!
     			.close()
     			.pln(");")
     			.pln()
@@ -542,7 +550,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 				this.addMethod(m);
 				
 				//does the method belong in the vtable?
-				if (m.isAtLeastVisible(Visibility.PROTECTED) && !m.isStatic())
+				if (m.isAtLeastVisible(Visibility.PROTECTED) && !m.isStatic() && !m.isConstructor())
 					this.vtable.add(m);
 			}
 		}
@@ -635,6 +643,37 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	}
 	
 	/**
+	 * Checks to see if we have a default constructor -- if we don't, we need to provide one as that is
+	 * what Java does.
+	 */
+	private void checkDefaultConstructor() {
+		if (this.methods.containsKey(this.getName(false)))
+			return;
+		
+		/*
+		ConstructorDeclaration(
+			Modifiers(),
+			null,
+			"Class",
+			FormalParameters(),
+			null,
+			Block()
+		)
+		*/
+		
+		this.visitConstructorDeclaration(GNode.create(
+			"ConstructorDeclaration",
+				GNode.create("Modifiers"),
+				null,
+				this.getName(false),
+				GNode.create("FormalParameters"),
+				null,
+				GNode.create("Block")
+			)
+		);
+	}
+	
+	/**
 	 * ==================================================================================================
 	 * Visitor Methods
 	 */
@@ -664,6 +703,8 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	public void visitModifiers(GNode n) { }
 	
 	public void visitConstructorDeclaration(GNode n) {
-		//special...yay :(
+		JavaStatic.dumpNode(n);
+		JavaMethod m = new JavaMethod.Constructor(this, n);
+		this.addMethod(m);
 	}
 }

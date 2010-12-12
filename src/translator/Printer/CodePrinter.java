@@ -87,6 +87,10 @@ public class CodePrinter extends Printer {
 		CodeBlock b = new CodeBlock();
 		JavaStatic.pkgs.appendFileToOutput("java/lang/__rt.h", JavaStatic.h, b, null);
 		JavaStatic.h.p(PrintOrder.PROTOTYPE, b);
+		
+		b = new CodeBlock();
+		JavaStatic.pkgs.appendFileToOutput("java/lang/__rt.cpp", JavaStatic.cpp, b, null);
+		JavaStatic.cpp.p(PrintOrder.IMPLEMENTATION, b);
 	}
 	
 	/**
