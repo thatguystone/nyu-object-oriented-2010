@@ -6,14 +6,15 @@ What you need to know:
 	3) Use the build script to test it out (ie. run: ./make)
 	4) You should see a message saying "All compiled!".  If you don't, you did something wrong.
 	5) Run: ./make run
-	6) You should see "Happy happy, joy joy!"
-	7) Congratulations, it's running with ecstasy...err, xtc.
+	6) Congratulations, it's running with ecstasy...err, xtc.
 
 A good start:
-	1) Do a test run. Nothing special.
-		Command: ./make run args="-printJavaAST -outputFile out.cpp" file=test1
-	2) Do a test run and output the translation to a file.
+	1) Run the translator -- only outputs the out.cpp/h files.
+		Command: ./make run file=test1
+	2) Run a test case and compare the outputs of the java file and the C++ translation.
 		Command: ./make test file=test1
+	3) Translate the input file and compile and run the C++
+		Command: ./make cpp file=test1
 	
 Notes:
 	* The "make" script is pretty much an alias for "make".  I made a script so that you don't have to source your config file every time you run make...it would make things too difficult.

@@ -45,7 +45,7 @@ public class Identifier extends JavaExpression {
 		this.fieldScope = this.getField(this.nodeValue);
 		
 		if (this.fieldScope != null) {
-			this.cppValue = ((JavaField)this.fieldScope).getCppName(false);
+			this.cppValue = ((JavaField)this.fieldScope).getCppName(true); //be sure the field includes his accessor -- hence the "true"
 			this.setType(((JavaField)this.fieldScope).getType());
 			
 			//fields can only be accessed cross-class...you cannot access any local fields!

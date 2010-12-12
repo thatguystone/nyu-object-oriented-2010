@@ -535,16 +535,14 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			//go through all the parent virtual methods and add them to our table
 			for (JavaMethod m : this.parent.vtable) {
 				//if we're not overriding the method
-				//@TODO - Does this work properly?
 				JavaMethod local;
+				
 				if ((local = this.getClassMethod(m)) == null || !local.equals(m)) {
 					//add our method name WITHOUT the C++ scope resolution stuff 
 					methodNames.add(m.getCppName(false));
 				
 					this.addMethod(m);
 					this.vtable.add(m);
-					
-					System.out.println(this.getName() + " -- " + m.getName());
 				}
 			}
 		}

@@ -3,6 +3,7 @@ public class test2 {
 	
 	public void updateTmp() {
 		tmp = "I am a property of test2 set in updateTmp()";
+		this.tmp = "I am a property of test2 set in updateTmp()";
 	}
 	
 	public static void main(String[] args) {

@@ -4,6 +4,9 @@ include Makebase
 
 default: run
 
+%.h.gch: %.h
+	g++ $< > /dev/null 2>&1
+	
 doc:
 	javadoc -d doc \
 		-windowtitle "Translator Docs" \
@@ -21,15 +24,20 @@ src:
 run: src
 	$(MAKE) -C test run
 
-test: src
-	$(MAKE) -C test run args="-outputFile $(TRANSROOT)/out.cpp" > /dev/null 2>&1
+cpp_run: $(TRANSROOT)/out.h.gch
+	g++ $(TRANSROOT)/out.cpp
+	./a.out
+
+cpp: run cpp_run
+
+test: run src
+	$(MAKE) -C test run > /dev/null 2>&1
 	@echo "Running the Java:\n"
 	@javac -sourcepath $(TESTPATH) test/$(file).java
 	java -classpath $(TESTPATH) $(file)
-	#sleep 3
+	
 	@echo "\n\n\n\nRunning the C++:\n"
-	g++  $(TRANSROOT)/out.cpp
-	./a.out
+	make cpp_run
 
 clean:
 	$(MAKE) -C test clean

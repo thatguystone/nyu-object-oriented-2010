@@ -22,6 +22,7 @@ run: allTests
 	java \
 		-classpath $(RUNCLASSPATH) \
 		translator.Translator $(ARGS) \
+		-outputFile $(TRANSROOT)/out.cpp \
 		-in $(TESTPATH) -in $(JAVAAPIPATH) \
 		$(FILE)
 
