@@ -361,7 +361,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
     		.block("java::lang::Class " + name + "::__class()")
     			.block("static java::lang::Class k = new java::lang::__Class(", false)
     				.pln("java::lang::asString(\"" + this.getName() + "\"),")
-    				.pln("__rt::null,")
+    				.pln((this.parent == null ? "__rt::null" : this.parent.getCppName(true, false) + "::__class()") + ",")
     				.pln("false") //we're not a primitive...we're a class!
     			.close()
     			.pln(");")
@@ -465,6 +465,13 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	/**
 	 * Only searches through the class methods in order to find the specified method.
 	 */
+	public JavaMethod getClassMethod(JavaMethod m) {
+		return this.getClassMethod(m.getName(), m.getSignature());
+	}
+	
+	/**
+	 * Only searches through the class methods in order to find the specified method.
+	 */
 	public JavaMethod getClassMethod(String name, JavaMethodSignature sig) {
 		return this.getMethod(name, sig, this.classMethods);
 	}
@@ -527,15 +534,17 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		if (this.parent != null) {
 			//go through all the parent virtual methods and add them to our table
 			for (JavaMethod m : this.parent.vtable) {
-				//add our method name WITHOUT the C++ scope resolution stuff 
-				methodNames.add(m.getCppName(false));
-				
 				//if we're not overriding the method
 				//@TODO - Does this work properly?
 				JavaMethod local;
-				if ((local = this.getMethod(m)) == null || !local.equals(m)) {
+				if ((local = this.getClassMethod(m)) == null || !local.equals(m)) {
+					//add our method name WITHOUT the C++ scope resolution stuff 
+					methodNames.add(m.getCppName(false));
+				
 					this.addMethod(m);
 					this.vtable.add(m);
+					
+					System.out.println(this.getName() + " -- " + m.getName());
 				}
 			}
 		}
@@ -703,7 +712,6 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	public void visitModifiers(GNode n) { }
 	
 	public void visitConstructorDeclaration(GNode n) {
-		JavaStatic.dumpNode(n);
 		JavaMethod m = new JavaMethod.Constructor(this, n);
 		this.addMethod(m);
 	}

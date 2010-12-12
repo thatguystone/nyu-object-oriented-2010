@@ -28,7 +28,7 @@ test: src
 	java -classpath $(TESTPATH) $(file)
 	#sleep 3
 	@echo "\n\n\n\nRunning the C++:\n"
-	g++ $(TRANSROOT)/out.h $(TRANSROOT)/out.cpp
+	g++  $(TRANSROOT)/out.cpp
 	./a.out
 
 clean:
