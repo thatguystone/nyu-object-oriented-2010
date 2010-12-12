@@ -72,6 +72,25 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		
 		//and go visit on our basic method info
 		this.dispatch(visitFirst);
+		
+		//finally, see if we're the main(String[] args) method.
+		this.checkMainMethod();
+	}
+	
+	/**
+	 * Checks our name and parameters to see if we're the main method.
+	 */
+	private void checkMainMethod() {
+		//do two really quick checks that will disqualify most methods before we do any deep checks
+		if (!this.name.equals("main") || this.sig.size() != 1)
+			return;
+		
+		JavaMethodSignature sig = new JavaMethodSignature();
+		sig.add(this.getJavaFile().getImport("java.lang.String").getType(), this);
+		
+		//if we get here, we might be main -- let's check our signature
+		if (this.sig.equals(sig))
+			JavaStatic.pkgs.setMainMethod(this);
 	}
 	
 	/**

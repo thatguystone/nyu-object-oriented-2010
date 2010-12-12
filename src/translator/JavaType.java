@@ -98,6 +98,9 @@ abstract public class JavaType {
 		Object(JavaClass cls) {
 			super(cls.getName());
 			this.cls = cls;
+			
+			//activate the class we're a type of, just in case
+			this.cls.activate();
 		}
 
 		/**
@@ -192,9 +195,9 @@ abstract public class JavaType {
 		if (!types.containsKey(type)) {
 			//the class isnt here yet, so add it on-demand
 			JavaClass cls = JavaStatic.pkgs.getClass(type);
-			new Object(cls);
-			//cls.activate();
-			//System.out.println("Creating: " + cls.getName());
+			
+			//make sure we have the type cached locally (added in JavaType.constructor)
+			new JavaType.Object(cls);
 		}
 		
 		return types.get(type);

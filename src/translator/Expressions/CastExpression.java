@@ -24,17 +24,6 @@ public class CastExpression extends JavaExpression {
 		this.dispatch((GNode)n.get(0));
 	}
 
-	public void visitPrimitiveType(GNode n) {
-		this.setType(JavaType.getType(null, (String)n.get(0)));
-	}
-
-	public void visitQualifiedIdentifier(GNode n) {
-		String temp = "";
-		for (Object g : n)
-			temp += (String)g + ".";
-		temp = temp.substring(0, temp.length() - 1);
-		this.setType(JavaType.getType(this, temp));
-	}
 
 	public String print() {
 		return "((" /*+ this.getType().print()*/ /*print method not yet implemented*/ + ")" + this.casted.print() + ")";

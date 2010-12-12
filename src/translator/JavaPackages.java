@@ -71,6 +71,11 @@ public class JavaPackages {
 	private static JavaPackages instance = null;
 	
 	/**
+	 * The main method that should be called.  There can only ever be 1 per translation, so all we need is this.
+	 */
+	private JavaMethod mainMethod = null;
+	
+	/**
 	 * Don't allow creation of the class anywhere but inside itself.
 	 */
 	private JavaPackages() {
@@ -88,6 +93,23 @@ public class JavaPackages {
 	}
 	
 	public void wrapUp() {
+		//print out our main method to the C++ file
+		//die if we don't have a main...that's clearly an error
+		if (this.mainMethod == null) {
+			JavaStatic.runtime.error("JavaPackages: no main method found.");
+			JavaStatic.runtime.exit();
+		}
+		
+		CodeBlock main = new CodeBlock();
+		
+		main
+			.block("int main(int argc, char* argv[])")
+				.pln(this.mainMethod.getCppName(true, false) + "(java::lang::asString(\"\"));")
+			.close()
+		;
+		
+		JavaStatic.cpp.p(CodePrinter.PrintOrder.IMPLEMENTATION, main);
+		
 		/*
 		//Testing overloading resolution
 		getClass("java.lang.String").activate();
@@ -117,6 +139,17 @@ public class JavaPackages {
 		
 		System.out.println(cls.getMethod("test2", sig).getSignature().toString());
 		*/
+	}
+	
+	/**
+	 * Sets the main method that we find in our translation.  This can only be set once, and it will issue
+	 * a warning if called more than once.
+	 */
+	public void setMainMethod(JavaMethod m) {
+		if (this.mainMethod == null)
+			this.mainMethod = m;
+		else
+			JavaStatic.runtime.warning("JavaPackages: Attempt to set main method more than once; ignoring...");
 	}
 	
 	/**

@@ -27,3 +27,5 @@ run: allTests
 
 clean:
 	find -name "*.class" -exec rm {} \;
+	rm -f *.out
+	rm -f *.h.gch

@@ -19,6 +19,16 @@ import java.util.Hashtable;
  */
 public class CodePrinter extends Printer {
 	/**
+	 * The locations that can be given to a code block for printing.
+	 */
+	public enum PrintOrder {
+		PROTOTYPE,
+		HEADER,
+		IMPLEMENTATION,
+		ORDINAL //never used -- the MAXIMUM value that this enum has (useful for printing)
+	}
+
+	/**
 	 * Java doesn't like it when two things share System.out for stream writing,
 	 * or something like that (only one stream was printing), so use a static guy
 	 * to share it if the file can't be found.
