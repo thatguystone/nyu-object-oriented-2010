@@ -7,6 +7,7 @@ import translator.JavaClass;
 import translator.JavaMethod;
 import translator.JavaMethodSignature;
 import translator.JavaScope;
+import translator.Visibility;
 import translator.JavaStatic;
 import xtc.tree.GNode;
 
@@ -121,10 +122,12 @@ public class CallExpression extends JavaExpression {
 			this.setType(this.method.getType());
 			
 			//check if we have a "__this" or something else
-			if (this.impliedThis)
-				ret += "__this->__vptr->";
-			else
-				ret += this.caller.print() + (this.method.isStatic() ? "::" : "->__vptr->");
+			if (this.impliedThis) {
+				//every method that is not static needs "__this"
+				ret += "__this->" + this.throughVTable();
+			} else {
+				ret += this.caller.print() + (this.method.isStatic() ? "::" : "->" + this.throughVTable());
+			}
 			
 			ret += this.method.getCppName(false) + "(";
 			
@@ -147,6 +150,20 @@ public class CallExpression extends JavaExpression {
 		}
 		
 		return ret;
+	}
+	
+	/**
+	 * Determines whether or not our method should be routed through the vTable.  This is reserved
+	 * for Protected (or more visible) methods, and not static.  Note: this method doesn't check if things
+	 * are static.
+	 *
+	 * @return "__vptr->" if the method should be routed through the vTable, an empty string, otherwise.
+	 */
+	public String throughVTable() {
+		//if our method has the visbility to be routed through the vTable
+		if (this.method.isAtLeastVisible(Visibility.PROTECTED))
+			return "__vptr->";
+		return "";
 	}
 
 	/**

@@ -132,7 +132,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		//if we're a field at the class level, then we need to include an accessor to get the field
 		if (fullName && this.getScope() == this.getJavaClass()) {
 			if (this.isStatic())
-				accessor = this.getJavaClass().getCppName(true, !false) + "::";
+				accessor = this.getJavaClass().getCppName(true, false) + "::";
 			else
 				accessor = "__this->";
 		}
