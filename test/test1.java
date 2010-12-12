@@ -1,4 +1,4 @@
-class noDependenciesButObject { }
+class noDependenciesButObject extends java.lang.Object{ }
 
 class inheritMe {
 

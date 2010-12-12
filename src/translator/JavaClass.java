@@ -1,6 +1,8 @@
 package translator;
 
 import translator.Printer.CodeBlock;
+import translator.Expressions.JavaExpression;
+import translator.Expressions.Identifier;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 
@@ -535,8 +537,6 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			parentFields.add(f.getCppName(false));
 		}
 		
-		
-		
 		//MANGLE MANGLE MANGLE
 		for (JavaField f : localFields) {
 			f.mangleName(parentFields);
@@ -609,7 +609,8 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	public void visitExtension(GNode n) {
 		//java only supports single inheritance...no need for loops or anything here
-		this.setParent((String)((GNode)((GNode)n.get(0)).get(0)).get(0));
+		JavaExpression ext = (JavaExpression)this.dispatch((Node)((GNode)n.get(0)).get(0));
+		this.setParent(((Identifier)ext).getRawValue());
 	}
 	
 	/**

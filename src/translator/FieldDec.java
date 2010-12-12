@@ -94,6 +94,7 @@ public class FieldDec extends Visitor {
 	 * Constructor. Not much else to say here.
 	 */
 	public FieldDec(JavaScope scope, GNode n) {
+		JavaStatic.dumpNode(n);
 		this.scope = scope;
 		this.dispatch(n);
 	}

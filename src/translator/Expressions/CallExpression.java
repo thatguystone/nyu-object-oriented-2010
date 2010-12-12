@@ -135,8 +135,13 @@ public class CallExpression extends JavaExpression {
 					ret += this.caller.print() + (this.sig.size() > 0 ? ", " : "");
 			}
 			
-			for (JavaScope s : this.sig.getArguments())
-				ret += ((JavaExpression)s).print();
+			//make our substringing easier -- only do it when we have args
+			if (this.sig.size() > 0) {
+				for (JavaScope s : this.sig.getArguments())
+					ret += ((JavaExpression)s).print() + ", ";
+				
+				ret = ret.substring(0, ret.length() - 2);
+			}
 			
 			ret += ")";
 		}

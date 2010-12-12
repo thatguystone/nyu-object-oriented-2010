@@ -223,6 +223,14 @@ public class JavaScope extends Visitor {
 		return new Identifier(this, n);
 	}
 	
+	public JavaExpression visitQualifiedIdentifier(GNode n) {
+		String val = "";
+		for (int i = 0; i < n.size(); i++)
+			val += n.get(i).toString() + ".";
+		
+		return new Identifier(this, GNode.create("Ident", val.substring(0, val.length() - 1)));
+	}
+	
 	public JavaExpression visitConditionalExpression(GNode n) {
 		return new ConditionalExpression(this, n);
 	}
@@ -301,8 +309,8 @@ public class JavaScope extends Visitor {
 		};
 	}
 	
-	public void visitNewClassExpression(GNode n) {
-		JavaStatic.dumpNode(n);
+	public NewClassExpression visitNewClassExpression(GNode n) {
+		return new NewClassExpression(this, n);
 	}
 
 	/**

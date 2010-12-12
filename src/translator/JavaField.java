@@ -52,27 +52,6 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	protected JavaExpression assignment;
 	
 	/**
-	 * A special-case class for Formal Parameters -- allows us to reuse code from JavaField while taking into
-	 * account the different setup for FormalParameter.
-	 */
-	public static class FormalParameter extends JavaField {
-		FormalParameter(GNode modifiers, JavaType type, int dimensions, JavaScope scope, GNode n) {
-			super(modifiers, type, dimensions, scope, n);
-		}
-
-		protected void onInstantiate(GNode n) {
-			this.name = (String)n.get(3);
-			this.getScope().addField(this);
-			this.dispatch(n);	
-		}
-	
-		/**
-		 * Formal parameters never print to the method body.
-		 */
-		public void print(CodeBlock b) { }
-	}
-	
-	/**
 	 * For variables that should never be printed. (ie. for (int i = .... ) -- the "int i" shouldn't be printed
 	 * to the list of statements (it will be picked up in JavaScope.visitBlock()), so we ignore it here.
 	 */
@@ -82,9 +61,30 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		}
 	
 		/**
-		 * Formal parameters never print to the method body.
+		 * Scope parameters never print to the method body.
 		 */
 		public void print(CodeBlock b) { }
+		
+		/**
+		 * Scope parameters never print to the method body.
+		 */
+		public void print(CodeBlock b, boolean withAssignment) { }
+	}
+	
+	/**
+	 * A special-case class for Formal Parameters -- allows us to reuse code from JavaField while taking into
+	 * account the different setup for FormalParameter.
+	 */
+	public static class FormalParameter extends ScopeField {
+		FormalParameter(GNode modifiers, JavaType type, int dimensions, JavaScope scope, GNode n) {
+			super(modifiers, type, dimensions, scope, n);
+		}
+
+		protected void onInstantiate(GNode n) {
+			this.name = (String)n.get(3);
+			this.getScope().addField(this);
+			this.dispatch(n);	
+		}
 	}
 	
 	/**
@@ -217,9 +217,26 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		return ret;
 	}
 	
-	/** of course the samething will be printed in the CodeBlock **/
+	/**
+	 * Prints out a nice version of the field to C++.
+	 *
+	 * @param b The block to which the field should be printed.
+	 */
 	public void print(CodeBlock b) {
-		b.pln((this.isStatic() ? "static " : "") + this.type.getCppName() + " " + this.getCppName(false) + ";");
+		this.print(b, false);
+	}
+	
+	/**
+	 * Prints out a nice version of the field to C++.
+	 *
+	 * @param b The block to which the field should be printed.
+	 * @param withAssignment If the assignment of the field (if there is one) should be included.
+	 */ 
+	public void print(CodeBlock b, boolean withAssignment) {
+		b.pln(
+			(this.isStatic() ? "static " : "") + this.type.getCppName() + " " + this.getCppName(false) + 
+			(withAssignment && this.assignment != null ? " = " + this.assignment.print() : "") + ";"
+		);
 	}
 	
 	/**
@@ -230,11 +247,10 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 			return;
 		this.isPrinted = true;
 		
-		this.print(b);
+		this.print(b, true);
 	}
 	
 	public void initializeInImplementation(CodeBlock b, JavaClass c) {
-		System.out.println(this.getJavaClass().getName() + " -- " + this.getName() + " -- " + this.assignment);
 		if (this.assignment == null || !this.isStatic())
 			return;
 		

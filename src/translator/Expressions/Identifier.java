@@ -23,6 +23,11 @@ public class Identifier extends JavaExpression {
 	protected JavaScope fieldScope;
 	
 	/**
+	 * The string value that identifier has.
+	 */
+	private String nodeValue;
+	
+	/**
 	 * Another stupid constructor :(
 	 */
 	public Identifier(JavaScope scope, GNode n) {
@@ -33,11 +38,11 @@ public class Identifier extends JavaExpression {
 	 * Setup return type and figure out what this idendifier is identifiying.
 	 */
 	protected void onInstantiate(GNode n) {
-		String name = (String)n.get(0);
+		this.nodeValue = (String)n.get(0);
 		
 		//rule 1: fields take precedence over classes
 		//and we need to get our field from our parent scope, not our overriden getField() below
-		this.fieldScope = this.getField(name);
+		this.fieldScope = this.getField(this.nodeValue);
 		
 		if (this.fieldScope != null) {
 			this.cppValue = ((JavaField)this.fieldScope).getCppName(false);
@@ -47,20 +52,24 @@ public class Identifier extends JavaExpression {
 			this.fieldScope = this.getType().getJavaClass();
 		} else {
 			//rule 2: classes are looked up after scope
-			this.fieldScope = this.getJavaFile().getImport(name);
+			this.fieldScope = this.getJavaFile().getImport(this.nodeValue);
 			
 			if (this.fieldScope != null) {
 				this.cppValue = ((JavaClass)this.fieldScope).getCppName(true, false);
 				this.setType(((JavaClass)this.fieldScope).getType());
 			} else {
 				this.cppValue = "EXPRESSIONS.IDENTIFIER_ERROR";
-				JavaStatic.runtime.error("Expressions.Identifier: Found an indentifier that wasn't a class or a field: " + name);
+				JavaStatic.runtime.error("Expressions.Identifier: Found an indentifier that wasn't a class or a field: " + this.nodeValue);
 			}
 		}
 	}
 
 	public String print() {
 		return this.cppValue;
+	}
+	
+	public String getRawValue() {
+		return this.nodeValue;
 	}
 	
 	/**
