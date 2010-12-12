@@ -109,7 +109,7 @@ public class CallExpression extends JavaExpression {
 	 */
 	private void setupCaller(GNode n) {
 		this.impliedThis = false;
-	
+		
 		//well, that was easy: we don't have a caller, so it's an implied "this"
 		if (n == null)
 			this.impliedThis = true; //if no caller is specified, it's assumed local to "this"
@@ -131,6 +131,7 @@ public class CallExpression extends JavaExpression {
 				//every method that is not static needs "__this"
 				ret += "__this->" + this.throughVTable();
 			} else {
+				//we don't have an implied this, so use whatever expression we're given to access the method
 				ret += this.caller.print() + (this.method.isStatic() ? "::" : "->" + this.throughVTable());
 			}
 			

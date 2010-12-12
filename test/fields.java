@@ -1,9 +1,15 @@
 public class fields {
+	public static void impliedSelf() {
+		System.out.println("Static method called with implied invokation.");
+	}
+
 	public static void main(String[] args) {
 		f1.f.j.method();
 		
 		f1 f = new f1();
 		f.f.j.method();
+		
+		impliedSelf();
 		
 		/**
 		//This is not legal Java:
