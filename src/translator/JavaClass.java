@@ -231,8 +231,18 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		block.pln("//Field layout");
 		
 		//print our default internal stuff
-		block.pln(name + "_VT* __vptr;");
-		block.pln("static java::lang::Class __class();");
+		block
+			.pln(name + "_VT* __vptr;")
+			.pln("static java::lang::Class __class();")
+			
+			.pln()
+			
+			//print out a constructor to initialize the vptr
+			.block(name + "() :", false)
+				.block("__vptr(&__vtable)")
+				.close()
+			.close()
+		;
 		
 		//then print out the declared fields
 		for (JavaField f : this.fieldTable) {
@@ -261,6 +271,13 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 				m.printToClassDefinition(block, this);
 			}
 		}
+		
+		//finally, print out our static vtable variable
+		block
+			.pln()
+			.pln("//The vtable for " + name)
+			.pln("static " + name + "_VT __vtable;")
+		;
 		
 		block.close();
 		
@@ -325,6 +342,26 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		for (JavaField f : this.fieldTable) {
 			f.initializeInImplementation(b, this);
 		}
+		
+		
+		String name = this.getCppName(false, false);
+		b
+			//print out the vtable initializer to the Cpp file so that we can use it
+			.pln(name + "_VT " + name + "::__vtable;")
+			.pln()
+		
+			//print out the getClass() initializer
+    		.block("java::lang::Class " + name + "::__class()")
+    			.block("static java::lang::Class k = new java::lang::__Class(", false)
+    				//.pln("java::lang::asString(\"" + this.getName() + "\"),")
+    				//.pln("__rt::null()")
+    			.close()
+    			.pln(");")
+    			.pln()
+    			.pln("return k;")
+    		.close()
+    	;
+
 
 		b.pln("//End implementation for: " + this.getCppName(false));
 		b.pln();

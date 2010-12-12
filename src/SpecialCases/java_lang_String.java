@@ -13,9 +13,9 @@ public class java_lang_String extends SpecialCase {
 	
 	public String[] getExtraConstructors() {
 		return new String[]{
-			"__String() : __data() {}",
-			"__String(const char* s) : __data(s) {}",
-			"__String(const std::string& s) : __data(s) {}"
+			//"__String() : __data() {}",
+			"__String(const char* s) : __data(s), __vptr(&__vtable) {}",
+			"__String(const std::string& s) : __data(s), __vptr(&__vtable) {}"
 			//"__String(std::string s) : __data(s) {}"
 		};
 	}

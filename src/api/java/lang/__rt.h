@@ -17,16 +17,18 @@ namespace __rt {
 
 		inline ~Ptr() {
 			if (0 == --(*counter)) {
-				if (0 != addr) addr->__vptr->__delete(addr);
-					delete counter;
+				if (0 != addr)
+					addr->__vptr->__delete(addr);
+				delete counter;
 			}
 		}
 
 		inline Ptr& operator=(const Ptr& right) {
 			if (addr != right.addr) {
 				if (0 == --(*counter)) {
-					if (0 != addr) addr->__vptr->__delete(addr);
-						delete counter;
+					if (0 != addr)
+						addr->__vptr->__delete(addr);
+					delete counter;
 				}
 					
 				addr = right.addr;
