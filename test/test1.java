@@ -37,6 +37,14 @@ public class test1 extends inheritMe {
 		inheritor.printCls();
 		inheritor.printInherit();
 		
+		/*
+		//uses chaining -- should work when chaining works
+		//un-comment-out when chaining ready
+		System.out.print("Inline getClass(): ");
+		System.out.println(new needsInherit().getClass().getName());
+		
+		*/
+		
 		inheritMe inheritor2 = new inheritMe();
 		inheritor2.printInherit();
 	}
