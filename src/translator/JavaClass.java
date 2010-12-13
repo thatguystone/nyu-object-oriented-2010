@@ -319,8 +319,17 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		for (int i = 0; i < size; i++) {
 			JavaMethod m = this.vtable.get(i);
 			
-			String point = m.getCppName(false) + "(&" + m.getCppName(true, false) +")";
+			//cast the vTable entry, but only if the method doesn't originate in our class
+			String cast = "";
+			if (m.getJavaClass() != this) {
+				cast = m.getSignature().getCppArguments(false);
+				cast = "(" + m.getType().getCppName() + "(*)(" + this.getCppName(true, true) + (cast.length() > 0 ? ", " + cast : "") + "))";
+			}
 			
+			//generate the vTable entry
+			String point = m.getCppName(false) + "(" + cast + "&" + m.getCppName(true, false) +")";
+			
+			//if we're at the last method, then close the block
 			if (i == (size - 1)) {
 				block = block.block(point).close();
 			} else {

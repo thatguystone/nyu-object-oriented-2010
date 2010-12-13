@@ -246,12 +246,12 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	/**
 	 * Gets the arguments for printing.
 	 */
-	protected String getPrintArguments(boolean withNames) {
+	protected String getPrintArguments(boolean withNames, JavaClass cls) {
 		String args = this.sig.getCppArguments(withNames);
 		
 		String __this = "";
 		if (!this.isStatic())
-			__this = this.getJavaClass().getCppName() + (withNames ? " __this" : "") + (args.length() > 0 ? ", " : "");
+			__this = cls.getCppName() + (withNames ? " __this" : "") + (args.length() > 0 ? ", " : "");
 		
 		return __this + args;
 	}
@@ -266,7 +266,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 			return;
 	
 		//in the future this will also print the sig
-		b = b.block(this.returnType.getCppName() + " " + this.getJavaClass().getCppName(false, false) + "::" + this.getCppName(false) + "(" + this.getPrintArguments(true) + ")");
+		b = b.block(this.returnType.getCppName() + " " + this.getJavaClass().getCppName(false, false) + "::" + this.getCppName(false) + "(" + this.getPrintArguments(true, cls) + ")");
 		
 		//Sets a temporary block to hold all the information from our statements.
 		//This also "activates" our method. Since this is guaranteed to only happen once, we can
@@ -289,14 +289,14 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		if (cls != this.getJavaClass())
 			return;
 
-		b.pln("static " + this.returnType.getCppName() + " " + this.getCppName(false, false) + "(" + this.getPrintArguments(false) + ");");
+		b.pln("static " + this.returnType.getCppName() + " " + this.getCppName(false, false) + "(" + this.getPrintArguments(false, cls) + ");");
 	}
 	
 	/**
 	 * Prints the method signature to the vTable.
 	 */
 	public void printToVTable(CodeBlock b, JavaClass cls) {
-		b.pln(this.returnType.getCppName() + " (*" + this.getCppName(false, false) + ")(" + this.getPrintArguments(false) + ");");
+		b.pln(this.returnType.getCppName() + " (*" + this.getCppName(false, false) + ")(" + this.getPrintArguments(false, cls) + ");");
 	}
 	
 	/**
