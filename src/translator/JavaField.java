@@ -24,6 +24,11 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * Format: ClassName__name
 	 */
 	private String mangledName;
+	
+	/**
+	 * We need the type name in C++ (for the typedef) so that we can do static accesses on the class types.
+	 */
+	private String typedefName;
 
 	/**
 	 * Is it an object?
@@ -155,6 +160,13 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	}
 	
 	/**
+	 * Returns the name of the field as used in the typedef.
+	 */
+	public String getTypedefName() {
+		return this.typedefName;
+	}
+	
+	/**
 	 * Mangles field names so that each field can be uniquely represented by
 	 * its 'ClassName__FieldName'
 	 * 
@@ -178,7 +190,10 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 			}
 		}
 		
+		this.typedefName = "__" + this.mangledName + "_t";
+		
 		fields.add(this.mangledName);
+		fields.add(this.typedefName);
 	}
 	
 	/**
@@ -237,6 +252,11 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 			(this.isStatic() ? "static " : "") + this.type.getCppName() + " " + this.getCppName(false) + 
 			(withAssignment && this.assignment != null ? " = " + this.assignment.print() : "") + ";"
 		);
+		
+		//if we have a typedef that needs printing (this is only initialized for class variables)
+		//also make sure we're not dealing with a primitive as our 
+		if (this.typedefName != null && this.getType().getJavaClass() != null)
+			b.pln("typedef " + this.getType().getJavaClass().getCppName(true, false) + " " + this.typedefName + ";");
 	}
 	
 	/**

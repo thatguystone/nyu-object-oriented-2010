@@ -41,7 +41,6 @@ public class Identifier extends JavaExpression {
 		this.nodeValue = (String)n.get(0);
 		
 		//rule 1: fields take precedence over classes
-		//and we need to get our field from our parent scope, not our overriden getField() below
 		this.fieldScope = this.getField(this.nodeValue);
 		
 		if (this.fieldScope != null) {
@@ -56,7 +55,7 @@ public class Identifier extends JavaExpression {
 			
 			if (this.fieldScope != null) {
 				this.cppValue = ((JavaClass)this.fieldScope).getCppName(true, false);
-				this.setType(((JavaClass)this.fieldScope).getType());
+				this.setType(((JavaClass)this.fieldScope).getType(), true); //class names should always be counted as static
 			} else {
 				this.cppValue = "EXPRESSIONS.IDENTIFIER_ERROR";
 				JavaStatic.runtime.error("Expressions.Identifier: Found an indentifier that wasn't a class or a field: " + this.nodeValue);
@@ -65,6 +64,8 @@ public class Identifier extends JavaExpression {
 	}
 
 	public String print() {
+		if (this.isStaticAccess())
+			return this.fieldScope.getJavaClass().getCppName(true, false);
 		return this.cppValue;
 	}
 	

@@ -111,12 +111,16 @@ public class CallExpression extends JavaExpression {
 		this.impliedThis = false;
 		
 		//well, that was easy: we don't have a caller, so it's an implied "this"
-		if (n == null)
-			this.impliedThis = true; //if no caller is specified, it's assumed local to "this"
+		if (n == null) {
+			//there's probably a better way to do with an expression type, but meh
+			this.impliedThis = true;
 			
+			//this is only for method resolution and should never have its print() method called.
+			this.caller = (JavaExpression)this.dispatch(GNode.create("ThisExpression", null));
 		//there is a caller!
-		else
+		} else {
 			this.caller = (JavaExpression)this.dispatch(n);
+		}
 	}
 
 	public String print() {
@@ -126,10 +130,14 @@ public class CallExpression extends JavaExpression {
 		if (this.method != null) {
 			this.setType(this.method.getType());
 			
+			this.caller.isStaticAccess(this.method.isStatic());
+			System.out.println(this.method.getName() + " ___ " + this.method.isStatic());
+			
 			//check if we have a "__this" or something else
 			if (this.impliedThis) {
 				//every method that is not static needs "__this"
-				ret += "__this->" + this.throughVTable();
+				//but if it is static, we need to get the method's class name as that is what he is being called on.
+				ret += (this.method.isStatic() ? this.method.getJavaClass().getCppName(true, false) + "::" : "__this->") + this.throughVTable();
 			} else {
 				//we don't have an implied this, so use whatever expression we're given to access the method
 				ret += this.caller.print() + (this.method.isStatic() ? "::" : "->" + this.throughVTable());
@@ -160,14 +168,13 @@ public class CallExpression extends JavaExpression {
 	
 	/**
 	 * Determines whether or not our method should be routed through the vTable.  This is reserved
-	 * for Protected (or more visible) methods, and not static.  Note: this method doesn't check if things
-	 * are static.
+	 * for Protected (or more visible) methods, and not static.
 	 *
 	 * @return "__vptr->" if the method should be routed through the vTable, an empty string, otherwise.
 	 */
 	public String throughVTable() {
 		//if our method has the visbility to be routed through the vTable
-		if (this.method.isAtLeastVisible(Visibility.PROTECTED))
+		if (this.method.isAtLeastVisible(Visibility.PROTECTED) && !this.method.isStatic())
 			return "__vptr->";
 		return "";
 	}

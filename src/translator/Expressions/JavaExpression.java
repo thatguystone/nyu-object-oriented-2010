@@ -18,7 +18,20 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 	/**
 	 * If our type is being used in a static context.
 	 */
-	private boolean isTypeStatic = false;
+	private boolean isTypeStatic;
+	
+	/**
+	 * Determines what type of access is being done on us.  This is set by the parent so that we know how to print properly.
+	 * This is necessary because our parent needs to inform us of what we need to print as based on what he is accessing;
+	 * for example:
+	 *
+	 * 1. If the parent is accessing a static method, then we need to print out with our class type so it can be found.
+	 * 2. If our parent is accessing a non-static method of a static property, the property needs to print out in non-static
+	 *    form so that we can do our access correctly.
+	 * 3. If the parent is accessing a static property but nothing else, then we should return his type, as any future
+	 *    calls will be based on the type of the static property....I think?
+	 */
+	private boolean isStaticAccess;
 	
 	public JavaExpression(JavaScope scope, GNode n)	{
 		super(scope, n);
@@ -48,6 +61,14 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 
 	public boolean isTypeStatic() {
 		return this.isTypeStatic;
+	}
+	
+	public boolean isStaticAccess() {
+		return this.isStaticAccess;
+	}
+	
+	public boolean isStaticAccess(boolean access) {
+		return this.isStaticAccess = access;
 	}
 	
 	/**

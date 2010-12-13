@@ -36,23 +36,40 @@ public class SelectionExpression extends Identifier {
 		this.selectee = this.selector.getField(n.get(1).toString());
 		
 		if (this.selectee == null) {
-			JavaStatic.runtime.warning("Expressions.SelectionExpression: the selectee \"" + n.get(1).toString() + "\" could not be found in scope \"" + this.selector.getJavaClass().getName() + "\"");
+			JavaStatic.runtime.warning(
+				"Expressions.SelectionExpression: the selectee \"" + n.get(1).toString() + "\" could not be found in scope \"" + 
+				this.selector.getJavaClass().getName() + "\""
+			);
 		} else {
 			this.fieldScope = this.selectee.getType().getJavaClass();
 			this.setType(this.selectee.getType(), this.selectee.isStatic());
+			
+			this.isStaticAccess(this.selector.isTypeStatic() && this.selectee.isStatic());
 		}
 	}
 
 	public String print() {
 		String ret = "";
-		if (this.selectorIsThis && this.selectee.isStatic())
-			ret += this.selectee.getJavaClass().getCppName(true, false);
-		else if (this.selectorIsThis)
-			ret += "__this";
-		else
-			ret = this.selector.print();
 		
-		return ret + (this.selectee.isStatic() ? "::" : "->") + this.selectee.getCppName(false);
+		if (this.isStaticAccess() && this.selector.isTypeStatic() && this.selectee.isStatic()) {
+			ret += this.selector.print() + "::" + this.selectee.getTypedefName();
+		} else if (!this.selector.isTypeStatic() && this.selectee.isStatic()) {
+			this.selector.isStaticAccess(true);
+			ret += this.selector.print() + "::" + this.selectee.getTypedefName();
+		} else {
+			if (this.selectorIsThis && this.selectee.isStatic())
+				ret += this.selectee.getJavaClass().getCppName(true, false);
+			else if (this.selectorIsThis)
+				ret += "__this";
+			else
+				ret += this.selector.print();
+		
+			System.out.println(this.selector.getClass().getName() + "=>" + this.selector.isTypeStatic() + " -- " + ret + " ===== " + this.selectee.getCppName(false));
+		
+			ret += (this.selectee.isStatic() ? "::" : "->") + this.selectee.getCppName(false);
+		}
+		
+		return ret;
 	}
 	
 	/**
