@@ -32,10 +32,13 @@ public class test1 extends inheritMe {
 	int test;
 	
 	public static void main(String[] args) {
-		needsInherit inheritor = new needsInherit();
+		inheritMe inheritor = new needsInherit();
 		
 		inheritor.printCls();
 		inheritor.printInherit();
+		
+		inheritMe inheritor2 = new inheritMe();
+		inheritor2.printInherit();
 	}
 }
 

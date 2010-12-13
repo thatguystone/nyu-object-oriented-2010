@@ -28,10 +28,12 @@ public class NewClassExpression extends JavaExpression {
 	protected void onInstantiate(GNode n) {
 		this.cls = this.getJavaFile().getImport(((Identifier)this.dispatch((GNode)n.get(2))).getRawValue());
 		this.visit(n);
+		this.setType(this.cls.getType());
 	}
 
 	public String print() {
-		String ret = "new " + this.cls.getCppName(true, false) + "(";
+		//cast every new class expression to a pointer, then the smart pointer can do all the extra casting for us
+		String ret = "(" + this.cls.getCppName() + ")new " + this.cls.getCppName(true, false) + "(";
 		
 		//make our substringing easier -- only do it when we have args
 		if (this.sig.size() > 0) {

@@ -42,10 +42,21 @@ public class ArithmeticExpression extends JavaExpression {
 	}
 
 	public String print() {
+		String cast = "";
+		
+		//if we have different types, do an explicit cast so that things will work
+		if (this.first.getType() != this.second.getType()) {
+			//----------------------------------------------------------------------------------------------------------
+			//IS THIS NECESSARY FOR WHEN WE HAVE TWO CLASSES?  CAN'T THE SMART POINTER TAKE CARE OF IT?
+			//----------------------------------------------------------------------------------------------------------
+			
+			JavaStatic.runtime.warning("Expressions.ArithmeticExpression: Operating with two expressions of different types, we need a cast, but we don't have arithmetic types yet.");
+		}
+	
 		//return second.print(first.print(b.p("(")).p(operator)).p(")");
 		if (this.getScope() instanceof JavaStatement)
-			return first.print() + " " + operator + " " + second.print();
+			return this.first.print() + " " + this.operator + " " + cast + this.second.print();
 		
-		return "(" + first.print() + " " + operator + " " + second.print() + ")";
+		return "(" + this.first.print() + " " + this.operator + " " + cast + this.second.print() + ")";
 	}
 }
