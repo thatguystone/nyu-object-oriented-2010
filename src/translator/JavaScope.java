@@ -175,7 +175,12 @@ public class JavaScope extends Visitor {
 	/**
 	 * Statement Visitors
 	 */
-	
+	public JavaStatement visitSwitchStatement(GNode n){
+		return new SwitchStatement(this,n);
+	}
+	public JavaStatement visitDoWhileStatement(GNode n){
+		return new DoWhileStatement(this,n);
+	}
 	public JavaStatement visitExpressionStatement(GNode n) {
 		return new ExpressionStatement(this, n);
 	}
@@ -286,7 +291,7 @@ public class JavaScope extends Visitor {
 			}
 		};
 	}
-	
+
 	public JavaExpression visitStringLiteral(GNode n) {
 		return new Literal(this, n, JavaType.getType("java.lang.String")) {
 			public String print() {
