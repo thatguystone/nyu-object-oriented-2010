@@ -51,9 +51,9 @@ public class SelectionExpression extends Identifier {
 	public String print() {
 		String ret = "";
 		
-		if (this.isStaticAccess() && this.selector.isTypeStatic() && this.selectee.isStatic()) {
+		if (!this.selectorIsThis && this.isStaticAccess() && this.selector.isTypeStatic() && this.selectee.isStatic()) {
 			ret += this.selector.print() + "::" + this.selectee.getTypedefName();
-		} else if (!this.selector.isTypeStatic() && this.selectee.isStatic()) {
+		} else if (!this.selectorIsThis && !this.selector.isTypeStatic() && this.selectee.isStatic()) {
 			this.selector.isStaticAccess(true);
 			ret += this.selector.print() + "::" + this.selectee.getTypedefName();
 		} else {
@@ -63,8 +63,6 @@ public class SelectionExpression extends Identifier {
 				ret += "__this";
 			else
 				ret += this.selector.print();
-		
-			System.out.println(this.selector.getClass().getName() + "=>" + this.selector.isTypeStatic() + " -- " + ret + " ===== " + this.selectee.getCppName(false));
 		
 			ret += (this.selectee.isStatic() ? "::" : "->") + this.selectee.getCppName(false);
 		}

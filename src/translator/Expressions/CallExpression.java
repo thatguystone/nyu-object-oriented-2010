@@ -131,7 +131,6 @@ public class CallExpression extends JavaExpression {
 			this.setType(this.method.getType());
 			
 			this.caller.isStaticAccess(this.method.isStatic());
-			System.out.println(this.method.getName() + " ___ " + this.method.isStatic());
 			
 			//check if we have a "__this" or something else
 			if (this.impliedThis) {
