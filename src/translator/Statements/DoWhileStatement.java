@@ -14,7 +14,6 @@ import xtc.tree.GNode;
 public class DoWhileStatement extends JavaStatement {
 	public DoWhileStatement (JavaScope scope, GNode n) {
 		super(scope, n);
-System.out.println("HELLO");
 	}
 
 	public void print(CodeBlock b) {
