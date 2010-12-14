@@ -231,7 +231,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		
 		return ret;
 	}
-	
+
 	/**
 	 * Prints out a nice version of the field to C++.
 	 *
@@ -269,7 +269,18 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		
 		this.print(b, true);
 	}
-	
+
+        public void printToSwitchStatement(CodeBlock b,CodeBlock c) {
+                if (this.isPrinted)
+                        return;
+                this.isPrinted = true;
+
+                this.print(b, false);
+		if (this.assignment!=null){
+			c.pln(this.getCppName() + " = " + this.assignment.print()+";");
+		}
+        }
+
 	public void initializeInImplementation(CodeBlock b, JavaClass c) {
 		if (this.assignment == null || !this.isStatic())
 			return;

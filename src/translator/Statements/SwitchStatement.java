@@ -1,5 +1,6 @@
 package translator.Statements;
 import translator.JavaScope;
+import translator.JavaField;
 import translator.Expressions.JavaExpression;
 import translator.Printer.CodeBlock;
 import xtc.tree.Node;
@@ -12,7 +13,7 @@ public class SwitchStatement extends JavaStatement{
 	}
 	public void print(CodeBlock b){
 		int s=this.node.size();
-		this.block=b=b.block("");   /** the outer block for holding all fields belong to switch statement...**/
+		this.block=b=b.block("");   /** the outer block for holding all fields belonging to switch statement...**/
 		CodeBlock temp=new CodeBlock("switch ("+ ((JavaExpression)this.dispatch((GNode)this.node.get(0))).print() + ")");
 		/** fields declared inside the clauses had to be put on top of all clauses in order to avoid the "cross initialization" error in c++
 		    this change, however, will not affect well-formed Java code? **/
@@ -41,8 +42,15 @@ public class SwitchStatement extends JavaStatement{
 				Object s=dispatch((GNode)o);
 				if (s!=null){
 					((JavaStatement)s).print(b);
-				}else {
-					this.dumpNewFields(block);
+				}else{
+					/** field in java switch statement has to be a special case **/
+					for (JavaField f : this.fields.values()){ 
+						f.printToSwitchStatement(block,b);
+//						f.printWithoutAssignment(this.block);
+//						if (f.getAssignment()!=null){
+//							b.pln(f.getCppField(false)+";");
+//						}
+					}
 				}
 //System.out.println("you have a statement");
 			}else{
