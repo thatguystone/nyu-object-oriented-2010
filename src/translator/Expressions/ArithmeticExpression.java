@@ -36,27 +36,13 @@ public class ArithmeticExpression extends JavaExpression {
 
 		this.first = (JavaExpression)this.dispatch((GNode)n.get(0));
 		this.second = (JavaExpression)this.dispatch((GNode)n.get(2));
-		
-		JavaStatic.runtime.warning("Expressions.ArithmeticExpression: There is no return type set for arithmetic expressions yet.");
-		//this.setType(JavaType.getType(first.getType(), second.getType()));
+		//System.out.println(this.first.getType().getName() + " " + this.second.getType().getName());
+
+		//set our type based on our two operands
+		this.setType(JavaType.getType(first.getType(), second.getType()));
 	}
 
 	public String print() {
-		String cast = "";
-		
-		//if we have different types, do an explicit cast so that things will work
-		if (this.first.getType() != this.second.getType()) {
-			//----------------------------------------------------------------------------------------------------------
-			//IS THIS NECESSARY FOR WHEN WE HAVE TWO CLASSES?  CAN'T THE SMART POINTER TAKE CARE OF IT?
-			//----------------------------------------------------------------------------------------------------------
-			
-			JavaStatic.runtime.warning("Expressions.ArithmeticExpression: Operating with two expressions of different types, we need a cast, but we don't have arithmetic types yet.");
-		}
-	
-		//return second.print(first.print(b.p("(")).p(operator)).p(")");
-		if (this.getScope() instanceof JavaStatement)
-			return this.first.print() + " " + this.operator + " " + cast + this.second.print();
-		
-		return "(" + this.first.print() + " " + this.operator + " " + cast + this.second.print() + ")";
+		return "(" + "(" + this.getType().getCppName() + ")(" + this.first.print() + " " + this.operator + " " + this.second.print() + "))";
 	}
 }

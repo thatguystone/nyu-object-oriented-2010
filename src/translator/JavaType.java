@@ -201,6 +201,28 @@ abstract public class JavaType {
 		
 		return types.get(type);
 	}
+
+	/**
+	 * Figure out the resulting type of an ArithmeticExpression.
+	 * Perhaps this should be named getArithmeticType?
+	 */
+	public static JavaType getType(JavaType type1, JavaType type2) {
+		if (type1.getName().equals("java.lang.String"))
+			return type1;
+		if (type2.getName().equals("java.lang.String"))
+			return type2;
+		//is type2 a parent of type1?
+		if (type1.hasParent(type2)) {
+			//is int a parent of type2?
+			if (type2.hasParent(JavaType.getType("int")))
+				return JavaType.getType("int");
+			return type2;
+		}
+		//is int a parent of type1?
+		if (type1.hasParent(JavaType.getType("int")))
+			return JavaType.getType("int");
+		return type1;
+	}
 	
 	/**
 	 * Gets the name that is usable as a type in C++.

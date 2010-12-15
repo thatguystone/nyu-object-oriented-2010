@@ -13,17 +13,12 @@ import xtc.tree.GNode;
  */
 public class AssignmentExpression extends JavaExpression {
 	/**
-	 * The operator being used here.
-	 */
-	String operator;
-
-	/**
-	 * the first operand.
+	 * The variable being assigned.
 	 */
 	JavaExpression first;
 
 	/**
-	 * The second operand.
+	 * The value being assigned.
 	 */
 	JavaExpression second;
 
@@ -34,7 +29,7 @@ public class AssignmentExpression extends JavaExpression {
 	protected void onInstantiate(GNode n) {
 		this.first = (JavaExpression)this.dispatch((GNode)n.get(0));
 		this.second = (JavaExpression)this.dispatch((GNode)n.get(2));
-
+		
 		this.setType(first.getType());
 	}
 

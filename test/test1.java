@@ -82,6 +82,14 @@ class needsInherit extends inheritMe {
 		} else {
 			x = 5;
 		}
+		float ff = 3.3f;
+		long ll = 5;
+		char cc = 'a';
+		byte bb = 1;
+
+		double dd = ff + ll;
+
+		int ii = cc + bb;
 
 		while (x < 8) {
 			x++;
