@@ -253,7 +253,7 @@ public class JavaScope extends Visitor {
 	}
 
 	public JavaExpression visitExpression(GNode n) {
-		return new ArithmeticExpression(this, n);
+		return new AssignmentExpression(this, n);
 	}
 	
 	public JavaExpression visitAdditiveExpression(GNode n) {
