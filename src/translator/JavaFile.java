@@ -80,6 +80,9 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 		this.importFile("java.lang.String");
 		this.importFile("java.lang.System");
 		this.importFile("java.lang.Class");
+		this.importFile("java.lang.NullPointerException");
+		
+		System.out.println(this.fileName);
 	}
 	
 	/**

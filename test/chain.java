@@ -13,6 +13,8 @@ public class chain {
 		f1 f = new f1();
 		f.f.j.method();
 		
+		//f2.j = new f3();
+		
 		String str = f.f.j.f4Meth().f5Meth().status();
 		System.out.println(str);
 		
@@ -50,6 +52,7 @@ class f1 {
 
 class f2 {
 	public static f3 j = new f3();
+	//public static f3 j;
 }
 
 class f3 {

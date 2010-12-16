@@ -67,7 +67,7 @@ public class SelectionExpression extends Identifier {
 			else
 				ret += this.selector.print();
 		
-			ret += (this.selectee.isStatic() ? "::" : "->") + this.selectee.getCppName(false);
+			ret += (this.selectee.isStatic() ? "::" : "->") + this.selectee.getCppName(false, !this.isStaticSet());
 		}
 		
 		return ret;

@@ -33,6 +33,11 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 	 */
 	private boolean isStaticAccess;
 	
+	/**
+	 * Determines if we are doing a static set of something.
+	 */
+	private boolean isStaticSet = false;
+	
 	public JavaExpression(JavaScope scope, GNode n)	{
 		super(scope, n);
 	}
@@ -69,6 +74,14 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 	
 	public boolean isStaticAccess(boolean access) {
 		return this.isStaticAccess = access;
+	}
+	
+	public boolean isStaticSet() {
+		return this.isStaticSet;
+	}
+	
+	public boolean isStaticSet(boolean set) {
+		return this.isStaticSet = set;
 	}
 	
 	/**

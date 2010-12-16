@@ -129,9 +129,6 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * @param fullName If true, includes the acessor.
 	 */
 	public String getName(boolean fullName) {
-		if (this.mangledName == null)
-			this.mangledName = name; //local fields are never mangled, so their mangled name is their name
-	
 		String accessor = "";
 		
 		//if we're a field at the class level, then we need to include an accessor to get the field
@@ -153,11 +150,43 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	}
 	
 	/**
-	 * Does nothing.  Why would you use this?
+	 * Gets the mangled name.
 	 */
 	public String getCppName(boolean fullName) {
-		return this.getName(fullName);
+		return this.getCppName(fullName, true);
 	}
+	
+	/**
+	 * Gets the C++ name for a field.  If the field is static, it gets the static accessor method, unless otherwise specified.
+	 */
+	public String getCppName(boolean fullName, boolean staticAccessor) {
+		if (this.mangledName == null)
+			this.mangledName = name; //local fields are never mangled, so their mangled name is their name
+	
+		String accessor = "";
+		
+		//if we're a field at the class level, then we need to include an accessor to get the field
+		if (fullName && this.getScope() == this.getJavaClass()) {
+			if (this.isStatic())
+				accessor = this.getJavaClass().getCppName(true, false) + "::" + (staticAccessor ? this.getStaticAccessor() : this.mangledName);
+			else
+				accessor = "__this->" + this.mangledName;
+		} else {
+			if (this.isStatic())
+				accessor = (staticAccessor ? this.getStaticAccessor() : this.mangledName);
+			else
+				accessor = this.mangledName;
+		}
+		
+		return accessor;
+	}
+	
+	/**
+	 * Gets the static accessor method name for the field.
+	 */
+	private String getStaticAccessor() {
+		return "__" + this.mangledName + "_get()";
+	}	
 	
 	/**
 	 * Returns the name of the field as used in the typedef.
@@ -248,8 +277,10 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * @param withAssignment If the assignment of the field (if there is one) should be included.
 	 */ 
 	public void print(CodeBlock b, boolean withAssignment) {
+		this.getCppName();
+	
 		b.pln(
-			(this.isStatic() ? "static " : "") + this.type.getCppName() + " " + this.getCppName(false) + 
+			(this.isStatic() ? "static " : "") + this.type.getCppName() + " " + this.mangledName + 
 			(withAssignment && this.assignment != null ? " = " + this.assignment.print() : "") + ";"
 		);
 		
@@ -257,6 +288,9 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		//also make sure we're not dealing with a primitive as our 
 		if (this.typedefName != null && this.getType().getJavaClass() != null)
 			b.pln("typedef " + this.getType().getJavaClass().getCppName(true, false) + " " + this.typedefName + ";");
+		
+		if (this.isStatic())
+			b.pln("static " + this.type.getCppName() + " " + this.getStaticAccessor() + ";");
 	}
 	
 	/**
@@ -270,22 +304,38 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		this.print(b, true);
 	}
 
-        public void printToSwitchStatement(CodeBlock b,CodeBlock c) {
-                if (this.isPrinted)
-                        return;
-                this.isPrinted = true;
+    public void printToSwitchStatement(CodeBlock b,CodeBlock c) {
+        if (this.isPrinted)
+                return;
+        this.isPrinted = true;
 
-                this.print(b, false);
+        this.print(b, false);
 		if (this.assignment!=null){
 			c.pln(this.getCppName() + " = " + this.assignment.print()+";");
 		}
-        }
+    }
 
 	public void initializeInImplementation(CodeBlock b, JavaClass c) {
-		if (this.assignment == null || !this.isStatic())
-			return;
+		String clsName = c.getJavaClass().getCppName(true, false);
 		
-		b.pln(this.getType().getCppName() + " " + c.getJavaClass().getCppName(true, false) + "::" + this.mangledName + " = " + this.assignment.print() + ";");
+		if (this.assignment != null && this.isStatic())
+			b.pln(this.getType().getCppName() + " " + clsName + "::" + this.mangledName + " = " + this.assignment.print() + ";");
+		else if (this.isStatic())
+			b.pln(this.getType().getCppName() + " " + clsName + "::" + this.mangledName + ";");
+		
+		if (this.isStatic()) {
+			//get our NullPointerException for use
+			JavaClass e = this.getJavaFile().getImport("java.lang.NullPointerException");
+			
+			b
+				.block(this.getType().getCppName() + " " + clsName + "::" + this.getStaticAccessor())
+					.block("if (" + clsName + "::" + this.mangledName + ".raw())")
+						.pln("return " + clsName + "::" + this.mangledName + ";")
+					.close()
+					.pln("throw " + e.getCppName(true, false) + "();")
+				.close()
+			;
+		}
 	}
 
 	/**
