@@ -145,26 +145,21 @@ public class CallExpression extends JavaExpression {
 		//set ourself as static based on our method type
 		this.caller.isStaticAccess(this.method.isStatic());
 		
-		
+		//if we're chaining, then we need to do some fancy storing into a temp variable for passing around "__this"
+		if (this.outputToChain)
+			ret += "((" + this.method.getType().getCppName() + ")(__chain = (java::lang::Object)";
 		
 		//check if we have a "__this" or something else
 		if (this.impliedThis) {
-			if (this.outputToChain)
-				ret += "(__chain = (java::lang::Object)";
-		
 			//every method that is not static needs "__this->" as the caller
 			//but if it is static, we need to get the method's class name as that is what he is being called on.
 			ret += (this.method.isStatic() ? this.method.getJavaClass().getCppName(true, false) + "::" : "__this->") + this.throughVTable() + this.getMethodCall();
-			
-			if (this.outputToChain)
-				ret += ")";
 		} else {
-			if (this.outputToChain) {
-				ret += "((" + this.method.getType().getCppName() + ")(__chain = (java::lang::Object)" + this.caller.print() + (this.method.isStatic() ? "::" : "->" + this.throughVTable()) + this.getMethodCall() + "))";
-			} else {
-				ret += this.caller.print() + (this.method.isStatic() ? "::" : "->" + this.throughVTable()) + this.getMethodCall();
-			}
+			ret += this.caller.print() + (this.method.isStatic() ? "::" : "->" + this.throughVTable()) + this.getMethodCall();
 		}
+		
+		if (this.outputToChain)
+			ret += "))";
 		
 		return ret;
 	}
