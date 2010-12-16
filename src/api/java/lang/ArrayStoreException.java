@@ -1,3 +1,3 @@
 package java.lang;
 
-class ArrayStoreException extends RuntimeException { }
+public class ArrayStoreException extends RuntimeException { }

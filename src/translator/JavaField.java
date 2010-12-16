@@ -325,7 +325,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		
 		if (this.isStatic()) {
 			//get our NullPointerException for use
-			JavaClass e = this.getJavaFile().getImport("java.lang.NullPointerException");
+			JavaClass e = this.getJavaFile().getImport("NullPointerException");
 			
 			b
 				.block(this.getType().getCppName() + " " + clsName + "::" + this.getStaticAccessor())

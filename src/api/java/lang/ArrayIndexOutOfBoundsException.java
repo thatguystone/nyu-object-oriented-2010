@@ -1,3 +1,3 @@
 package java.lang;
 
-class ArrayIndexOutOfBoundsException extends IndexOutOfBoundsException { }
+public class ArrayIndexOutOfBoundsException extends IndexOutOfBoundsException { }

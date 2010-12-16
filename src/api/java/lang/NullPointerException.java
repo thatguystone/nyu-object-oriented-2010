@@ -1,3 +1,3 @@
 package java.lang;
 
-class NullPointerException extends RuntimeException { }
+public class NullPointerException extends RuntimeException { }
