@@ -274,7 +274,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		CodeBlock block = (CodeBlock)this.dispatch(this.node);
 		if (this.chaining)
 			//only create a chain variable if we need it
-			b.pln("Object __chain;");
+			b.pln("java::lang::Object __chain;");
 		//now that we know if we need chaining, we can attach the main block
 		b.attach(block);
 		b.close();

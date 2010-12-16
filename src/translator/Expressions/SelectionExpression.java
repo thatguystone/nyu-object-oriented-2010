@@ -36,6 +36,9 @@ public class SelectionExpression extends Identifier {
 		this.selectee = this.selector.getField(n.get(1).toString());
 		
 		if (this.selectee == null) {
+			//we didn't find a selectee -- since we're an identifier, set some value in Identifier so that our parent
+			//knows that he should pull in our value and use that combined with his selectee value to attempt to find
+			//what we are selecting.  This is for the: java.lang.System.out case.
 			JavaStatic.runtime.warning(
 				"Expressions.SelectionExpression: the selectee \"" + n.get(1).toString() + "\" could not be found in scope \"" + 
 				this.selector.getJavaClass().getName() + "\""

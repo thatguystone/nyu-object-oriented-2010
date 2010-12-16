@@ -57,6 +57,9 @@ public class Identifier extends JavaExpression {
 				this.cppValue = ((JavaClass)this.fieldScope).getCppName(true, false);
 				this.setType(((JavaClass)this.fieldScope).getType(), true); //class names should always be counted as static
 			} else {
+				//we didn't find a selectee -- since we're an identifier, set some value in Identifier so that our parent
+				//knows that he should pull in our value and use that combined with his selectee value to attempt to find
+				//what we are selecting.  This is for the: java.lang.System.out case.
 				this.cppValue = "EXPRESSIONS.IDENTIFIER_ERROR";
 				JavaStatic.runtime.error("Expressions.Identifier: Found an indentifier that wasn't a class or a field: " + this.nodeValue);
 			}

@@ -1,4 +1,4 @@
-class noDependenciesButObject extends java.lang.Object{ }
+class noDependenciesButObject extends java.lang.Object { }
 
 class inheritMe {
 
@@ -18,7 +18,7 @@ class inheritMe {
 		System.out.println();
 		
 		Class cls = this.getClass();
-		System.out.print("I am of class type (printing from inheritMe): ");
+		//java.lang.System.out.print("I am of class type (printing from inheritMe): ");
 		System.out.println(cls.getName());
 		
 		Object o = new java.lang.Object();
@@ -57,6 +57,17 @@ class needsInherit extends inheritMe {
 	java.lang.Object tmp2;
 
 	public void printCls(){
+		int iasdf = 1;
+		
+		switch (1) {
+			case 1:
+				iasdf = 2;
+				inheritMe asdfadsf = new inheritMe();
+				break;
+			case 2:
+				break;
+		}
+	
 		for ( ; ; ) {
 			break;
 		}
