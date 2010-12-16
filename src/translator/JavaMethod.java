@@ -4,6 +4,7 @@ import translator.Printer.CodeBlock;
 import xtc.tree.GNode;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 /**
  * A representation of a java method.
@@ -84,13 +85,15 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 			if (cls != this.getJavaClass())
 				return;
 
-			b
+			b = b
 				.block("__" + this.getCppName(false, false) + "(" + this.sig.getCppArguments(true) + ") :", false)
 					.block("__vptr(&__vtable)")
 						//simulate "__this"
 						.pln(this.getJavaClass().getCppName(false, false) + "* __this = this;")
-						.attach((CodeBlock)this.dispatch(this.node))
-					.close()
+						.attach((CodeBlock)this.dispatch(this.node));
+						for (JavaField f : this.getScope().fields.values())
+							f.constructorPrint(b);
+					b.close()
 				.close()
 			;
 		}
