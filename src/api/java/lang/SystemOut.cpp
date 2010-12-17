@@ -2,6 +2,10 @@ void __SystemOut::{overload:print[String]}(SystemOut __this, String s) {
 	std::cout << s->__data;
 }
 
+void __SystemOut::{overload:print[int]}(SystemOut __this, int32_t s) {
+	std::cout << s;
+}
+
 void __SystemOut::{overload:println[]}(SystemOut __this) {
 	std::cout << std::endl;
 }

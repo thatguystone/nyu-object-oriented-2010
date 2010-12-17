@@ -42,6 +42,11 @@ public class CallExpression extends JavaExpression {
 	private boolean chaining;
 	
 	/**
+	 * If we should redirect our return to the __chain variable.
+	 */
+	private boolean outputToChain;
+	
+	/**
 	 * If we have an implied "this" for this expression.
 	 */
 	private boolean impliedThis;
@@ -79,13 +84,6 @@ public class CallExpression extends JavaExpression {
 	 * Does some final work on all our new data.
 	 */
 	private void finishSetup() {
-		if ((this.caller instanceof CallExpression) && (this.method != null && !this.method.isStatic())) {
-			this.chaining = true;
-			this.getMyMethod().hasChaining();
-		} else {
-			this.chaining = false;
-		}
-		
 		//use our caller to setup our method and return type
 		if (this.caller.getType() != null && this.caller.getType().getJavaClass() != null) {
 			this.method = this.caller.getType().getJavaClass().getMethod(this.methodName, this.sig);
@@ -96,11 +94,23 @@ public class CallExpression extends JavaExpression {
 				JavaStatic.runtime.error(
 					"Expressions.CallExpression: Method not found: " + 
 					this.methodName +
-					(this.methodName.equals("println") || this.methodName.equals("print") ? " (Did you implement an overloaded version of System.out.print/ln() to handle this?)" : "")
+					(this.methodName.equals("println") || this.methodName.equals("print") ?
+						" (Did you implement an overloaded version of System.out.print/ln() to handle this?)" : ""
+					)
 				);
 			}
 		} else {
 			JavaStatic.runtime.warning("Expressions.CallExpression: No suitable caller could be found for: " + this.methodName);
+		}
+		
+		//once we find our method, check if we're chaining with him
+		if ((this.caller instanceof CallExpression) && this.method != null) {
+			this.chaining = true;
+			this.getMyMethod().hasChaining();
+			((CallExpression)this.caller).outputToChain = true; 
+		} else {
+			this.chaining = false;
+			this.outputToChain = false;
 		}
 	}
 	
@@ -127,42 +137,105 @@ public class CallExpression extends JavaExpression {
 		String ret = "";
 		
 		//already issued a warning if we couldn't find a caller
-		if (this.method != null) {
-			this.setType(this.method.getType());
+		if (this.method == null)
+			return ret;
+
+		//set our type to the method's return type
+		this.setType(this.method.getType());
+		
+		//set ourself as static based on our method type
+		this.caller.isStaticAccess(this.method.isStatic());
+		
+		//if we're static, we do different routing than non-static, and we chain differently
+		if (this.method.isStatic())
+			ret += this.doStaticMethod();
+		else
+			ret += this.doNonstaticMethod();
+
+		return ret;
+	}
+	
+	/**
+	 * Does all of the formatting necessary for a call to a static method.
+	 */
+	private String doStaticMethod() {
+		String ret = "";
+		
+		//if we we're implicitly called on our class
+		if (this.impliedThis) {
+			ret += this.method.getJavaClass().getCppName(true, false) + "::";
+		} else {
+			//if our caller isn't a call expression, then our life is much easier
+			if (!(this.caller instanceof CallExpression)) {
+				ret += this.caller.print() + "::";
 			
-			this.caller.isStaticAccess(this.method.isStatic());
-			
-			//check if we have a "__this" or something else
-			if (this.impliedThis) {
-				//every method that is not static needs "__this"
-				//but if it is static, we need to get the method's class name as that is what he is being called on.
-				ret += (this.method.isStatic() ? this.method.getJavaClass().getCppName(true, false) + "::" : "__this->") + this.throughVTable();
+			//our caller is a call expression...so even though he's static in Java, he's not static in C++
+			//his return type MUST be a type, so we have to treat it like a variable that we're acting on,
+			//so it must follow all the rules of a variable...but we already have that defined!
+			//so let's just pass it off to doNonstaticMethod()
 			} else {
-				//we don't have an implied this, so use whatever expression we're given to access the method
-				ret += this.caller.print() + (this.method.isStatic() ? "::" : "->" + this.throughVTable());
+				return this.doNonstaticMethod();
 			}
-			
-			ret += this.method.getCppName(false) + "(";
-			
-			//do we need to pass in a "this"?
-			if (!this.method.isStatic()) {
-				//if we're operating on a class and not a primitive
-				if (this.caller.getType().getJavaClass() != null)
-					ret += this.caller.print() + (this.sig.size() > 0 ? ", " : "");
-			}
-			
-			//make our substringing easier -- only do it when we have args
-			if (this.sig.size() > 0) {
-				for (JavaScope s : this.sig.getArguments())
-					ret += ((JavaExpression)s).print() + ", ";
-				
-				ret = ret.substring(0, ret.length() - 2);
-			}
-			
-			ret += ")";
+		}
+		
+		ret += this.getMethodCall();
+		
+		return ret;
+	}
+	
+	/**
+	 * Does all of the formatting necessary for a call to a non-static method.
+	 */
+	private String doNonstaticMethod() {
+		String ret = "";
+		
+		//check if we have a "__this" or something else
+		if (this.impliedThis) {
+			//every method that is not static needs "__this->" as the caller
+			//but if it is static, we need to get the method's class name as that is what he is being called on.
+			ret += "__this->" + this.throughVTable() + this.getMethodCall();
+		} else {
+			//if we're chaining, then we need to do some fancy storing into a temp variable for passing around "__this"
+			if (this.outputToChain)
+				ret += "((" + this.method.getType().getCppName() + ")(__chain = (java::lang::Object)";
+		
+			ret += this.caller.print() + "->" + this.throughVTable() + this.getMethodCall();
+		
+			if (this.outputToChain)
+				ret += "))";
 		}
 		
 		return ret;
+	}
+	
+	/**
+	 * Gets the method call (in method(arg1, arg2) form).
+	 */
+	private String getMethodCall() {
+		//prepare to print the arguments
+		String ret = this.method.getCppName(false) + "(";
+		
+		//do we need to pass in a "
+		//also make sure we're operating on a class and not a primitive
+		if (!this.method.isStatic() && this.caller.getType().getJavaClass() != null) {
+			//if we're chaining, then our "__this" comes from the chain variable
+			if (this.chaining)
+				ret += "__chain"; //since this is java::lang::Object, it can be auto-cast into the required type for the "__this" in the method
+			else
+				ret += this.caller.print();
+			
+			ret += (this.sig.size() > 0 ? ", " : "");
+		}
+		
+		//make our substringing easier -- only do it when we have args
+		if (this.sig.size() > 0) {
+			for (JavaScope s : this.sig.getArguments())
+				ret += ((JavaExpression)s).print() + ", ";
+			
+			ret = ret.substring(0, ret.length() - 2);
+		}
+		
+		return ret + ")";
 	}
 	
 	/**
@@ -193,7 +266,10 @@ public class CallExpression extends JavaExpression {
 			if (e != null) {
 				this.sig.add(e.getType(), e);
 				if (e.getType() == null)
-					JavaStatic.runtime.error("Expressions.CallExpression: Argument type for method \"" + this.methodName + "\" could not be determined (argument " + (i + 1) + " of " + n.size() + ").");
+					JavaStatic.runtime.error(
+						"Expressions.CallExpression: Argument type for method \"" + this.methodName +
+						"\" could not be determined (argument " + (i + 1) + " of " + n.size() + ")."
+					);
 			} else {
 				JavaStatic.runtime.error("Expressions.CallExpression: Type could not be found for method argument.");
 			}

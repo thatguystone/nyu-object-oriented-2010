@@ -595,7 +595,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 				this.addField(f);
 			
 			//either way, add the field to our list of parent fields
-			parentFields.add(f.getCppName(false));
+			parentFields.add(f.getCppName(false, false));
 		}
 		
 		//MANGLE MANGLE MANGLE

@@ -2,6 +2,10 @@ public class fields {
 	public static void impliedSelf() {
 		System.out.println("Static method called with implied invokation.");
 	}
+	
+	public static void instanceStatic() {
+		System.out.println("Static method called on an instance variable.");
+	}
 
 	public static void main(String[] args) {
 		f1.f.j.method();
@@ -10,6 +14,9 @@ public class fields {
 		f.f.j.method();
 		
 		impliedSelf();
+		
+		fields flds = new fields();
+		flds.instanceStatic();
 		
 		/**
 		//This is not legal Java:

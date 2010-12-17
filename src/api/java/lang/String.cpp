@@ -95,7 +95,3 @@ String __String::{overload:toUpperCase[]}(String __this) {
 	
 	return ret;
 }
-
-String operator+(String a, String b) {
-	return a->__vptr->{overload:concat[java.lang.String]}(a, b);
-}

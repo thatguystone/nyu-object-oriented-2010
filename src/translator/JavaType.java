@@ -36,13 +36,19 @@ abstract public class JavaType {
 		private JavaType parent;
 		
 		/**
+		 * The default value for our primitive.
+		 */
+		private String defaultValue;
+		
+		/**
 		 * Setup the basic parameters for the primitive type.
 		 */
-		Primitive(String javaTypeName, String cppTypeName, Primitive parent) {
+		Primitive(String javaTypeName, String cppTypeName, Primitive parent, String defaultValue) {
 			super(javaTypeName);
 			this.typeName = javaTypeName;
 			this.cppTypeName = cppTypeName;
 			this.parent = parent;
+			this.defaultValue = defaultValue;
 		}
 		
 		/**
@@ -80,6 +86,13 @@ abstract public class JavaType {
 		 */
 		public JavaClass getJavaClass() {
 			return null;
+		}
+		
+		/**
+		 * The default value that primitives have.
+		 */
+		public String getDefaultValue() {
+			return this.defaultValue;
 		}
 	}
 	
@@ -132,6 +145,13 @@ abstract public class JavaType {
 		public JavaClass getJavaClass() {
 			return this.cls;
 		}
+		
+		/**
+		 * The default value that objects have -- null.
+		 */
+		public String getDefaultValue() {
+			return "NULL";
+		}
 	}
 	
 	/**
@@ -151,20 +171,17 @@ abstract public class JavaType {
 		prepared = true;
 		
 		//and add all our primitives in the order they can be cast to
-		Primitive dbl = new Primitive("double", "double", null);
-		Primitive flt = new Primitive("float", "float", dbl);
-		Primitive lng = new Primitive("long", "int64_t", flt);
-		Primitive it = new Primitive("int", "int32_t", lng);
-		Primitive chr = new Primitive("char", "char_t", it);
-		Primitive shrt = new Primitive("short", "int16_t", it);
-		Primitive byt = new Primitive("byte", "int8_t", shrt);
+		Primitive dbl = new Primitive("double", "double", null, "0.0");
+		Primitive flt = new Primitive("float", "float", dbl, "0.0");
+		Primitive lng = new Primitive("long", "int64_t", flt, "0");
+		Primitive it = new Primitive("int", "int32_t", lng, "0");
+		Primitive chr = new Primitive("char", "char_t", it, "0");
+		Primitive shrt = new Primitive("short", "int16_t", it, "0");
+		Primitive byt = new Primitive("byte", "int8_t", shrt, "0");
 		
 		//and those tricky primitives that can't be cast to anything
-		new Primitive("void", "void", null);
-		new Primitive("boolean", "bool", null);
-		
-		//a type for when you don't need a type in C++
-		new Primitive("emptyType", "", null);
+		new Primitive("void", "void", null, "NULL");
+		new Primitive("boolean", "bool", null, "false");
 		
 		//and get the C++ types that we need
 		JavaStatic.h.pln("#include <stdint.h>");
@@ -238,6 +255,11 @@ abstract public class JavaType {
 	 * Get the class of a type.
 	 */
 	public abstract JavaClass getJavaClass();
+	
+	/**
+	 * The default value that the type has.
+	 */
+	public abstract String getDefaultValue();
 	
 	/**
 	 * ==================================================================================================

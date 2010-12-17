@@ -30,6 +30,10 @@ public class AssignmentExpression extends JavaExpression {
 		this.first = (JavaExpression)this.dispatch((GNode)n.get(0));
 		this.second = (JavaExpression)this.dispatch((GNode)n.get(2));
 		
+		//we don't need to do static accesses when setting values...those, by their nature, cannot be static
+		this.first.isStaticAccess(false);
+		this.first.isStaticSet(true);
+		
 		this.setType(first.getType());
 	}
 
