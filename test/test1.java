@@ -9,7 +9,7 @@ class inheritMe {
 	int defaultPkg_needsInherit__test;
 
 	public void printCls(){
-		System.out.println("I am a inheritMe object");
+		System.out.println("THIS SHOULD NOT BE CALLED");
 	}
 
 	public void printInherit() {

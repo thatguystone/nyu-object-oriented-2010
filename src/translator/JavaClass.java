@@ -319,20 +319,8 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		for (int i = 0; i < size; i++) {
 			JavaMethod m = this.vtable.get(i);
 			
-			//cast the vTable entry, but only if the method doesn't originate in our class
-			String cast = "";
-			if (m.getJavaClass() != this) {
-				cast = m.getSignature().getCppArguments(false);
-				cast = "(" + m.getType().getCppName() + "(*)(" + this.getCppName(true, true) + (cast.length() > 0 ? ", " + cast : "") + "))";
-			}
-			
-			String point = "";
-			//generate the vTable entry
-			if (m.isConstructor())
-				point = "__CONSTRUCTOR__" + m.getCppName(false) + "(" + cast + "&" + m.getJavaClass().getCppName(true, false) + "::__CONSTRUCTOR__" + m.getCppName(false) +")";
-			else
-				point = m.getCppName(false) + "(" + cast + "&" + m.getCppName(true, false) +")";
-			
+			String point = m.getVTableInitialize(this);
+
 			//if we're at the last method, then close the block
 			if (i == (size - 1)) {
 				block = block.block(point).close();
@@ -547,23 +535,42 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			//go through all the parent virtual methods and add them to our table
 			for (JavaMethod m : this.parent.vtable) {
 				//if we're not overriding the method
-				JavaMethod local;
+				JavaMethod local = this.getClassMethod(m);
 				
-				if ((local = this.getClassMethod(m)) == null || !local.equals(m)) {
-					//add our method name WITHOUT the C++ scope resolution stuff 
-					methodNames.add(m.getCppName(false));
-				
-					this.addMethod(m);
-					this.vtable.add(m);
+				//if we are overriding the method in our local class
+				if (local != null && local.equals(m)) {
+					//then prepare to add our method into his proper location
+					m = local;
+					
+					//and mangle his name
+					m.mangleName(methodNames);
 				}
+				
+				//save the parent method's mangled name
+				methodNames.add(m.getCppName(false));
+				
+				//add him to our local stuff
+				this.addMethod(m);
+				
+				//and put him in his proper place in the vTable
+				this.vtable.add(m);
 			}
 		}
 		
 		//and go through all our methods and add them back
 		for (ArrayList<JavaMethod> a : this.classMethods.values()) {
 			for (JavaMethod m : a) {
+				//if we already have the method in our vTable (ie. he is overriding something from the parent),
+				//then he is already in his right place and should not be re-added to the table
+				// --- (note: there's probably a more efficient way to do this, but we can do that later)
+				if (this.vtable.contains(m))
+					continue;
+					
 				//do some name mangling
 				m.mangleName(methodNames);
+				
+				//add our name to our mangler stuff
+				methodNames.add(m.getCppName(false));
 				
 				//and re-storing the method locally
 				this.addMethod(m);
