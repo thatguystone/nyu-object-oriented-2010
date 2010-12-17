@@ -76,11 +76,7 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 	 * listed here so that we can correctly simulate a java environment.
 	 */
 	private void defaultImports() {
-		this.importFile("java.lang.Object");
-		this.importFile("java.lang.String");
-		this.importFile("java.lang.System");
-		this.importFile("java.lang.Class");
-		this.importFile("java.lang.NullPointerException");
+		this.importPackage("java.lang");
 	}
 	
 	/**
