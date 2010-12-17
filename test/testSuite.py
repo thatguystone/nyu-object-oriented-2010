@@ -47,7 +47,7 @@ def p(*s):
 
 def printResults(res):
 	padding = 60
-	print "\n%s %60s" % ("File", "Result")
+	print output.bold("\n%s %60s" % ("File", "Result"))
 	
 	for r in res:
 		print r[0] + " " * (padding - len(r[0]) - 1) + r[1]
