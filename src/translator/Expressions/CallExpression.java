@@ -168,13 +168,7 @@ public class CallExpression extends JavaExpression {
 		} else {
 			//if our caller isn't a call expression, then our life is much easier
 			if (!(this.caller instanceof CallExpression)) {
-				if (this.caller.isTypeStatic()) {
-					ret += this.caller.print() + "::";
-				} else {
-					JavaStatic.runtime.warning("Expressions.CallExpression.doStaticMethod(): Found a caller that isn't" +
-						"static and not of type CallExpression.  What do I need to do?"
-					);
-				}
+				ret += this.caller.print() + "::";
 			
 			//our caller is a call expression...so even though he's static in Java, he's not static in C++
 			//his return type MUST be a type, so we have to treat it like a variable that we're acting on,

@@ -51,6 +51,12 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	private boolean isPrinted = false;
 	
 	/**
+	 * If we have a static variable that points to a class, we need to have a static wrapper
+	 * on it to mimic java's static accesses.
+	 */
+	private boolean needsStaticWrapper; 
+	
+	/**
 	 * Assignment statement associated with this field declaration.
 	 * May not exist.
 	 */
@@ -100,6 +106,8 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		setupVisibility(modifiers);
 		this.type = type;
 		this.dimensions = dimensions;
+		
+		this.needsStaticWrapper = (this.type.getJavaClass() != null);
 	}
 	
 	/**
@@ -168,12 +176,12 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		//if we're a field at the class level, then we need to include an accessor to get the field
 		if (fullName && this.getScope() == this.getJavaClass()) {
 			if (this.isStatic())
-				accessor = this.getJavaClass().getCppName(true, false) + "::" + (staticAccessor ? this.getStaticAccessor() : this.mangledName);
+				accessor = this.getJavaClass().getCppName(true, false) + "::" + (staticAccessor && this.needsStaticWrapper ? this.getStaticAccessor() : this.mangledName);
 			else
 				accessor = "__this->" + this.mangledName;
 		} else {
 			if (this.isStatic())
-				accessor = (staticAccessor ? this.getStaticAccessor() : this.mangledName);
+				accessor = (staticAccessor && this.needsStaticWrapper ? this.getStaticAccessor() : this.mangledName);
 			else
 				accessor = this.mangledName;
 		}
@@ -323,7 +331,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		else if (this.isStatic())
 			b.pln(this.getType().getCppName() + " " + clsName + "::" + this.mangledName + ";");
 		
-		if (this.isStatic()) {
+		if (this.needsStaticWrapper && this.isStatic()) {
 			//get our NullPointerException for use
 			JavaClass e = this.getJavaFile().getImport("NullPointerException");
 			
