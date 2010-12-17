@@ -44,8 +44,12 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 * A quick-and-dirty way to get at constructors.
 	 */
 	public static class Constructor extends JavaMethod {
+
+		private boolean headerPrinted = false;		
+
 		Constructor(JavaScope s, GNode n) {
 			super(s, n);
+			this.returnType = JavaType.getType("void");
 		}
 		
 		protected void onNodeSetup() {
@@ -73,7 +77,26 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		 * Prints the implementation of this method.
 		 */
 		public void print(CodeBlock b, JavaClass cls) {
-			//all of our implementation goes in the header
+			//we only want to print to our defining class
+			//and make sure we're not native -- that would just be a drag!
+			if (cls != this.getJavaClass() || this.isNative())
+				return;
+	
+			//in the future this will also print the sig
+			b = b.block("void " + this.getJavaClass().getCppName(false, false) + "::__CONSTRUCTOR__" + this.getCppName(false) + "(" + this.getPrintArguments(true, cls) + ")");
+		
+			//Sets a temporary block to hold all the information from our statements.
+			//This also "activates" our method. Since this is guaranteed to only happen once, we can
+			//probably remove JavaMethod from activatible visitor.
+			CodeBlock block = (CodeBlock)this.dispatch(this.node);
+			if (this.chaining)
+				//only create a chain variable if we need it
+				b.pln("java::lang::Object __chain;");
+			//now that we know if we need chaining, we can attach the main block
+			b.attach(block);
+			for (JavaField f : this.getScope().fields.values())
+				f.constructorPrint(b);
+			b.close();
 		}
 	
 		/**
@@ -82,20 +105,20 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		 */
 		public void printToClassDefinition(CodeBlock b, JavaClass cls) {
 			//we only want to print to our defining class
-			if (cls != this.getJavaClass())
+			if (cls != this.getJavaClass() || this.headerPrinted)
 				return;
+			this.headerPrinted = true;
 
 			b = b
 				.block("__" + this.getCppName(false, false) + "(" + this.sig.getCppArguments(true) + ") :", false)
 					.block("__vptr(&__vtable)")
 						//simulate "__this"
 						.pln(this.getJavaClass().getCppName(false, false) + "* __this = this;")
-						.attach((CodeBlock)this.dispatch(this.node));
-						for (JavaField f : this.getScope().fields.values())
-							f.constructorPrint(b);
-					b.close()
+						.pln("__CONSTRUCTOR__" + this.getCppName(false) + "(" + "this" + (this.sig.getCppArguments(true) == ""?"":", " + this.sig.getTypelessCppArguments()) + ");")
+					.close()
 				.close()
 			;
+			b.pln("static void __CONSTRUCTOR__" + this.getCppName(false) + "(" + this.getJavaClass().getCppName() + (this.sig.getCppArguments(true) == ""?"":", " + this.sig.getCppArguments(true)) + ");");
 		}
 	
 		/**
@@ -103,6 +126,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		 */
 		public void printToVTable(CodeBlock b, JavaClass cls) {
 			//constructors don't go in the vTable
+			b.pln(this.returnType.getCppName() + " (*" + "__CONSTRUCTOR__" + this.getCppName(false, false) + ")(" + this.getPrintArguments(false, cls) + ");");
 		}
 		
 		/**

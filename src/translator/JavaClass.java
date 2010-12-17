@@ -257,7 +257,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		}
 		
 		//remove the constructors so that they don't print below again
-		this.methods.remove(this.getName(false));
+		//this.methods.remove(this.getName(false));
 		
 		block.pln();
 		block.pln("//Extra Constructors");
@@ -326,8 +326,12 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 				cast = "(" + m.getType().getCppName() + "(*)(" + this.getCppName(true, true) + (cast.length() > 0 ? ", " + cast : "") + "))";
 			}
 			
+			String point = "";
 			//generate the vTable entry
-			String point = m.getCppName(false) + "(" + cast + "&" + m.getCppName(true, false) +")";
+			if (m.isConstructor())
+				point = "__CONSTRUCTOR__" + m.getCppName(false) + "(" + cast + "&" + m.getJavaClass().getCppName(true, false) + "::__CONSTRUCTOR__" + m.getCppName(false) +")";
+			else
+				point = m.getCppName(false) + "(" + cast + "&" + m.getCppName(true, false) +")";
 			
 			//if we're at the last method, then close the block
 			if (i == (size - 1)) {
@@ -566,7 +570,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 				this.addMethod(m);
 				
 				//does the method belong in the vtable?
-				if (m.isAtLeastVisible(Visibility.PROTECTED) && !m.isStatic() && !m.isConstructor())
+				if (m.isAtLeastVisible(Visibility.PROTECTED) && !m.isStatic())
 					this.vtable.add(m);
 			}
 		}

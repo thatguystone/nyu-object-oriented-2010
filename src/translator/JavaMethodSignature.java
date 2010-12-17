@@ -88,6 +88,19 @@ public class JavaMethodSignature {
 		return ret.substring(0, ret.length() - 2);
 	}
 	
+	public String getTypelessCppArguments() {
+		if (this.sig.size() == 0)
+			return "";
+	
+		String ret = "";
+		
+		for (TypeContainer c : this.sig) {
+			ret += " " + ((JavaField)c.item).getCppName() + ", ";
+		} 
+		
+		return ret.substring(0, ret.length() - 2);
+	}
+
 	/**
 	 * Compares a signature to another to see if they are equal.
 	 */
