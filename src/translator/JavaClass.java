@@ -363,7 +363,6 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			f.initializeInImplementation(b, this);
 		}
 		
-		
 		String name = this.getCppName(false, false);
 		b
 			//print out the vtable initializer to the Cpp file so that we can use it
@@ -668,10 +667,10 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * with Java.
 	 */
 	private String getRealJavaName() {
-		String name = this.getCppName();
+		String name = this.getName();
 		
-		if (name.indexOf("__defaultPkg") > -1)
-			name = name.substring(14); //14 = length of "__defaultPkg::"
+		if (name.indexOf("__defaultPkg.") > -1)
+			name = name.substring(13); //13 = length of "__defaultPkg."
 		
 		return name;
 	}

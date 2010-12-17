@@ -5,3 +5,4 @@ config.sh
 *.o
 out.cpp
 out.h
+*.pyc
