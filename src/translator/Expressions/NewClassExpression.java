@@ -21,6 +21,11 @@ public class NewClassExpression extends JavaExpression {
 	 */
 	private JavaMethodSignature sig;
 	
+	/**
+	 * If we have already printed.
+	 */
+	private boolean printed;
+	
 	public NewClassExpression(JavaScope scope, GNode n) {
 		super(scope, n);
 	}
@@ -29,9 +34,16 @@ public class NewClassExpression extends JavaExpression {
 		this.cls = this.getJavaFile().getImport(((Identifier)this.dispatch((GNode)n.get(2))).getRawValue());
 		this.visit(n);
 		this.setType(this.cls.getType());
+		this.printed = false;
 	}
 
 	public String print() {
+		//if we're a part of a chain and we've already printed, then we just need to output __chain
+		if (this.partOfChain() && this.printed)
+			return "__chain";
+
+		this.printed = true;
+	
 		//cast every new class expression to a pointer, then the smart pointer can do all the extra casting for us
 		String ret = "(" + this.cls.getCppName() + ")new " + this.cls.getCppName(true, false) + "(";
 		
@@ -43,7 +55,11 @@ public class NewClassExpression extends JavaExpression {
 			ret = ret.substring(0, ret.length() - 2);
 		} 
 		
-		return ret + ")";
+		//since we're part of a chain, we need to set our return to the __chain guy
+		if (this.partOfChain())
+			return "(__chain = " + ret + "))";
+		
+		return "(" + ret + "))";
 	}
 	
 	public void visitArguments(GNode n) {

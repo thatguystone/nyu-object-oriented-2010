@@ -33,4 +33,4 @@ clean:
 	find -name "*.out" -exec rm {} \;
 
 testSuite: allTests
-	python testSuite.py $(TESTPATH)
+	python testSuite.py
