@@ -326,10 +326,13 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	public void initializeInImplementation(CodeBlock b, JavaClass c) {
 		String clsName = c.getJavaClass().getCppName(true, false);
 		
-		if (this.assignment != null && this.isStatic())
+		if (this.assignment != null && this.isStatic()) {
 			b.pln(this.getType().getCppName() + " " + clsName + "::" + this.mangledName + " = " + this.assignment.print() + ";");
-		else if (this.isStatic())
-			b.pln(this.getType().getCppName() + " " + clsName + "::" + this.mangledName + ";");
+		} else if (this.isStatic()) {
+			//if we have a static property without an assignment, and that property isn't an object,
+			//then we need to initialize him to his default value
+			b.pln(this.getType().getCppName() + " " + clsName + "::" + this.mangledName + (!this.needsStaticWrapper ? " = " + this.getType().getDefaultValue() : "") + ";");
+		}
 		
 		if (this.needsStaticWrapper && this.isStatic()) {
 			//get our NullPointerException for use
