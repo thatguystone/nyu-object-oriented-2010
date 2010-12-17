@@ -1,0 +1,1 @@
+class IndexOutOfBoundsException : public RuntimeException { };

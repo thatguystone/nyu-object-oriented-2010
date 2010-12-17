@@ -4,9 +4,6 @@ include Makebase
 
 default: run
 
-%.h.gch: %.h
-	g++ $< > /dev/null 2>&1
-	
 doc:
 	javadoc -d doc \
 		-windowtitle "Translator Docs" \
@@ -24,7 +21,8 @@ src:
 run: src
 	$(MAKE) -C test run
 
-cpp_compile: $(OUTPUTHEADER).gch
+cpp_compile:
+	g++ $(OUTPUTHEADER) > /dev/null 2>&1
 	g++ -o $(OUTPUTBINARY) $(OUTPUTFILE)
 
 cpp_run: cpp_compile

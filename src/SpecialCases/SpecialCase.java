@@ -10,4 +10,6 @@ public abstract class SpecialCase {
 	public abstract String[] getExtraFields();
 	
 	public abstract String[] getExtraConstructors();
+	
+	public abstract boolean shouldPrint();
 }

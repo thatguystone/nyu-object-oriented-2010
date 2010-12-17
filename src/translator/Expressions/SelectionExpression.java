@@ -92,7 +92,6 @@ public class SelectionExpression extends Identifier {
 			ret += this.selector.print() + "::" + this.selectee.getTypedefName();
 		} else if (!this.selectorIsThis && !this.selector.isTypeStatic() && this.selectee.isStatic()) {
 			this.selector.isStaticAccess(true);
-			System.out.println(this.selector.print() + "::" + this.selectee.getTypedefName());
 			ret += this.selector.print() + "::" + this.selectee.getTypedefName();
 		} else {
 			if (this.selectorIsThis && this.selectee.isStatic())

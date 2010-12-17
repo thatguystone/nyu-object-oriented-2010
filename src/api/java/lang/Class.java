@@ -5,7 +5,7 @@ public class Class {
 	private Class parent;
 	private boolean primitive;
 
-	Class(String name, Class parent, boolean prim) {
+	public Class(String name, Class parent, boolean prim) {
 		this.name = name;
 		this.parent = parent;
 		this.primitive = prim;
@@ -14,4 +14,7 @@ public class Class {
 	public String getName() {
 		return this.name;
 	}
+	
+	public native boolean isInstance(Object o);
+	public native Class getSuperclass();
 }

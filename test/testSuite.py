@@ -135,9 +135,9 @@ def runFile(results, info):
 	if (test.javaRun[0] != test.cppRun[0]):
 		results.append((f, output.red("FAIL")))
 	elif (test.javaRun[1] != test.cppRun[1]):
-		results.append((f, output.red("Error Output")))
+		results.append((f, output.yellow("Different stderr")))
 	elif (test.javaExitCode != test.cppExitCode):
-		results.append((f, output.yellow("Exit codes")))
+		results.append((f, output.yellow("Different exit codes")))
 	else:
 		results.append((f, output.green("PASS")))
 

@@ -1,0 +1,1 @@
+class ClassCastException : public RuntimeException { };

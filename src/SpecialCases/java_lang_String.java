@@ -19,4 +19,8 @@ public class java_lang_String extends SpecialCase {
 			//"__String(std::string s) : __data(s) {}"
 		};
 	}
+	
+	public boolean shouldPrint() {
+		return true;
+	}
 }

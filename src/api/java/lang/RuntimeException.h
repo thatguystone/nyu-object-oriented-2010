@@ -1,0 +1,1 @@
+class RuntimeException : public Exception { };

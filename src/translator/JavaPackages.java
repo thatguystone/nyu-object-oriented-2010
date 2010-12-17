@@ -93,6 +93,8 @@ public class JavaPackages {
 	}
 	
 	public void wrapUp() {
+		this.getClass("java.lang.ClassCastException").activate();
+		
 		//print out our main method to the C++ file
 		//die if we don't have a main...that's clearly an error
 		if (this.mainMethod == null) {
@@ -109,36 +111,6 @@ public class JavaPackages {
 		;
 		
 		JavaStatic.cpp.p(CodePrinter.PrintOrder.IMPLEMENTATION, main);
-		
-		/*
-		//Testing overloading resolution
-		getClass("java.lang.String").activate();
-	
-		JavaClass cls = getClass("defaultPkg.caseCall");
-		JavaMethodSignature sig = new JavaMethodSignature();
-		sig.add(JavaType.getType("java.lang.Object"), new JavaScope(null));
-		sig.add(JavaType.getType("java.lang.String"), new JavaScope(null));
-		
-		System.out.println(cls.getMethod("test2", sig).getSignature().toString());
-		
-		sig = new JavaMethodSignature();
-		sig.add(JavaType.getType("java.lang.String"), new JavaScope(null));
-		sig.add(JavaType.getType("java.lang.Object"), new JavaScope(null));
-		
-		System.out.println(cls.getMethod("test2", sig).getSignature().toString());
-		
-		sig = new JavaMethodSignature();
-		sig.add(JavaType.getType("java.lang.String"), new JavaScope(null));
-		sig.add(JavaType.getType("java.lang.String"), new JavaScope(null));
-		
-		System.out.println(cls.getMethod("test2", sig).getSignature().toString());
-		
-		sig = new JavaMethodSignature();
-		sig.add(JavaType.getType("java.lang.Object"), new JavaScope(null));
-		sig.add(JavaType.getType("java.lang.Object"), new JavaScope(null));
-		
-		System.out.println(cls.getMethod("test2", sig).getSignature().toString());
-		*/
 	}
 	
 	/**
