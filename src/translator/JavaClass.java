@@ -373,7 +373,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			//print out the getClass() initializer
     		.block("java::lang::Class " + name + "::__class()")
     			.block("static java::lang::Class k = new java::lang::__Class(", false)
-    				.pln("java::lang::asString(\"" + this.getName() + "\"),")
+    				.pln("java::lang::asString(\"" + this.getRealJavaName() + "\"),")
     				.pln((this.parent == null ? "__rt::null" : this.parent.getCppName(true, false) + "::__class()") + ",")
     				.pln("false") //we're not a primitive...we're a class!
     			.close()
@@ -660,6 +660,20 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 			name += this.getPackageName() + ".";
 		
 		return name.replace(".", "::") + (asPointer ? "" : "__") + this.name;
+	}
+	
+	/**
+	 * Since we use "defaultPkg" to represent anything in some default namespace,
+	 * we must remove it for when we do reflection stuff in Java, to keep consistent
+	 * with Java.
+	 */
+	private String getRealJavaName() {
+		String name = this.getCppName();
+		
+		if (name.indexOf("__defaultPkg") > -1)
+			name = name.substring(14); //14 = length of "__defaultPkg::"
+		
+		return name;
 	}
 	
 	/**

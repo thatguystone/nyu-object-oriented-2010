@@ -107,8 +107,8 @@ class needsInherit extends inheritMe {
 		}
 		System.out.println("I am a needsInherit object");
 		
-		System.out.print("My hashCode is: ");
-		System.out.println(this.hashCode());
+		System.out.println("My hashCode is: (hidden for testing)");
+		this.hashCode();
 		
 		Class cls = this.getClass();
 		System.out.print("I am of class type (printing from needsInherit): ");

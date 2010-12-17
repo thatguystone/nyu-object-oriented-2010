@@ -12,3 +12,11 @@ JAVAAPIPATH=$(SRCPATH)/api/
 
 #where the test files live
 TESTPATH=$(TRANSROOT)/test/
+
+ifdef outputFile
+	OUTPUTFILE=$(TRANSROOT)/$(outputFile)
+else
+	OUTPUTFILE=$(TRANSROOT)/out.cpp
+endif
+OUTPUTHEADER=$(subst .cpp,.h,$(OUTPUTFILE))
+OUTPUTBINARY=$(subst .cpp,.out,$(OUTPUTFILE))

@@ -24,9 +24,11 @@ src:
 run: src
 	$(MAKE) -C test run
 
-cpp_run: $(TRANSROOT)/out.h.gch
-	g++ $(TRANSROOT)/out.cpp
-	./a.out
+cpp_compile: $(OUTPUTHEADER).gch
+	g++ -o $(OUTPUTBINARY) $(OUTPUTFILE)
+
+cpp_run: cpp_compile
+	$(OUTPUTBINARY)
 
 cpp: run cpp_run
 
@@ -49,3 +51,9 @@ clean:
 
 help: src
 	java -classpath $(RUNCLASSPATH) translator.Translator
+	
+testSuite: src
+	$(MAKE) -C test testSuite
+
+compileTestFile:
+	$(MAKE) -C test $(file)
