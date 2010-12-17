@@ -105,7 +105,6 @@ public class CallExpression extends JavaExpression {
 		
 		//once we find our method, check if we're chaining with him
 		if ((this.caller instanceof CallExpression) && this.method != null) {
-			System.out.println(this.method.getName());
 			this.chaining = true;
 			this.getMyMethod().hasChaining();
 			((CallExpression)this.caller).outputToChain = true; 
