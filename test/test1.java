@@ -36,7 +36,10 @@ public class test1 extends inheritMe {
 	
 	public static void main(String[] args) {
 		inheritMe inheritor = new needsInherit();
-		
+/** because '?' expects operands of the same type, we have to special case this scenario in our translator (primitives are probably fine though)**/
+		Object o = 1==0 ? new needsInherit():new Object();
+		int TRUTH = true ? 1:0;
+
 		inheritor.printCls();
 		inheritor.printInherit();
 		
