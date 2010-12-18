@@ -36,9 +36,9 @@ class A {
 class B extends A {
 	
 	B(){
-		//print();
-		//super.print();
-		//super.print(1);
+		print();
+		super.print();
+		super.print(1);
 	}
 	
 	B(int x) {

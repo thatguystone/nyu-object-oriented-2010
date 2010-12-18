@@ -101,7 +101,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 
 			//if there is no super call we need to call our parent's default constructor
 			if (!this.hasSuper && this.getJavaClass().getParent() != null)
-				b.pln(this.getJavaClass().getParent().getCppName(true,false) + "::__CONSTRUCTOR" + this.getJavaClass().getParent().getCppName(false,false) + "((" + this.getJavaClass().getParent().getCppName(true,false) +"*)__this);");
+				b.pln(this.getJavaClass().getParent().getCppName(true,false) + "::__CONSTRUCTOR" + this.getJavaClass().getParent().getCppName(false,false) + "(__this);");
 
 			//now that we know if we need chaining, we can attach the main block
 			b.attach(block);
@@ -125,7 +125,8 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 			b = b
 				.block(this.getJavaClass().getCppName(false, false) + "(" + this.sig.getCppArguments(true) + ") :", false)
 					.block("__vptr(&__vtable)")
-						.pln(constructorName + "(this" + (this.sig.size() == 0 ? "" : ", " + this.sig.getCppArguments(true, false)) + ");")
+						.pln("__rt::Ptr<" + this.getJavaClass().getCppName(true, false) + "> __this(this, true);")
+						.pln(constructorName + "(__this" + (this.sig.size() == 0 ? "" : ", " + this.sig.getCppArguments(true, false)) + ");")
 					.close()
 				.close()
 				
@@ -160,7 +161,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		
 			if (this.getJavaClass() != cls) {
 				cast = this.getSignature().getCppArguments(false);
-				cast = "(" + this.getType().getCppName() + "(*)(" + cls.getCppName(true, false) + "*" + (cast.length() > 0 ? ", " + cast : "") + "))";
+				cast = "(" + this.getType().getCppName() + "(*)(" + cls.getCppName(true, true) + (cast.length() > 0 ? ", " + cast : "") + "))";
 			}
 		
 			return cast;
@@ -177,9 +178,9 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 			String args = this.sig.getCppArguments(withNames, withTypes);
 		
 			String __this =
-				(withTypes ? cls.getCppName(true, false) + "*" : "") +
+				(withTypes ? cls.getCppName(true, true) : "") +
 				(withNames && withTypes ? " " : "") +
-				(withNames ? " __this" : "") + (args.length() > 0 ? ", " : "")
+				(withNames ? "__this" : "") + (args.length() > 0 ? ", " : "")
 			;
 		
 			return __this + args;

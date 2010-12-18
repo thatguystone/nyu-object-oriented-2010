@@ -69,11 +69,18 @@ def runCases(results):
 	
 	#remove the temporary files we created
 	name = getCppName()
-	os.remove(TESTDIR + "/../" + name)
-	os.remove(TESTDIR + "/../" + name.replace(".cpp", ".h"))
-	os.remove(TESTDIR + "/../" + name.replace(".cpp", ".h.gch"))
-	os.remove(TESTDIR + "/../" + name.replace(".cpp", ".out"))
-	
+	rm(TESTDIR + "/../" + name)
+	rm(TESTDIR + "/../" + name.replace(".cpp", ".h"))
+	rm(TESTDIR + "/../" + name.replace(".cpp", ".h.gch"))
+	rm(TESTDIR + "/../" + name.replace(".cpp", ".out"))
+
+def rm(f):
+	"""Remove a file, if it exists, otherwise ignore."""
+	try:
+		os.unlink(f)
+	except:
+		pass
+
 def findCases():
 	results = []
 	#go through all of our directories in the test folder
