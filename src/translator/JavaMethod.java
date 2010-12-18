@@ -45,7 +45,9 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	public static class Constructor extends JavaMethod {
 
-		private boolean headerPrinted = false;		
+		private boolean headerPrinted = false;	
+
+		private boolean hasSuper = false;	
 
 		Constructor(JavaScope s, GNode n) {
 			super(s, n);
@@ -92,6 +94,11 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 			if (this.chaining)
 				//only create a chain variable if we need it
 				b.pln("java::lang::Object __chain;");
+
+			//if there is so super call we need to call our parent's default constructor
+			if (!this.hasSuper && this.getJavaClass().getParent() != null)
+				b.pln(this.getJavaClass().getParent().getCppName(true,false) + "::__CONSTRUCTOR" + this.getJavaClass().getParent().getCppName(false,false) + "(__this);");
+
 			//now that we know if we need chaining, we can attach the main block
 			b.attach(block);
 			for (JavaField f : this.getScope().fields.values())
@@ -134,6 +141,10 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		 */
 		public boolean isConstructor() {
 			return true;
+		}
+
+		public void hasSuper() {
+			this.hasSuper = true;
 		}
 	}
 	
@@ -408,6 +419,8 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 		
 		methodNames.add(this.mangledName);
 	}
+
+	public void hasSuper(){}
 	
 	/**
 	 * ==================================================================================================

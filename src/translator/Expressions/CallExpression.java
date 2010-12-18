@@ -70,7 +70,8 @@ public class CallExpression extends JavaExpression {
 	 */
 	public void onInstantiate(GNode n) {
 		//we only need the method name to begin with
-		this.methodName = n.get(2).toString();
+		if ((this.methodName = n.get(2).toString()).equals("super") && this.getMyMethod().isConstructor())
+			this.getMyMethod().hasSuper();
 		
 		//our caller
 		this.setupCaller((GNode)n.get(0));
