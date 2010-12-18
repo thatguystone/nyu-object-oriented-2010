@@ -10,6 +10,10 @@ void __SystemOut::{overload:print[char]}(SystemOut __this, char_t c) {
 	std::cout << c;
 }
 
+void __SystemOut::{overload:print[Object]}(SystemOut __this, Object o) {
+	std::cout << o->__vptr->toString(o);
+}
+
 void __SystemOut::{overload:println[]}(SystemOut __this) {
 	std::cout << std::endl;
 }
@@ -24,4 +28,8 @@ void __SystemOut::{overload:println[int]}(SystemOut __this, int32_t i) {
 
 void __SystemOut::{overload:println[char]}(SystemOut __this, char_t c) {
 	std::cout << c << std::endl;
+}
+
+void __SystemOut::{overload:println[Object]}(SystemOut __this, Object o) {
+	std::cout << o->__vptr->toString(o) << std::endl;
 }

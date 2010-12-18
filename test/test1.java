@@ -2,7 +2,7 @@ class noDependenciesButObject extends java.lang.Object { }
 
 class inheritMe {
 
-	int test;
+	int test = 10101010;
 	char test2;
 	static String tmp = "test";
 	
@@ -21,6 +21,9 @@ class inheritMe {
 		java.lang.System.out.print("I am of class type (printing from inheritMe): ");
 		System.out.println(cls.getName());
 		
+		System.out.println("Test value: " + test);
+		//System.out.println(this);
+		
 		Object o = new java.lang.Object();
 		
 		System.out.println(this.tmp);
@@ -37,9 +40,8 @@ public class test1 extends inheritMe {
 		inheritor.printCls();
 		inheritor.printInherit();
 		
-		//uses chaining -- should work when chaining works
-		//un-comment-out when chaining ready
-		System.out.print("Inline getClass(): " + new needsInherit().getClass().getName());
+		//uses chaining
+		java.lang.System.out.print("Inline getClass(): " + new needsInherit().getClass().getName());
 		
 		inheritMe inheritor2 = new inheritMe();
 		inheritor2.printInherit();

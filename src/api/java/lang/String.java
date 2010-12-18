@@ -15,4 +15,5 @@ public final class String {
 	public native String substring(int start, int end);
 	public native String toLowerCase();
 	public native String toUpperCase();
+	public native String toString();
 }

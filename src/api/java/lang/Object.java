@@ -13,8 +13,5 @@ public class Object {
 		return this == o;
 	}
 	
-	public String toString() {
-		Class cls = this.getClass();
-		return cls.getName() + "@" ;//@TODO - implement integer to convert this to string! + this.hashCode();
-	}
+	public native String toString();
 }

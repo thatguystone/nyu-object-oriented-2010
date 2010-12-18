@@ -70,6 +70,12 @@ namespace __rt {
 		inline bool operator!=(const Ptr<U>& other) const {
 			return addr != (T*)other.addr;
 		}
+		
+		operator char*() {
+			//be sure to give him a constructor-smart-pointer so that he doesn't trash things when
+			//only used for a temporary
+			return const_cast<char*>(addr->__vptr->toString(Ptr<T>(addr, true))->__data.data());
+		}
 	};
 	
 	template<typename T>

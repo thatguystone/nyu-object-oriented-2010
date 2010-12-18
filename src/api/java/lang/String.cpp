@@ -95,3 +95,7 @@ String __String::{overload:toUpperCase[]}(String __this) {
 	
 	return ret;
 }
+
+String __String::{overload:toString[]}(String __this) {
+	return __this;
+}
