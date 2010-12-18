@@ -107,6 +107,10 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 	 * The print method...really, it returns a string to be printed.
 	 */
 	public abstract String print();
+
+	public String print(boolean tag) {
+		return this.print();
+	}
 	
 	/**
 	 * ==================================================================================================

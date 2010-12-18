@@ -77,6 +77,10 @@ public class Identifier extends JavaExpression {
 			return this.fieldScope.getJavaClass().getCppName(true, false);
 		return this.cppValue;
 	}
+
+	public String print(boolean tag) {
+		return this.getJavaFile().getImport(this.nodeValue).getCppName(true,true);	
+	}
 	
 	public String getRawValue() {
 		return this.nodeValue;

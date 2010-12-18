@@ -1,7 +1,8 @@
 class superTest {
 
 	public static void main(String[] args) {
-		B test = new B();
+		A test = new B();
+		B testt = (B)test;
 		B test1 = new B(1);
 		B test2 = new B(1,1);
 		test.print();
@@ -25,13 +26,18 @@ class A {
 	void print() {
 		System.out.println("printing from super class");
 	}
+
+	void print(int x) {
+		System.out.println("printing from overloaded super class method");
+	}
 }
 
 class B extends A {
 	
 	B(){
-		print();
-		super.print();
+		//print();
+		//super.print();
+		//super.print(1);
 	}
 	
 	B(int x) {

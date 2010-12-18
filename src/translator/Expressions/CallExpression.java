@@ -199,7 +199,10 @@ public class CallExpression extends JavaExpression {
 		String ret = "";
 		//if we're a super expression we need to do things differently
 		if (this.caller instanceof SuperExpression) {
-			ret += this.caller.print() + "::" + (this.superConstructor?"__CONSTRUCTOR__":"") + this.method.getCppName(false) + "((" + this.method.getJavaClass().getCppName(true,false) + "*)__this" + (this.sig.size() > 0 ? ", " : "");
+			ret += this.caller.print() + "::" + (this.superConstructor?"__CONSTRUCTOR__":"") + 
+				this.method.getCppName(false) + "((" + 
+				this.method.getJavaClass().getCppName(true,false) + "*)__this" + 
+				(this.sig.size() > 0 ? ", " : "");
 			if (this.sig.size() > 0) {
 				for (JavaScope s : this.sig.getArguments())
 					ret += ((JavaExpression)s).print() + ", ";
