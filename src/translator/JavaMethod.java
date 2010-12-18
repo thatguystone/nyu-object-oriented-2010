@@ -99,9 +99,9 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 				//only create a chain variable if we need it
 				b.pln("java::lang::Object __chain;");
 
-			//if there is so super call we need to call our parent's default constructor
+			//if there is no super call we need to call our parent's default constructor
 			if (!this.hasSuper && this.getJavaClass().getParent() != null)
-				b.pln(this.getJavaClass().getParent().getCppName(true,false) + "::__CONSTRUCTOR" + this.getJavaClass().getParent().getCppName(false,false) + "(__this);");
+				b.pln(this.getJavaClass().getParent().getCppName(true,false) + "::__CONSTRUCTOR" + this.getJavaClass().getParent().getCppName(false,false) + "((" + this.getJavaClass().getParent().getCppName(true,false) +"*)__this);");
 
 			//now that we know if we need chaining, we can attach the main block
 			b.attach(block);
@@ -123,7 +123,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 			String constructorName = "__CONSTRUCTOR__" + this.getCppName(false, false);
 			
 			b = b
-				.block("__" + this.getCppName(false, false) + "(" + this.sig.getCppArguments(true) + ") :", false)
+				.block(this.getJavaClass().getCppName(false, false) + "(" + this.sig.getCppArguments(true) + ") :", false)
 					.block("__vptr(&__vtable)")
 						.pln(constructorName + "(this" + (this.sig.size() == 0 ? "" : ", " + this.sig.getCppArguments(true, false)) + ");")
 					.close()

@@ -45,6 +45,11 @@ public class CallExpression extends JavaExpression {
 	 * If we have an implied "this" for this expression.
 	 */
 	private boolean impliedThis;
+
+	/**
+	 * Are we a super class constructor?
+	 */
+	private boolean superConstructor;
 	
 	/**
 	 * Why java, why?! Just override constructors :(
@@ -64,9 +69,13 @@ public class CallExpression extends JavaExpression {
 	 * Populate our list of arguments and set our caller.
 	 */
 	public void onInstantiate(GNode n) {
-		//we only need the method name to begin with
-		if ((this.methodName = n.get(2).toString()).equals("super") && this.getMyMethod().isConstructor())
+		this.superConstructor = false;
+		//get the method name and check if it's "super"
+		if ((this.methodName = n.get(2).toString()).equals("super") && this.getMyMethod().isConstructor()) {
+			this.superConstructor = true;
+			this.methodName = this.getJavaClass().getParent().getName(false);
 			this.getMyMethod().hasSuper();
+		}
 		
 		//our caller
 		this.setupCaller((GNode)n.get(0));
@@ -116,8 +125,12 @@ public class CallExpression extends JavaExpression {
 	private void setupCaller(GNode n) {
 		this.impliedThis = false;
 		
+		//if we're a call to our super class.
+		if (this.superConstructor) {
+			this.caller = (JavaExpression)this.dispatch(GNode.create("SuperExpression", null));
+		}
 		//well, that was easy: we don't have a caller, so it's an implied "this"
-		if (n == null) {
+		else if (n == null) {
 			//there's probably a better way to do with an expression type, but meh
 			this.impliedThis = true;
 			
@@ -184,9 +197,18 @@ public class CallExpression extends JavaExpression {
 	 */
 	private String doNonstaticMethod() {
 		String ret = "";
-		
+		//if we're a super expression we need to do things differently
+		if (this.caller instanceof SuperExpression) {
+			ret += this.caller.print() + "::__CONSTRUCTOR__" + this.method.getCppName(false) + "((" + this.method.getJavaClass().getCppName(true,false) +"*)__this" + (this.sig.size() > 0 ? ", " : "");
+			if (this.sig.size() > 0) {
+				for (JavaScope s : this.sig.getArguments())
+					ret += ((JavaExpression)s).print() + ", ";
+			
+				ret = ret.substring(0, ret.length() - 2) + ")";
+			}
+		}
 		//check if we have a "__this" or something else
-		if (this.impliedThis) {
+		else if (this.impliedThis) {
 			//every method that is not static needs "__this->" as the caller
 			//but if it is static, we need to get the method's class name as that is what he is being called on.
 			ret += "__this->" + this.throughVTable() + this.getMethodCall();

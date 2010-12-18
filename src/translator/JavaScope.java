@@ -317,6 +317,10 @@ public class JavaScope extends Visitor {
 			}
 		};
 	}
+
+	public JavaExpression visitSuperExpression(GNode n) {
+		return new SuperExpression(this, n);
+	}
 	
 	public NewClassExpression visitNewClassExpression(GNode n) {
 		return new NewClassExpression(this, n);
