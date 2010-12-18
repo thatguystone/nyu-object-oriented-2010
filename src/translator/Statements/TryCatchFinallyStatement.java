@@ -14,7 +14,7 @@ public class TryCatchFinallyStatement extends JavaStatement {
 		super(scope, n);
 	}
 	public void print(CodeBlock b){
-		CodeBlock temp=new CodeBlock("");
+		CodeBlock fn;
 		GNode f=(GNode)this.node.get(2);
 		//catch clause
 		GNode c=(GNode)this.node.get(1);
@@ -23,14 +23,17 @@ public class TryCatchFinallyStatement extends JavaStatement {
 		GNode qid=(GNode)((GNode)p.get(1)).get(0);
 		//try block (block expected)
 
-		b=b.block("try").attach(visitBlock((GNode)this.node.get(0))).close(false)
-			.block("catch ("+"java::lang::"+qid.get((qid.size()-1))+" "+p.get(3)+")")
-			.attach(visitBlock((GNode)c.get(1)))
-			.close(false);
-//		if (f!=null){
-//			b=b.block("finally");
-//			SORRY, C++ DOES NOT HAVE FINALLY
-//			b.close();
-//		}
+		if (f!=null){
+			fn=visitBlock(f);
+			b=b.block("try").attach(visitBlock((GNode)this.node.get(0))).attach(fn).close(false)
+				.block("catch ("+"java::lang::"+qid.get((qid.size()-1))+" "+p.get(3)+")")
+				.attach(visitBlock((GNode)c.get(1))).attach(fn)
+				.close(false);
+		}else{
+			b=b.block("try").attach(visitBlock((GNode)this.node.get(0))).close(false)
+				.block("catch ("+"java::lang::"+qid.get((qid.size()-1))+" "+p.get(3)+")")
+				.attach(visitBlock((GNode)c.get(1)))
+				.close(false);
+		}
 	}
 }
