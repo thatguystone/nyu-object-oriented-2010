@@ -29,6 +29,20 @@ public class SpecialCases {
 	}
 	
 	/**
+	 * Should the class we're looking at print?
+	 */
+	public static boolean shouldPrint(JavaClass cls) {
+		if (!SpecialCases.isSpecialCase(cls.getName()))
+			return true;
+		
+		try {
+			return SpecialCases.getClass(cls.getName()).shouldPrint();
+		} catch (Exception e) {
+			return true;
+		}
+	}
+	
+	/**
 	 * Checks to see if the specified class is a special case.
 	 *
 	 * @param name The name of the class, in java.lang.Object format.

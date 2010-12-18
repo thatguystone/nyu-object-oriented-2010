@@ -38,6 +38,11 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 	 */
 	private boolean isStaticSet = false;
 	
+	/**
+	 * Is this expression part of a method chain?
+	 */
+	protected boolean chaining;
+	
 	public JavaExpression(JavaScope scope, GNode n)	{
 		super(scope, n);
 	}
@@ -82,6 +87,20 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 	
 	public boolean isStaticSet(boolean set) {
 		return this.isStaticSet = set;
+	}
+	
+	public boolean partOfChain() {
+		if (this.chaining)
+			return true;
+		
+		if (this.getScope() == null)
+			return false;
+		
+		JavaScope p = this.getScope();
+		if (p instanceof JavaExpression)
+			return ((JavaExpression)p).partOfChain();
+			
+		return false;
 	}
 	
 	/**

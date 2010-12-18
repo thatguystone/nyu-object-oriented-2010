@@ -65,7 +65,7 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 	private void setFileInfo(String file) {
 		//everything is in the "default" package by default
 		//if a package id declared, this will be changed in visitPackageDeclaration()
-		this.setPackageName("defaultPkg");
+		this.setPackageName("__defaultPkg");
 		
 		//screw efficiency...iterate that string as often as possible! muahahahaha!
 		this.fileName = file.substring((file.lastIndexOf('/') == -1 ? 0 : file.lastIndexOf('/') + 1), file.indexOf(".java"));
@@ -76,11 +76,7 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 	 * listed here so that we can correctly simulate a java environment.
 	 */
 	private void defaultImports() {
-		this.importFile("java.lang.Object");
-		this.importFile("java.lang.String");
-		this.importFile("java.lang.System");
-		this.importFile("java.lang.Class");
-		this.importFile("java.lang.NullPointerException");
+		this.importPackage("java.lang");
 	}
 	
 	/**

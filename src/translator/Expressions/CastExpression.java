@@ -9,6 +9,10 @@ import xtc.tree.Node;
  * A cast.
  */
 public class CastExpression extends JavaExpression {
+	/**
+	 * What we are casting to.
+	 */
+	JavaExpression castTo;
 
 	/**
 	 * The expression getting casted.
@@ -20,12 +24,11 @@ public class CastExpression extends JavaExpression {
 	}
 
 	protected void onInstantiate(GNode n) {
+		this.castTo = (JavaExpression)this.dispatch((GNode)((GNode)(GNode)n.get(0)).get(0));
 		this.casted = (JavaExpression)this.dispatch((GNode)n.get(1));
-		this.dispatch((GNode)n.get(0));
 	}
 
-
 	public String print() {
-		return "((" /*+ this.getType().print()*/ /*print method not yet implemented*/ + ")" + this.casted.print() + ")";
+		return "__rt::javaCast<" + this.castTo.getJavaClass().getCppName(true, true) + ">(" + this.casted.print() + ")";
 	}
 }

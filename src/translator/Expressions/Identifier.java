@@ -25,7 +25,12 @@ public class Identifier extends JavaExpression {
 	/**
 	 * The string value that identifier has.
 	 */
-	private String nodeValue;
+	protected String nodeValue;
+	
+	/**
+	 * If we were unable to find our value, signal our parent.
+	 */
+	protected boolean valueError;
 	
 	/**
 	 * Another stupid constructor :(
@@ -39,6 +44,8 @@ public class Identifier extends JavaExpression {
 	 */
 	protected void onInstantiate(GNode n) {
 		this.nodeValue = (String)n.get(0);
+		
+		this.valueError = false;
 		
 		//rule 1: fields take precedence over classes
 		this.fieldScope = this.getField(this.nodeValue);
@@ -60,8 +67,7 @@ public class Identifier extends JavaExpression {
 				//we didn't find a selectee -- since we're an identifier, set some value in Identifier so that our parent
 				//knows that he should pull in our value and use that combined with his selectee value to attempt to find
 				//what we are selecting.  This is for the: java.lang.System.out case.
-				this.cppValue = "EXPRESSIONS.IDENTIFIER_ERROR";
-				JavaStatic.runtime.error("Expressions.Identifier: Found an indentifier that wasn't a class or a field: " + this.nodeValue);
+				this.valueError = true;
 			}
 		}
 	}

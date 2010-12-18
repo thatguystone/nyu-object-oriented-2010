@@ -1,0 +1,1 @@
+class ArrayIndexOutOfBoundsException : public IndexOutOfBoundsException { };

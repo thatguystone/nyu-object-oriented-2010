@@ -240,6 +240,10 @@ public class JavaScope extends Visitor {
 		return new ConditionalExpression(this, n);
 	}
 	
+	public JavaExpression visitCastExpression(GNode n) {
+		return new CastExpression(this, n);
+	}
+	
 	public JavaExpression visitRelationalExpression(GNode n) {
 		return new ComparativeExp(this, n);
 	}

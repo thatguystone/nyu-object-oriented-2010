@@ -9,7 +9,7 @@ class inheritMe {
 	int defaultPkg_needsInherit__test;
 
 	public void printCls(){
-		System.out.println("I am a inheritMe object");
+		System.out.println("THIS SHOULD NOT BE CALLED");
 	}
 
 	public void printInherit() {
@@ -18,7 +18,7 @@ class inheritMe {
 		System.out.println();
 		
 		Class cls = this.getClass();
-		//java.lang.System.out.print("I am of class type (printing from inheritMe): ");
+		java.lang.System.out.print("I am of class type (printing from inheritMe): ");
 		System.out.println(cls.getName());
 		
 		Object o = new java.lang.Object();
@@ -37,13 +37,9 @@ public class test1 extends inheritMe {
 		inheritor.printCls();
 		inheritor.printInherit();
 		
-		/*
 		//uses chaining -- should work when chaining works
 		//un-comment-out when chaining ready
-		System.out.print("Inline getClass(): ");
-		System.out.println(new needsInherit().getClass().getName());
-		
-		*/
+		System.out.print("Inline getClass(): " + new needsInherit().getClass().getName());
 		
 		inheritMe inheritor2 = new inheritMe();
 		inheritor2.printInherit();
@@ -107,8 +103,8 @@ class needsInherit extends inheritMe {
 		}
 		System.out.println("I am a needsInherit object");
 		
-		System.out.print("My hashCode is: ");
-		System.out.println(this.hashCode());
+		System.out.println("My hashCode is: (hidden for testing)");
+		this.hashCode();
 		
 		Class cls = this.getClass();
 		System.out.print("I am of class type (printing from needsInherit): ");

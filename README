@@ -15,6 +15,10 @@ A good start:
 		Command: ./make test file=test1
 	3) Translate the input file and compile and run the C++
 		Command: ./make cpp file=test1
+	4) To run a file inside a test package:
+		Command: ./make cpp file=test2/add
+	5) To run the test suite:
+		Command: ./make testSuite
 	
 Notes:
 	* The "make" script is pretty much an alias for "make".  I made a script so that you don't have to source your config file every time you run make...it would make things too difficult.

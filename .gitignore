@@ -1,7 +1,8 @@
 *.class
 config.sh
-a.out
+*.out
 *.gch
 *.o
 out.cpp
 out.h
+*.pyc

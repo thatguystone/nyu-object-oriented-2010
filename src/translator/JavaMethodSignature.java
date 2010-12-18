@@ -76,31 +76,30 @@ public class JavaMethodSignature {
 	 * @param withVariableNames If the variable name should also be returned in the argument list.
 	 */
 	public String getCppArguments(boolean withVariableNames) {
+		return this.getCppArguments(withVariableNames, true);
+	}
+	
+	/**
+	 * Gets a C++ printable version of the arguments.
+	 *
+	 * @param withVariableNames If the variable name should also be returned in the argument list.
+	 * @param withTypes If the types should be included in the argument list.
+	 */
+	public String getCppArguments(boolean withVariableNames, boolean withTypes) {
 		if (this.sig.size() == 0)
 			return "";
 	
 		String ret = "";
 		
 		for (TypeContainer c : this.sig) {
-			ret += c.type.getCppName() + (withVariableNames ? " " + ((JavaField)c.item).getCppName() : "") + ", ";
+			ret += (withTypes ? c.type.getCppName(): "");
+			ret += (withVariableNames && withTypes ? " " : ""); //if we need an extra space in between the two guys
+			ret += (withVariableNames ? ((JavaField)c.item).getCppName() : "") + ", ";
 		} 
 		
 		return ret.substring(0, ret.length() - 2);
 	}
 	
-	public String getTypelessCppArguments() {
-		if (this.sig.size() == 0)
-			return "";
-	
-		String ret = "";
-		
-		for (TypeContainer c : this.sig) {
-			ret += " " + ((JavaField)c.item).getCppName() + ", ";
-		} 
-		
-		return ret.substring(0, ret.length() - 2);
-	}
-
 	/**
 	 * Compares a signature to another to see if they are equal.
 	 */

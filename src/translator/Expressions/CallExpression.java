@@ -37,11 +37,6 @@ public class CallExpression extends JavaExpression {
 	JavaMethod method;
 
 	/**
-	 * Is this expression part of a method chain?
-	 */
-	private boolean chaining;
-	
-	/**
 	 * If we should redirect our return to the __chain variable.
 	 */
 	private boolean outputToChain;

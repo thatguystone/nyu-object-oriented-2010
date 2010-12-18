@@ -18,15 +18,19 @@ allTests:
 	$(MAKE) `../make.srcs .`
 
 run: allTests
-	#run the translator
 	java \
 		-classpath $(RUNCLASSPATH) \
 		translator.Translator $(ARGS) \
-		-outputFile $(TRANSROOT)/out.cpp \
+		-outputFile $(OUTPUTFILE) \
 		-in $(TESTPATH) -in $(JAVAAPIPATH) \
 		$(FILE)
 
 clean:
 	find -name "*.class" -exec rm {} \;
-	rm -f *.out
-	rm -f *.h.gch
+	find -name "*.pyc" -exec rm {} \;
+	find -name "*.h" -exec rm {} \;
+	find -name "*.cpp" -exec rm {} \;
+	find -name "*.out" -exec rm {} \;
+
+testSuite: allTests
+	python testSuite.py

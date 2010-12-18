@@ -348,7 +348,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 					.block("if (" + clsName + "::" + this.mangledName + ".raw())")
 						.pln("return " + clsName + "::" + this.mangledName + ";")
 					.close()
-					.pln("throw " + e.getCppName(true, false) + "();")
+					.pln("throw " + e.getCppName(true, true) + "();")
 				.close()
 			;
 		}

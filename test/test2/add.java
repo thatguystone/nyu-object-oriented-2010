@@ -4,6 +4,10 @@ public class add {
 	public static void test() {
 	
 	}
+	
+	public static void main(String[] args) {
+		add2.test();
+	}
 } 
 
 class add3 {

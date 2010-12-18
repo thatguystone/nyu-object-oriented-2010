@@ -1,0 +1,1 @@
+class NullPointerException : public RuntimeException { };

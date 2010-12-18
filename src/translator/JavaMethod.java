@@ -85,7 +85,11 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 				return;
 	
 			//in the future this will also print the sig
-			b = b.block("void " + this.getJavaClass().getCppName(false, false) + "::__CONSTRUCTOR__" + this.getCppName(false) + "(" + this.getPrintArguments(true, cls) + ")");
+			b = b.block(
+				"void " + this.getJavaClass().getCppName(false, false) + "::__CONSTRUCTOR__" + this.getCppName(false) + "(" + 
+					this.getPrintArguments(true, cls) +
+				")"
+			);
 		
 			//Sets a temporary block to hold all the information from our statements.
 			//This also "activates" our method. Since this is guaranteed to only happen once, we can
@@ -115,25 +119,70 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 			if (cls != this.getJavaClass() || this.headerPrinted)
 				return;
 			this.headerPrinted = true;
-
+			
+			String constructorName = "__CONSTRUCTOR__" + this.getCppName(false, false);
+			
 			b = b
 				.block("__" + this.getCppName(false, false) + "(" + this.sig.getCppArguments(true) + ") :", false)
 					.block("__vptr(&__vtable)")
-						//simulate "__this"
-						.pln(this.getJavaClass().getCppName(false, false) + "* __this = this;")
-						.pln("__CONSTRUCTOR__" + this.getCppName(false) + "(" + "this" + (this.sig.getCppArguments(true) == ""?"":", " + this.sig.getTypelessCppArguments()) + ");")
+						.pln(constructorName + "(this" + (this.sig.size() == 0 ? "" : ", " + this.sig.getCppArguments(true, false)) + ");")
 					.close()
 				.close()
+				
+				.pln("static void " + constructorName + "(" + this.getPrintArguments(false, cls) + ");")
 			;
-			b.pln("static void __CONSTRUCTOR__" + this.getCppName(false) + "(" + this.getJavaClass().getCppName() + (this.sig.getCppArguments(true) == ""?"":", " + this.sig.getCppArguments(true)) + ");");
 		}
 	
 		/**
 		 * Prints the method signature to the vTable.
 		 */
 		public void printToVTable(CodeBlock b, JavaClass cls) {
-			//constructors don't go in the vTable
-			b.pln(this.returnType.getCppName() + " (*" + "__CONSTRUCTOR__" + this.getCppName(false, false) + ")(" + this.getPrintArguments(false, cls) + ");");
+			b.pln(
+				this.returnType.getCppName() +
+				" (*" + "__CONSTRUCTOR__" + this.getCppName(false, false) + ")(" + 
+					this.getPrintArguments(false, cls) +
+				");"
+			);
+		}
+		
+		public String getVTableInitialize(JavaClass cls) {
+			//cast the vTable entry, do we need to cast our entry?
+			String cast = this.getVTableInitializeCast(cls);
+		
+			return "__CONSTRUCTOR__" + this.getCppName(false, false) + 
+				"(" + cast + "&" + this.getJavaClass().getCppName(true, false) + "::__CONSTRUCTOR__" + this.getCppName(false) +")"
+			;
+		}
+		
+		protected String getVTableInitializeCast(JavaClass cls) {
+			//cast the vTable entry, do we need to cast our entry?
+			String cast = "";
+		
+			if (this.getJavaClass() != cls) {
+				cast = this.getSignature().getCppArguments(false);
+				cast = "(" + this.getType().getCppName() + "(*)(" + cls.getCppName(true, false) + "*" + (cast.length() > 0 ? ", " + cast : "") + "))";
+			}
+		
+			return cast;
+		}
+		
+		/**
+		 * Gets the arguments for printing.
+		 */
+		protected String getPrintArguments(boolean withNames, JavaClass cls) {
+			return this.getPrintArguments(withNames, true, cls);
+		}
+		 
+		protected String getPrintArguments(boolean withNames, boolean withTypes, JavaClass cls) {
+			String args = this.sig.getCppArguments(withNames, withTypes);
+		
+			String __this =
+				(withTypes ? cls.getCppName(true, false) + "*" : "") +
+				(withNames && withTypes ? " " : "") +
+				(withNames ? " __this" : "") + (args.length() > 0 ? ", " : "")
+			;
+		
+			return __this + args;
 		}
 		
 		/**
@@ -335,6 +384,30 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 	 */
 	public void printToVTable(CodeBlock b, JavaClass cls) {
 		b.pln(this.returnType.getCppName() + " (*" + this.getCppName(false, false) + ")(" + this.getPrintArguments(false, cls) + ");");
+	}
+	
+	/**
+	 * Gets the string that goes into the constructor initialization list in the vTable.
+	 */
+	public String getVTableInitialize(JavaClass cls) {
+		String cast = this.getVTableInitializeCast(cls);
+		return this.getCppName(false) + "(" + cast + "&" + this.getCppName(true, false) +")";
+	}
+	
+	/**
+	 * If the entry in the vTable constructor initilization list needs to be cast, this gives you the proper form of the
+	 * cast.
+	 */
+	protected String getVTableInitializeCast(JavaClass cls) {
+		//cast the vTable entry, do we need to cast our entry?
+		String cast = "";
+		
+		if (this.getJavaClass() != cls) {
+			cast = this.getSignature().getCppArguments(false);
+			cast = "(" + this.getType().getCppName() + "(*)(" + cls.getCppName(true, true) + (cast.length() > 0 ? ", " + cast : "") + "))";
+		}
+		
+		return cast;
 	}
 	
 	/**
