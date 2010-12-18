@@ -103,10 +103,12 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 			if (!this.hasSuper && this.getJavaClass().getParent() != null)
 				b.pln(this.getJavaClass().getParent().getCppName(true,false) + "::__CONSTRUCTOR" + this.getJavaClass().getParent().getCppName(false,false) + "(__this);");
 
-			//now that we know if we need chaining, we can attach the main block
-			b.attach(block);
+			//initializing fields BEFORE the main block but AFTER super
 			for (JavaField f : this.getScope().fields.values())
 				f.constructorPrint(b);
+
+			//now that we know if we need chaining, we can attach the main block
+			b.attach(block);
 			b.close();
 		}
 	

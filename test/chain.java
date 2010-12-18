@@ -2,11 +2,12 @@ public class chain {
 	public static void main(String[] args) {
 		chain_A a = new chain_A();
 		a.aMeth().bMeth().print();
-		
+		a.chainy(a.aMeth().bMethInt());
 		chain_C c = a.aMeth().bMeth();
 		c.print();
 		
 		System.out.println(a.aMeth().bMethInt());
+		System.out.println("TESTING ");
 		
 		chain_f1.f.j.method();
 		
@@ -26,6 +27,11 @@ public class chain {
 class chain_A {
 	public chain_B aMeth() {
 		return new chain_B();
+	}
+
+	public void chainy(int x) {
+		System.out.print("WORK");
+		System.out.println(x);
 	}
 }
 
