@@ -22,8 +22,6 @@ public class CastExpression extends JavaExpression {
 
 	public CastExpression(JavaScope scope, GNode n) {
 		super(scope, n);
-		JavaStatic.dumpNode(n);
-		System.out.println(this.castTo.print());
 	}
 
 	protected void onInstantiate(GNode n) {

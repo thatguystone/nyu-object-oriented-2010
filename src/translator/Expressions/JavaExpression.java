@@ -108,7 +108,10 @@ abstract public class JavaExpression extends JavaScope implements Typed {
 	 */
 	public abstract String print();
 
-	public String print(boolean tag) {
+	/**
+	 * Identifiers need to be able to print more than one thing
+	 */
+	public String print(boolean forIdentifiers) {
 		return this.print();
 	}
 	

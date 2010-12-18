@@ -78,8 +78,13 @@ public class Identifier extends JavaExpression {
 		return this.cppValue;
 	}
 
-	public String print(boolean tag) {
-		return this.getJavaFile().getImport(this.nodeValue).getCppName(true,true);	
+	/**
+	 * Sometimes we have a typename and we want it as a pointer.
+	 */
+	public String print(boolean asPointer) {
+		if (asPointer)
+			return this.getJavaFile().getImport(this.nodeValue).getCppName(true,true);
+		return this.print();
 	}
 	
 	public String getRawValue() {

@@ -5,6 +5,7 @@ class superTest {
 		B testt = (B)test;
 		B test1 = new B(1);
 		B test2 = new B(1,1);
+		int x = true?1:2;
 		test.print();
 	}
 }

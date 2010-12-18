@@ -1,5 +1,6 @@
 package translator.Expressions;
 
+import translator.JavaStatic;
 import translator.JavaType;
 import translator.JavaScope;
 import xtc.tree.GNode;
@@ -12,13 +13,14 @@ public class ConditionalExpression extends JavaExpression {
 	/**
 	 * The 3 expressions that make up this conditional expression
 	 */
-	JavaExpression[] expressions = new JavaExpression[3];
+	JavaExpression[] expressions;
 
 	public ConditionalExpression (JavaScope scope, GNode n) {
 		super(scope, n);
 	}
 
 	protected void onInstantiate(GNode n) {
+		expressions = new JavaExpression[3];
 		expressions[0] = (JavaExpression)this.dispatch((GNode)n.get(0));
 		expressions[1] = (JavaExpression)this.dispatch((GNode)n.get(1));
 		expressions[2] = (JavaExpression)this.dispatch((GNode)n.get(2));
