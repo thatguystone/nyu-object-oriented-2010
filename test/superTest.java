@@ -25,16 +25,13 @@ class A {
 	void print() {
 		System.out.println("printing from super class");
 	}
-
-	void print(int x) {
-		System.out.println("printing from overloaded super class method");
-	}
 }
 
 class B extends A {
 	
 	B(){
-		System.out.println("2");
+		print();
+		super.print();
 	}
 	
 	B(int x) {
@@ -46,7 +43,6 @@ class B extends A {
 	}
 
 	void print() {
-		super.print();
-		super.print(1);
+		System.out.println("printing from class");
 	}
 }
