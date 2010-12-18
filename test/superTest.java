@@ -4,7 +4,7 @@ class superTest {
 		A test = new B();
 		B testt = (B)test;
 		B test1 = new B();
-		B testtt = (true?test1:(B)test);
+		A testtt = (true?test1:test);
 		B test2 = new B(1,1);
 		int x = true?1:2;
 		test.print();

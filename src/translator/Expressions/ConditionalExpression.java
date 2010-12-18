@@ -12,9 +12,8 @@ public class ConditionalExpression extends JavaExpression {
 	/**
 	 * The 3 expressions that make up this conditional expression
 	 */
-	JavaExpression[] expressions;// = new JavaExpression[3];
-	/** the index of the expression that requires a cast **/
-	private int c;
+	JavaExpression[] expressions;
+
 	public ConditionalExpression (JavaScope scope, GNode n) {
 		super(scope, n);
 	}
@@ -24,27 +23,25 @@ public class ConditionalExpression extends JavaExpression {
 		expressions[0] = (JavaExpression)this.dispatch((GNode)n.get(0));
 		expressions[1] = (JavaExpression)this.dispatch((GNode)n.get(1));
 		expressions[2] = (JavaExpression)this.dispatch((GNode)n.get(2));
-		t1=expressions[1].getType();
-		t2=expressions[2].getType();
-		/** if 2 types are exactly the same, then we do not need cast, and we probably do not need to bother with primitives **/
-		if (t1.isPrimitive()||t1==t2){
-			this.setType(t1);
-			c=0;  //cast is not needed
-		}else if (t1.isChildOf(t2)){
-			/** assume the Java code is well-formed (i.e. the 2 types must be related)**/
-			this.setType(t2);
-			c=1;  //1st expression requires a cast
+
+		if (expressions[1].getType().isChildOf(expressions[2].getType())){
+			this.setType(expressions[2].getType());
 		}else{
-			this.setType(t1);
-			c=2;  //2nd expression requires a cast 
+			this.setType(expressions[1].getType());
 		}
 	}
 
 	public String print(){
-		return "(" + expressions[0].print() + "?" + (c==0 ? (expressions[1].print() + ":" + expressions[2].print()) : (c==1 ? 
-		("__rt::javaCast<" + this.returnType.getCppName() + ">(" + expressions[1].print() + ")" + ":" + expressions[2].print()) :
-		(expressions[1].print() + ":" + "__rt::javaCast<" + this.returnType.getCppName() + ">(" + expressions[2].print() + ")")))  + ")";
-		//lol that was fun...
+		return "(" + expressions[0].print() + "?" + this.format(expressions[1]) + ":" + this.format(expressions[2]) + ")";
+	}
+
+	public String format(JavaExpression exp) {
+		String temp = "";
+		if (!(exp.getType().isPrimitive()) 
+			|| !(exp.getType().getName().equals("java.lang.string")) 
+			|| !(exp.getType() == this.getType()))
+			temp += "(" + this.getType().getCppName() + ")";
+		return temp + exp.print();
 	}
 
 }
