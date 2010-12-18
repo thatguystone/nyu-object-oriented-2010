@@ -201,6 +201,10 @@ public class JavaScope extends Visitor {
 		return new ConditionalStatement(this, n);
 	}
 	
+	public JavaStatement visitTryCatchFinallyStatement(GNode n){
+		return new TryCatchFinallyStatement(this,n);
+	}
+	
 	public JavaStatement visitEmptyStatement(GNode n) {
 		return new JavaStatement(this, n) {
 			public void print(CodeBlock b) {
