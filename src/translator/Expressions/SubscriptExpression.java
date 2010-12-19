@@ -46,7 +46,14 @@ public class SubscriptExpression extends JavaExpression {
 	public String print() {
 		if (this.accessor instanceof SubscriptExpression)
 			return this.accessor.print().substring(0, this.accessor.print().length() - 1) + ", " + this.value.print() + ")";
-		return this.accessor.print() + "->get(" + this.dimensions + ", " + this.value.print() + ")";
+		
+		String call = "(" + this.dimensions + ", " + this.value.print() + ")";
+		
+		//if we're accessing multiple dimensions
+		if (this.accessor.getType().getDimensions() > this.dimensions)
+			return "(ARRAY(" + this.accessor.getType().getCppName() + "))" + this.accessor.print() + "->getMulti" + call;
+		
+		return this.accessor.print() + "->get" + call;
 	}
 
 	public JavaExpression visitSubscriptExpression(GNode n) {

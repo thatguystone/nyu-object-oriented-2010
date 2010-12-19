@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <cstring>
+#include <stdlib.h>
 #define ARRAY_T __rt::Ptr<java::util::__Array<T> >
 #define ARRAY(t) __rt::Ptr<java::util::__Array<t> >
 
@@ -15,46 +16,72 @@ struct __Array {
 	//the actual dimensions
 	int32_t* __dims;
 	
-	//the data in the array
-	T* __data;
+	//the sub-arrays, if we have any
+	ARRAY(T)* __data;
+	
+	//the data in the array, if we don't have sub-arrays
+	T* __arrayData;
 	
 	//Constructors
 	__Array() :
 		__vptr(&__vtable) {
-			ARRAY_T __this(this, true);
-			__CONSTRUCTOR__Array(__this);
 		};
 		
 	__Array(int32_t dim, ...) :
-		__vptr(&__vtable), __dim(dim) {
-			__dims = new int32_t[__dim];
-			
-			int32_t cppLength = 1;
-			
-			//start pulling in our length
+		__vptr(&__vtable) {
+			int32_t* dims = new int32_t[dim];
+		
+			//start pulling in our dimensions
 			va_list args; 
 			va_start(args, dim);
-			for (int32_t i = 0; i < __dim; i++) {
-				__dims[i] = va_arg(args, int32_t);
-				cppLength *= __dims[i];
-			}
-			
-			//create the array
-			__data = new T[cppLength];
-			
+			for (int32_t i = 0; i < dim; i++)
+				dims[i] = va_arg(args, int32_t);
+		
+			init(dim, dims);
+		}
+	
+	__Array(int32_t dim, int32_t* dims) :
+		__vptr(&__vtable) {
+			init(dim, dims);
+		}
+	
+	void init(int32_t dim, int32_t* dims) {
+		__dim = dim;
+		__dims = dims;
+	
+		if (__dim == 1) {
+			__arrayData = (T*)malloc(__dims[1] * sizeof(T));
 			//null out the array
-			std::memset(__data, 0, cppLength * sizeof(T));
-		};
+			std::memset(__arrayData, 0, __dims[1] * sizeof(T));
+		} else {
+			int32_t* newDims = new int32_t[__dim - 1];
+			
+			for (int32_t i = 1; i < __dim; i++)
+				newDims[i] = dims[i];
+			
+			ARRAY(T)* tmp = new ARRAY(T)[__dims[1]];
+			for (int32_t i = 0; i < __dim; i++)
+				tmp[i] = new __Array<T>(__dim - 1, newDims);
+			
+			__data = tmp;
+			
+			delete[] newDims;
+		}
+	}
+	
 	
 	static void __CONSTRUCTOR__Array(ARRAY_T);
 	
-	T get(int32_t dim, ...);
+	T& get(int32_t dim, ...);
+	
+	ARRAY(T) getMulti(int32_t dim, ...);
 	
 	//Extra Constructors
 	
 	//Methods
 	static void __delete(__Array* __this) {
 		delete[] __this->__data;
+		delete[] __this->__arrayData;
 		delete[] __this->__dims;
 		delete __this;
 	}
