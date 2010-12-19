@@ -38,7 +38,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	/**
 	 * Number of array dimensions, 0 means not an array.
 	 */
-	private int dimensions = 0;
+	private int dimensions;
 
 	/**
 	 * Class this obj belongs to.
@@ -105,8 +105,13 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		super(scope, n);
 		setupVisibility(modifiers);
 		this.type = type;
-		this.dimensions = dimensions;
+		if (this.dimensions == 0)
+			this.dimensions = dimensions;
 		
+		if (this.dimensions != 0) {
+			this.getJavaFile().getImport("java.util.JavaArray");
+		}
+
 		this.needsStaticWrapper = (this.type.getJavaClass() != null);
 	}
 	
@@ -261,7 +266,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * @param withType If the type should be returned with the C++ field name.
 	 */
 	public String getCppField(boolean withType) {
-		String ret = (withType ? this.type.getCppName() + " " : "") + this.getCppName();
+		String ret = (withType ? this.type.getCppName(true) + " " : "") + this.getCppName();
 		
 		if (this.assignment != null)
 			ret += " = " + this.assignment.print();
@@ -286,9 +291,8 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 */ 
 	public void print(CodeBlock b, boolean withAssignment) {
 		this.getCppName();
-	
 		b.pln(
-			(this.isStatic() ? "static " : "") + this.type.getCppName() + " " + this.mangledName + 
+			(this.isStatic() ? "static " : "") + this.type.getCppName(true) + " " + this.mangledName + 
 			(withAssignment && this.assignment != null ? " = " + this.assignment.print() : "") + ";"
 		);
 		
@@ -298,7 +302,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 			b.pln("typedef " + this.getType().getJavaClass().getCppName(true, false) + " " + this.typedefName + ";");
 		
 		if (this.isStatic())
-			b.pln("static " + this.type.getCppName() + " " + this.getStaticAccessor() + ";");
+			b.pln("static " + this.type.getCppName(true) + " " + this.getStaticAccessor() + ";");
 	}
 	
 	/**

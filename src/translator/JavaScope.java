@@ -239,6 +239,10 @@ public class JavaScope extends Visitor {
 		
 		return new Identifier(this, GNode.create("Ident", val.substring(0, val.length() - 1)));
 	}
+
+	public JavaExpression visitPrimitiveType(GNode n) {
+		return new PrimitiveType(this, n);
+	}
 	
 	public JavaExpression visitConditionalExpression(GNode n) {
 		return new ConditionalExpression(this, n);
@@ -328,6 +332,14 @@ public class JavaScope extends Visitor {
 	
 	public NewClassExpression visitNewClassExpression(GNode n) {
 		return new NewClassExpression(this, n);
+	}
+
+	public JavaExpression visitNewArrayExpression(GNode n) {
+		return new NewArrayExpression(this, n);
+	}
+
+	public JavaExpression visitSubscriptExpression(GNode n) {
+		return new SubscriptExpression(this, n);
 	}
 
 	/**

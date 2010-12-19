@@ -246,6 +246,12 @@ abstract public class JavaType {
 	 */
 	public abstract String getCppName();
 	
+	public String getCppName(boolean array) {
+		if (array)
+			return "java::util::Array<" + this.getCppName() + ">";
+		return this.getCppName();
+	}
+
 	/**
 	 * Gets the java name of the type.
 	 */

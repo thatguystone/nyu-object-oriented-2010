@@ -127,6 +127,7 @@ public class FieldDec extends Visitor {
 			
 		//Good times with strings
 		this.type = JavaType.getType(this.scope, type.substring(0, type.length() - 1));
+		this.dispatch((GNode)n.get(1));
 	}
 
 	/**
@@ -136,6 +137,7 @@ public class FieldDec extends Visitor {
 		for (Object o : n) {
 			dimensions++;
 		}
+		dimensions = n.size();
 	}
 
 	/**
