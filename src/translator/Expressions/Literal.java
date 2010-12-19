@@ -18,10 +18,13 @@ public class Literal extends JavaExpression {
 	}
 	
 	protected void onInstantiate(GNode n) {
-		this.value = (String)n.get(0);
+		if(n.size() > 0)
+			this.value = (String)n.get(0);
 	}
 
 	public String print() {
+		if (this.getType() == JavaType.getType("null"))
+			return "NULL";
 		return this.value;
 	}
 }

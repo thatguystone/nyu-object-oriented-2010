@@ -252,12 +252,28 @@ public class JavaScope extends Visitor {
 		return new CastExpression(this, n);
 	}
 	
+	public JavaExpression visitBasicCastExpression(GNode n) {
+		return new CastExpression(this, n);
+	}
+
 	public JavaExpression visitRelationalExpression(GNode n) {
 		return new ComparativeExp(this, n);
 	}
 	
 	public JavaExpression visitEqualityExpression(GNode n) {
 		return new ComparativeExp(this, n);
+	}
+
+	public JavaExpression visitLogicalAndExpression(GNode n) {
+		return new LogicExp(this, n, "&&");
+	}
+
+	public JavaExpression visitLogicalOrExpression(GNode n) {
+		return new LogicExp(this, n, "||");
+	}
+
+	public JavaExpression visitLogicalNegationExpression(GNode n) {
+		return new LogicExp(this, n, "!");
 	}
 
 	public JavaExpression visitSelectionExpression(GNode n) {
@@ -304,6 +320,10 @@ public class JavaScope extends Visitor {
 		};
 	}
 
+	public JavaExpression visitNullLiteral(GNode n) {
+		return new Literal(this, n, JavaType.getType("null"));
+	}
+
 	public JavaExpression visitStringLiteral(GNode n) {
 		return new Literal(this, n, JavaType.getType("java.lang.String")) {
 			public String print() {
@@ -340,6 +360,10 @@ public class JavaScope extends Visitor {
 
 	public JavaExpression visitSubscriptExpression(GNode n) {
 		return new SubscriptExpression(this, n);
+	}
+
+	public JavaExpression visitInstanceOfExpression(GNode n) {
+		return new InstanceOfExpression(this, n);
 	}
 
 	/**

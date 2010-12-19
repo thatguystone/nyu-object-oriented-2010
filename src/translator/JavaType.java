@@ -329,7 +329,9 @@ abstract public class JavaType {
 			}
 			return "java::util::__Array<" + this.getCppName() + ">";
 		}
-		return this.getCppName();
+		if (asPointer || this.isPrimitive())
+			return this.getCppName();
+		return this.getJavaClass().getCppName(true, false);
 	}
 
 	public abstract int getDimensions();
