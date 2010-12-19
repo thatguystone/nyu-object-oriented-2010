@@ -32,7 +32,7 @@ public class SubscriptExpression extends JavaExpression {
 	}
 
 	public String print() {
+		//if (this.accessor instanceof SubscriptExpression)
 		return "";
 	}
-
 }
