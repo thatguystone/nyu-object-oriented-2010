@@ -380,12 +380,17 @@ abstract public class JavaType {
 	 * Note: a class is a child of itself.
 	 */
 	public boolean isChildOf(JavaType parent) {
+		if ((this.getDimensions()) > 0 && (parent.getName().equals("java.lang.Object"))) {
+			System.out.println("Array of type " + this.getName() + " with dimensions = " +  this.getDimensions() + " is a child of " +  parent.getName() + " with dimensions " + parent.getDimensions());
+			return true;
+		}
+		
 		//are we comparing a primitive with a class (or vis-versa)?
 		if (!this.getClass().isInstance(parent))
 			return false;
 		
 		//we can do a direct memory compare on this and parent because we only ever have 1 instance
 		//of the type floating around
-		return (this == parent || this.hasParent(parent));
+		return ((this == parent || this.hasParent(parent)) && (this.getDimensions() == parent.getDimensions()));
 	}
 }
