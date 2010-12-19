@@ -1,13 +1,12 @@
 bool __Class::isInstance(java::lang::Class __this, java::lang::Object o) {
-	java::lang::Class testing = __this;
-	java::lang::Class lookingFor = o->__vptr->getClass(o);
-	
+	java::lang::Class k = o->__vptr->getClass(o);
+
 	do {
-		if (lookingFor == testing)
+		if (__this->__vptr->equals(__this, k))
 			return true;
 
-		testing = testing->__vptr->getSuperclass(testing);
-	} while (testing != __rt::null);
+		k = k->__vptr->getSuperclass(k);
+	} while (__rt::null != k);
 
 	return false;
 }
