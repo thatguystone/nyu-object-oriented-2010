@@ -37,11 +37,8 @@ public class SubscriptExpression extends JavaExpression {
 
 	protected void setup(GNode n) {
 		this.accessor = (JavaExpression)this.dispatch((GNode)n.get(0));
-		//this.setType(this.accessor.getType());
-		//if (this.accessor instanceof SubscriptExpression)
 		this.setType(JavaType.getType(this.accessor.getType().getName(), this.accessor.getType().getDimensions() - 1));
 		this.value = (JavaExpression)this.dispatch((GNode)n.get(1));
-		System.out.println(this.getType().getName() + " " + this.getType().getDimensions());
 	}
 
 	public String print() {

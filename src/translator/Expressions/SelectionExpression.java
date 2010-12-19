@@ -103,7 +103,6 @@ public class SelectionExpression extends Identifier {
 		
 			ret += (this.selectee.isStatic() ? "::" : "->") + this.selectee.getCppName(false, !this.isStaticSet());
 		}
-		System.out.println(ret);
 		return ret;
 	}
 	
