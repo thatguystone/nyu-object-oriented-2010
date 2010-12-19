@@ -85,8 +85,12 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 				return;
 	
 			//in the future this will also print the sig
+			String template = SpecialCases.getCppTemplate(this.getJavaClass());
+			if (template.length() != 0)
+				b.pln(template);
+			
 			b = b.block(
-				"void " + this.getJavaClass().getCppName(false, false) + "::__CONSTRUCTOR__" + this.getCppName(false) + "(" + 
+				"void " + this.getJavaClass().getCppName(false, false) + (template.length() != 0 ? "<T>" : "") + "::__CONSTRUCTOR__" + this.getCppName(false) + "(" + 
 					this.getPrintArguments(true, cls) +
 				")"
 			);

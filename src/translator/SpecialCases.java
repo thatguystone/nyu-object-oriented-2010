@@ -42,6 +42,50 @@ public class SpecialCases {
 		}
 	}
 	
+	public static boolean shouldPrintHeader(JavaClass cls) {
+		if (!SpecialCases.isSpecialCase(cls.getName()))
+			return true;
+		
+		try {
+			return SpecialCases.getClass(cls.getName()).shouldPrintHeader();
+		} catch (Exception e) {
+			return true;
+		}
+	}
+	
+	public static boolean printTypedef(JavaClass cls) {
+		if (!SpecialCases.isSpecialCase(cls.getName()))
+			return true;
+		
+		try {
+			return SpecialCases.getClass(cls.getName()).printTypedef();
+		} catch (Exception e) {
+			return true;
+		}
+	}
+	
+	public static String getCppTemplate(JavaClass cls) {
+		if (!SpecialCases.isSpecialCase(cls.getName()))
+			return "";
+		
+		try {
+			return SpecialCases.getClass(cls.getName()).getCppTemplate();
+		} catch (Exception e) {
+			return "";
+		}
+	}
+	
+	public static void addCppTemplate(JavaClass cls, CodeBlock b) {
+		if (!SpecialCases.isSpecialCase(cls.getName()))
+			return;
+		
+		String template = SpecialCases.getCppTemplate(cls);
+		if (template.length() == 0)
+			return;
+		
+		b.pln(template);
+	}
+	
 	/**
 	 * Checks to see if the specified class is a special case.
 	 *

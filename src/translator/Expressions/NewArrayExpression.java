@@ -23,21 +23,21 @@ public class NewArrayExpression extends JavaExpression {
 	}
 
 	protected void onInstantiate(GNode n) {
-		JavaStatic.dumpNode(n);
 		this.dimensions = 0;
 		this.setType(((JavaExpression)this.dispatch((GNode)n.get(0))).getType());
 		this.dispatch((GNode)n.get(1));
 	}
 
 	public String print() {
-		String ret = "";
-		ret += (this.getType() != null?this.getType().getCppName(true):"NULL TYPE") + "(" + dimensions + ", ";
-		if (this.sig.size() > 0) {
-			for (JavaScope s : this.sig.getArguments())
-				ret += ((JavaExpression)s).print() + ", ";
+		String ret = "new ";
 		
-			ret = ret.substring(0, ret.length() - 2);
-		}
+		ret += (this.getType() != null ? this.getType().getCppName(true, false) : "NULL TYPE") + "(" + dimensions + ", ";
+
+		for (JavaScope s : this.sig.getArguments())
+			ret += ((JavaExpression)s).print() + ", ";
+	
+		ret = ret.substring(0, ret.length() - 2);
+
 		return ret + ")";
 	}
 

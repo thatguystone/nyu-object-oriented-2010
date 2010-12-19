@@ -1,10 +1,8 @@
 class caseNewArray {
-	public void test() {
+	public static void main(String[] args) {
 		int i[] = new int[3], m = 2;
 		int[] t = new int[3];
 		
-		int a[] = {1,2,3};
-		
-		System.out.println(a[1]);
+		System.out.println(i[1]);
 	}
 }

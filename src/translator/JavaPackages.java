@@ -94,6 +94,7 @@ public class JavaPackages {
 	
 	public void wrapUp() {
 		this.getClass("java.lang.ClassCastException").activate();
+		this.getClass("java.lang.NullPointerException").activate();
 		
 		//print out our main method to the C++ file
 		//die if we don't have a main...that's clearly an error
@@ -292,7 +293,7 @@ public class JavaPackages {
 			while (file.hasNextLine()) {
 				String line = file.nextLine();
 				
-				if (before || line.startsWith("#include")) {
+				if (before || line.startsWith("#")) {
 					printer.b_pln(line);
 				} else {
 					//attempt to do overload replacement of the method names in the native files

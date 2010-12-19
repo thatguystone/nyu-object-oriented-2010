@@ -7,9 +7,27 @@ public abstract class SpecialCase {
 	/**
 	 * Gets a list of any extra fields that need to be added to the class to make it work in C++.
 	 */
-	public abstract String[] getExtraFields();
+	public String[] getExtraFields() {
+		return new String[0];
+	}
 	
-	public abstract String[] getExtraConstructors();
+	public String[] getExtraConstructors() {
+		return new String[0];
+	}
 	
-	public abstract boolean shouldPrint();
+	public boolean shouldPrint() {
+		return true;
+	}
+	
+	public boolean shouldPrintHeader() {
+		return true;
+	}
+	
+	public boolean printTypedef() {
+		return true;
+	}
+	
+	public String getCppTemplate() {
+		return "";
+	}
 }

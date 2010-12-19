@@ -10,5 +10,12 @@ namespace __rt {
 
 		return Target(other);
 	}
+	
+	template<typename T>
+	T* Ptr<T>::operator->() const {
+		if (addr == 0)
+			throw java::lang::NullPointerException();
+		return addr;
+	}
 }
 
