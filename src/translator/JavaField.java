@@ -107,9 +107,13 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		this.type = type;
 		if (this.dimensions == 0)
 			this.dimensions = dimensions;
-		
+		if (!this.name.equals("args")) {
+			this.type = JavaType.getType(this.type.getName(), dimensions);
+			System.out.println("*********" + this.type.getName() + " " + this.type.getDimensions());
+		}
+
 		if (this.dimensions != 0) {
-			this.getJavaFile().getImport("java.util.JavaArray");
+			this.getJavaFile().getImport("java.util.Array");
 		}
 
 		this.needsStaticWrapper = (this.type.getJavaClass() != null);
@@ -252,6 +256,8 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * int x and int[] y both return int.
 	 */
 	public JavaType getType() {
+		//if (dimensions != 0)
+			//return JavaType.getType("java.util.Array");
 		return this.type;
 	}
 	

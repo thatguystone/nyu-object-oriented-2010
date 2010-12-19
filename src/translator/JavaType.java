@@ -10,12 +10,14 @@ abstract public class JavaType {
 	 * If this class has been prepared and is ready for use (stops prepare() from being run more than once).
 	 */
 	private static boolean prepared = false;
-	
+
 	/**
 	 * The list of all types we know about, including primitives.
 	 */
-	private static LinkedHashMap<String, JavaType> types = new LinkedHashMap<String, JavaType>(); 
-	
+	private static LinkedHashMap<String, LinkedHashMap<Integer, JavaType>> types = new LinkedHashMap<String, LinkedHashMap<Integer, JavaType>>();
+
+	protected static JavaClass array;
+
 	/**
 	 * A class that represents primitives and their "inheritance".
 	 */
@@ -40,15 +42,25 @@ abstract public class JavaType {
 		 */
 		private String defaultValue;
 		
+		private int dimensions;
+
 		/**
 		 * Setup the basic parameters for the primitive type.
 		 */
-		Primitive(String javaTypeName, String cppTypeName, Primitive parent, String defaultValue) {
-			super(javaTypeName);
+		Primitive(String javaTypeName, String cppTypeName, Primitive parent, String defaultValue, int dimensions) {
+			super(javaTypeName, 0);
 			this.typeName = javaTypeName;
 			this.cppTypeName = cppTypeName;
 			this.parent = parent;
 			this.defaultValue = defaultValue;
+		}
+
+		Primitive(JavaType type, int dimensions) {
+			super(type, dimensions);
+			this.typeName = type.getName();
+			this.cppTypeName = type.getCppName();
+			this.parent = ((Primitive)type).getParent();
+			this.defaultValue = type.getDefaultValue();
 		}
 		
 		/**
@@ -85,6 +97,8 @@ abstract public class JavaType {
 		 * Primitives don't have a class.
 		 */
 		public JavaClass getJavaClass() {
+			if (dimensions != 0)
+				return JavaType.array;
 			return null;
 		}
 		
@@ -93,6 +107,18 @@ abstract public class JavaType {
 		 */
 		public String getDefaultValue() {
 			return this.defaultValue;
+		}
+
+		public JavaType getParent() {
+			return this.parent;
+		}
+
+		public int getDimensions() {
+			return this.dimensions;
+		}
+
+		public void setDimensions(int dimensions) {
+			this.dimensions = dimensions;
 		}
 	}
 	
@@ -104,16 +130,29 @@ abstract public class JavaType {
 		 * The JavaClass we will use to interface with primitives.
 		 */
 		private JavaClass cls;
+
+		private int dimensions;
 		
 		/**
 		 * Basic setup for the object type.
 		 */
-		Object(JavaClass cls) {
-			super(cls.getName());
+		Object(JavaClass cls, int dimensions) {
+			super(cls.getName(), dimensions);
 			this.cls = cls;
 			
 			//activate the class we're a type of, just in case
 			this.cls.activate();
+		
+			if (JavaType.array == null) {
+				JavaType.array = cls.getJavaFile().getImport("java.util.Array");
+				if (JavaType.array != null)
+				JavaType.array.activate();
+			}
+		}
+
+		Object(JavaType type, int dimensions) {
+			super(type, dimensions);
+			this.cls = type.getJavaClass();
 		}
 
 		/**
@@ -143,6 +182,8 @@ abstract public class JavaType {
 		 * Quick accessor for grabbing the class from a type.
 		 */
 		public JavaClass getJavaClass() {
+			if (dimensions != 0)
+				return JavaType.array;
 			return this.cls;
 		}
 		
@@ -152,15 +193,31 @@ abstract public class JavaType {
 		public String getDefaultValue() {
 			return "NULL";
 		}
+
+		public int getDimensions() {
+			return this.dimensions;
+		}
+
+		public void setDimensions(int dimensions) {
+			this.dimensions = dimensions;
+		}
 	}
-	
+
 	/**
 	 * Constructor.  Should only be accessible by the internal classes for instantiation.
 	 */
-	private JavaType(String typeName) {
-		types.put(typeName, this);
+	private JavaType(String typeName, int dimensions) {
+		this.setDimensions(dimensions);
+		if (types.get(typeName) == null)
+			types.put(typeName, new LinkedHashMap<Integer, JavaType>());
+		types.get(typeName).put((Integer)dimensions, this);
 	}
 	
+	private JavaType(JavaType type, int dimensions) {
+		this.setDimensions(dimensions);
+		types.get(type.getName()).put((Integer)dimensions, this);
+	}
+
 	/**
 	 * Setup our primitives.
 	 */
@@ -171,17 +228,17 @@ abstract public class JavaType {
 		prepared = true;
 		
 		//and add all our primitives in the order they can be cast to
-		Primitive dbl = new Primitive("double", "double", null, "0.0");
-		Primitive flt = new Primitive("float", "float", dbl, "0.0");
-		Primitive lng = new Primitive("long", "int64_t", flt, "0");
-		Primitive it = new Primitive("int", "int32_t", lng, "0");
-		Primitive chr = new Primitive("char", "char_t", it, "0");
-		Primitive shrt = new Primitive("short", "int16_t", it, "0");
-		Primitive byt = new Primitive("byte", "int8_t", shrt, "0");
+		Primitive dbl = new Primitive("double", "double", null, "0.0", 0);
+		Primitive flt = new Primitive("float", "float", dbl, "0.0", 0);
+		Primitive lng = new Primitive("long", "int64_t", flt, "0", 0);
+		Primitive it = new Primitive("int", "int32_t", lng, "0", 0);
+		Primitive chr = new Primitive("char", "char_t", it, "0", 0);
+		Primitive shrt = new Primitive("short", "int16_t", it, "0", 0);
+		Primitive byt = new Primitive("byte", "int8_t", shrt, "0", 0);
 		
 		//and those tricky primitives that can't be cast to anything
-		new Primitive("void", "void", null, "NULL");
-		new Primitive("boolean", "bool", null, "false");
+		new Primitive("void", "void", null, "NULL", 0);
+		new Primitive("boolean", "bool", null, "false", 0);
 		
 		//and get the C++ types that we need
 		JavaStatic.h.pln("#include <stdint.h>");
@@ -193,30 +250,47 @@ abstract public class JavaType {
 	 * If we do not know the fully-qualified class name, or even if the type is a primitive,
 	 * this will figure it out for you.
 	 */
-	public static JavaType getType(JavaScope scope, String type) {
+	public static JavaType getType(JavaScope scope, String type, int dimensions) {
 		//if we have the type cached, throw it back to him
 		if (types.containsKey(type))
-			return getType(type);
+			return getType(type, (Integer)dimensions);
 		
 		//we don't know what type it is, so ask the file for the import
 		//at this point, it won't be primitive
-		return getType(scope.getJavaFile().getImport(type).getName());
+		return getType(scope.getJavaFile().getImport(type).getName(), (Integer)dimensions);
 	}
 	
+	public static JavaType getType(JavaScope scope, String type) {
+		return getType(scope, type, 0);
+	}
+
 	/**
 	 * Used mainly for primitives / fully-qualified class names.
 	 */
-	public static JavaType getType(String type) {
+	public static JavaType getType(String type, int dimensions) {
 		//if we have the type cached, throw it back to him
 		if (!types.containsKey(type)) {
+			System.out.println(type + " " + dimensions);
 			//the class isnt here yet, so add it on-demand
 			JavaClass cls = JavaStatic.pkgs.getClass(type);
 			
 			//make sure we have the type cached locally (added in JavaType.constructor)
-			new JavaType.Object(cls);
+			if (cls != null)
+				new JavaType.Object(cls, dimensions);
 		}
-		
-		return types.get(type);
+		else if (!types.get(type).containsKey(dimensions)) {
+			if (types.get(type).get(0).isPrimitive())
+				new JavaType.Primitive(types.get(type).get((Integer)0), dimensions);
+			else
+				new JavaType.Object(types.get(type).get((Integer)0), dimensions);
+		}
+		if(types.get(type) != null)
+			return types.get(type).get((Integer)dimensions);
+		return null;
+	}
+
+	public static JavaType getType(String type) {
+		return getType(type, 0);
 	}
 
 	/**
@@ -251,6 +325,10 @@ abstract public class JavaType {
 			return "java::util::Array<" + this.getCppName() + ">";
 		return this.getCppName();
 	}
+
+	public abstract int getDimensions();
+
+	public abstract void setDimensions(int dimensions);
 
 	/**
 	 * Gets the java name of the type.
