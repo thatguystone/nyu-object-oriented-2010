@@ -6,5 +6,4 @@ class ArrayTest {
 		int z = x[0][1][2][1];
 		int[][] w = x[1][1];
 	}
-
 }
