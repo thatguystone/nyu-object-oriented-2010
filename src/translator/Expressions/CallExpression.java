@@ -63,8 +63,6 @@ public class CallExpression extends JavaExpression {
 		//seriously, wtf, java?
 		this.visit(n);
 		this.finishSetup();
-		
-		JavaStatic.dumpNode(n);
 	}
 
 	/**
@@ -98,7 +96,6 @@ public class CallExpression extends JavaExpression {
 			if (this.method != null) {
 				this.setType(this.method.getType());
 			} else {
-				System.out.println(this.caller.getType().getJavaClass().getName());
 				JavaStatic.runtime.error(
 					"Expressions.CallExpression: Method not found: " + 
 					this.methodName +
