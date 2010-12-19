@@ -268,7 +268,6 @@ abstract public class JavaType {
 	public static JavaType getType(String type, int dimensions) {
 		//if we have the type cached, throw it back to him
 		if (!types.containsKey(type)) {
-			//System.out.println(type + " " + dimensions);
 			//the class isnt here yet, so add it on-demand
 			JavaClass cls = JavaStatic.pkgs.getClass(type);
 			
@@ -380,12 +379,16 @@ abstract public class JavaType {
 	 * Note: a class is a child of itself.
 	 */
 	public boolean isChildOf(JavaType parent) {
+		if ((this.getDimensions()) > 0 && (parent.getName().equals("java.lang.Object"))) {
+			return true;
+		}
+		
 		//are we comparing a primitive with a class (or vis-versa)?
 		if (!this.getClass().isInstance(parent))
 			return false;
 		
 		//we can do a direct memory compare on this and parent because we only ever have 1 instance
 		//of the type floating around
-		return (this == parent || this.hasParent(parent));
+		return ((this == parent || this.hasParent(parent)) && (this.getDimensions() == parent.getDimensions()));
 	}
 }

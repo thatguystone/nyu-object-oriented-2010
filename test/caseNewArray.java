@@ -5,6 +5,6 @@ class caseNewArray {
 		
 		i[1] = 100;
 		
-		System.out.println(i[1]);
+		System.out.println(i);
 	}
 }

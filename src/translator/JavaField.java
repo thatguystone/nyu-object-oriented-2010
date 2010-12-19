@@ -106,21 +106,26 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		setupVisibility(modifiers);
 		this.type = type;
 		
-		if (!this.name.equals("args")) {
-			this.type = JavaType.getType(this.type.getName(), dimensions);
-			//System.out.println("*********" + this.type.getName() + " " + this.type.getDimensions));
-		}
-		
 		//save the dimensions from our parent
 		this.dimensions = dimensions;
 		
 		//see if we have any dimensions of our own
 		this.dispatch((GNode)n.get(1));
-		
+
 		//if we have dimensions, then import Array
 		if (this.dimensions != 0) {
 			this.getJavaFile().getImport("java.util.Array");
 			this.getJavaFile().getImport("java.lang.ArrayIndexOutOfBoundsException");
+		}
+
+		if (!this.name.equals("args")) {
+			this.type = JavaType.getType(this.type.getName(), this.dimensions);
+		}
+
+		if (this.getJavaClass().getName().equals("__defaultPkg.caseNewArray")) {
+			System.out.println("from field constructor " + this.getJavaClass().getName() + "." + this.type.getName() + " " + this.name + " " + this.type.getDimensions());
+			//if (this.name.equals("i"))
+				//JavaStatic.dumpNode(n);
 		}
 		
 		this.needsStaticWrapper = (this.type.getJavaClass() != null);
