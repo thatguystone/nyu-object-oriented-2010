@@ -25,8 +25,6 @@ public class CastExpression extends JavaExpression {
 	}
 
 	protected void onInstantiate(GNode n) {
-		//JavaStatic.dumpNode((GNode)n.get(0));
-		//System.out.println(((GNode)n.get(0)).size());
 		if (((GNode)n.get(1)) != null)
 			this.castTo = (JavaExpression)this.dispatch((GNode)((GNode)n.get(0)).get(0));
 		else
@@ -38,6 +36,12 @@ public class CastExpression extends JavaExpression {
 	}
 
 	public String print() {
-		return "__rt::javaCast<" + this.castTo.print(true) + ">(" + this.casted.print() + ")";
+		String cast;
+		if (this.castTo instanceof PrimitiveType)
+			cast = "(" + this.castTo.print() + ")";
+		else
+			cast = "__rt::javaCast<" + this.castTo.print(true) + ">"; 
+	
+		return "(" + cast + "(" + this.casted.print() + "))";
 	}
 }

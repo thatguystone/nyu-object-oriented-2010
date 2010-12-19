@@ -32,7 +32,7 @@ public class LogicExp extends JavaExpression {
 	}
 
 	protected void onInstantiate(GNode n) {
-		JavaStatic.dumpNode(n);;
+		//JavaStatic.dumpNode(n);;
 		this.first = (JavaExpression)this.dispatch((GNode)n.get(0));
 		if (n.size() > 1)
 			this.second = (JavaExpression)this.dispatch((GNode)n.get(1));

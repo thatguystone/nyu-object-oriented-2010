@@ -11,3 +11,10 @@ java::lang::String operator+(java::lang::String a, T b) {
 	return new java::lang::__String(sout.str());
 }
 
+template <typename T>
+java::lang::String operator+(T a, java::lang::String b) {
+	std::ostringstream sout;
+	sout << a << b->__data;
+	return new java::lang::__String(sout.str());
+}
+

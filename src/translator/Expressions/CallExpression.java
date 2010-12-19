@@ -96,8 +96,8 @@ public class CallExpression extends JavaExpression {
 			if (this.method != null) {
 				this.setType(this.method.getType());
 			} else {
-				System.out.println(this.caller.getType().getJavaClass().getName() + "." + this.methodName);
-				System.out.println(this.sig.getCppMangledArgumentList() + " -- " + this.sig.size());
+				//System.out.println(this.caller.getType().getJavaClass().getName() + "." + this.methodName);
+				//System.out.println(this.sig.getCppMangledArgumentList() + " -- " + this.sig.size());
 				JavaStatic.runtime.error(
 					"Expressions.CallExpression: Method not found: " + 
 					this.methodName +
