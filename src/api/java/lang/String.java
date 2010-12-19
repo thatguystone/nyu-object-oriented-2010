@@ -5,6 +5,7 @@ public final class String {
 	public native int length();
 	public native boolean contains(String str);
 	public native boolean endsWith(String str);
+	public native boolean equals(String str);
 	public native int indexOf(char ch);
 	public native int indexOf(String str);
 	public native int lastIndexOf(char ch);

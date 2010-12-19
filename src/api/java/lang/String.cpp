@@ -24,6 +24,10 @@ bool __String::{overload:endsWith[java.lang.String]}(String __this, String s) {
 	return (__this->__vptr->{overload:length[]}(__this) - s->__vptr->length(s)) == __this->__vptr->{overload:lastIndexOf[java.lang.String]}(__this, s);
 }
 
+bool __String::{overload:equals[java.lang.String]}(String __this, String s) {
+	return (__this->__data.compare(s->__data) == 0); 
+}
+
 int __String::{overload:indexOf[char]}(String __this, char_t ch) {
 	return ((int)__this->__data.find(ch));
 }
