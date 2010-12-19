@@ -7,20 +7,30 @@ T& __Array<T>::get(int32_t dim, ...) {
 	va_list args; 
 	va_start(args, dim);
 	
-	ARRAY(T)* find = __data;
-	
 	int32_t d;
-	for (int32_t i = 0; i < dim; i++) {
-		d = va_arg(args, int32_t);
+	T* data; 
+	
+	if (dim > 1) {
+		ARRAY(T)* find = __data;
+	
+		for (int32_t i = 0; i < dim - 2; i++) {
+			d = va_arg(args, int32_t);
 		
-		//if we're accessing something beyond our reach
-		if (d < 0 || d > __dims[i])
-			throw java::lang::ArrayIndexOutOfBoundsException();
+			//if we're accessing something beyond our reach
+			if (d < 0 || d > __dims[i])
+				throw java::lang::ArrayIndexOutOfBoundsException();
 		
-		find = &find[i];
+			find = find[d]->__data;
+		}
+		
+		data = (*find)->__arrayData;
+	} else {
+		data = __arrayData;
 	}
 	
-	return (*find)->__arrayData[d];
+	d = va_arg(args, int32_t);
+	
+	return data[d];
 }
 
 template <typename T>

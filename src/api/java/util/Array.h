@@ -48,18 +48,19 @@ struct __Array {
 	void init(int32_t dim, int32_t* dims) {
 		__dim = dim;
 		__dims = dims;
-	
+		
 		if (__dim == 1) {
-			__arrayData = (T*)malloc(__dims[1] * sizeof(T));
+			__arrayData = new T[__dims[0]];
+			
 			//null out the array
-			std::memset(__arrayData, 0, __dims[1] * sizeof(T));
+			std::memset(__arrayData, 0, __dims[0] * sizeof(T));
 		} else {
 			int32_t* newDims = new int32_t[__dim - 1];
 			
 			for (int32_t i = 1; i < __dim; i++)
-				newDims[i] = dims[i];
+				newDims[i - 1] = dims[i];
 			
-			ARRAY(T)* tmp = new ARRAY(T)[__dims[1]];
+			ARRAY(T)* tmp = new ARRAY(T)[__dims[0]];
 			for (int32_t i = 0; i < __dim; i++)
 				tmp[i] = new __Array<T>(__dim - 1, newDims);
 			

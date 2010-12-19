@@ -42,8 +42,6 @@ abstract public class JavaType {
 		 */
 		private String defaultValue;
 		
-		private int dimensions;
-
 		/**
 		 * Setup the basic parameters for the primitive type.
 		 */
@@ -131,8 +129,6 @@ abstract public class JavaType {
 		 */
 		private JavaClass cls;
 
-		private int dimensions;
-		
 		/**
 		 * Basic setup for the object type.
 		 */
@@ -217,6 +213,8 @@ abstract public class JavaType {
 		this.setDimensions(dimensions);
 		types.get(type.getName()).put((Integer)dimensions, this);
 	}
+	
+	protected int dimensions;
 
 	/**
 	 * Setup our primitives.
