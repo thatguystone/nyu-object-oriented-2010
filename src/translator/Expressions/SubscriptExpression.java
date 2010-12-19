@@ -21,11 +21,21 @@ public class SubscriptExpression extends JavaExpression {
 	 */
 	JavaExpression value;
 
+	int dimensions;
+
 	public SubscriptExpression(JavaScope scope, GNode n) {
 		super(scope, n);
+		this.dimensions = 1;
+		this.setup(n);
 	}
 
-	protected void onInstantiate(GNode n) {
+	public SubscriptExpression(JavaScope scope, GNode n, int dimensions) {
+		super(scope, n);
+		this.dimensions = dimensions + 1;
+		this.setup(n);
+	}
+
+	protected void setup(GNode n) {
 		this.accessor = (JavaExpression)this.dispatch((GNode)n.get(0));
 		this.value = (JavaExpression)this.dispatch((GNode)n.get(1));
 		this.setType(accessor.getType());
@@ -34,6 +44,10 @@ public class SubscriptExpression extends JavaExpression {
 	public String print() {
 		if (this.accessor instanceof SubscriptExpression)
 			return this.accessor.print().substring(0, this.accessor.print().length() - 1) + ", " + this.value.print() + ")";
-		return this.accessor.print() + "(" + this.value.print() + ")";
+		return this.accessor.print() + "(" + this.dimensions + ", " + this.value.print() + ")";
+	}
+
+	public JavaExpression visitSubscriptExpression(GNode n) {
+		return new SubscriptExpression(this, n, dimensions);
 	}
 }
