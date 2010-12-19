@@ -41,6 +41,7 @@ public class SubscriptExpression extends JavaExpression {
 		//if (this.accessor instanceof SubscriptExpression)
 		this.setType(JavaType.getType(this.accessor.getType().getName(), this.accessor.getType().getDimensions() - 1));
 		this.value = (JavaExpression)this.dispatch((GNode)n.get(1));
+		System.out.println(this.getType().getName() + " " + this.getType().getDimensions());
 	}
 
 	public String print() {
