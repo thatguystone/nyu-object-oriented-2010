@@ -320,7 +320,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 			b.pln("typedef " + this.getType().getJavaClass().getCppName(true, false) + " " + this.typedefName + ";");
 		
 		if (this.isStatic())
-			b.pln("static " + this.type.getCppName(dimensions != 0) + " " + this.getStaticAccessor() + ";");
+			b.pln("inline static " + this.type.getCppName(dimensions != 0) + " " + this.getStaticAccessor() + ";");
 	}
 	
 	/**
@@ -366,7 +366,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 			JavaClass e = this.getJavaFile().getImport("NullPointerException");
 			
 			b
-				.block(this.getType().getCppName() + " " + clsName + "::" + this.getStaticAccessor())
+				.block("inline " + this.getType().getCppName() + " " + clsName + "::" + this.getStaticAccessor())
 					.block("if (" + clsName + "::" + this.mangledName + ".raw())")
 						.pln("return " + clsName + "::" + this.mangledName + ";")
 					.close()
