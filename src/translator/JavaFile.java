@@ -77,6 +77,7 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 	 */
 	private void defaultImports() {
 		this.importPackage("java.lang");
+		this.importFile("java.util.Array");
 	}
 	
 	/**

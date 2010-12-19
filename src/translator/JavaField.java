@@ -105,17 +105,24 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		super(scope, n);
 		setupVisibility(modifiers);
 		this.type = type;
-		if (this.dimensions == 0)
-			this.dimensions = dimensions;
+		
 		if (!this.name.equals("args")) {
 			this.type = JavaType.getType(this.type.getName(), dimensions);
-			System.out.println("*********" + this.type.getName() + " " + this.type.getDimensions());
+			//System.out.println("*********" + this.type.getName() + " " + this.type.getDimensions));
 		}
-
+		
+		//save the dimensions from our parent
+		this.dimensions = dimensions;
+		
+		//see if we have any dimensions of our own
+		this.dispatch((GNode)n.get(1));
+		
+		//if we have dimensions, then import Array
 		if (this.dimensions != 0) {
 			this.getJavaFile().getImport("java.util.Array");
+			this.getJavaFile().getImport("java.lang.ArrayIndexOutOfBoundsException");
 		}
-
+		
 		this.needsStaticWrapper = (this.type.getJavaClass() != null);
 	}
 	
@@ -129,7 +136,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	protected void onInstantiate(GNode n) {
 		this.name = (String)n.get(0);
 		this.getScope().addField(this);
-		this.dispatch((GNode)n.get(1));
+		
 		this.assignment = (JavaExpression)this.dispatch((GNode)n.get(2));
 	}
 
@@ -272,7 +279,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * @param withType If the type should be returned with the C++ field name.
 	 */
 	public String getCppField(boolean withType) {
-		String ret = (withType ? this.type.getCppName((dimensions != 0)) + " " : "") + this.getCppName();
+		String ret = (withType ? this.type.getCppName(dimensions != 0) + " " : "") + this.getCppName();
 		
 		if (this.assignment != null)
 			ret += " = " + this.assignment.print();
@@ -298,7 +305,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	public void print(CodeBlock b, boolean withAssignment) {
 		this.getCppName();
 		b.pln(
-			(this.isStatic() ? "static " : "") + this.type.getCppName((dimensions != 0)) + " " + this.mangledName + 
+			(this.isStatic() ? "static " : "") + this.type.getCppName(dimensions != 0) + " " + this.mangledName + 
 			(withAssignment && this.assignment != null ? " = " + this.assignment.print() : "") + ";"
 		);
 		
@@ -308,7 +315,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 			b.pln("typedef " + this.getType().getJavaClass().getCppName(true, false) + " " + this.typedefName + ";");
 		
 		if (this.isStatic())
-			b.pln("static " + this.type.getCppName((dimensions != 0)) + " " + this.getStaticAccessor() + ";");
+			b.pln("static " + this.type.getCppName(dimensions != 0) + " " + this.getStaticAccessor() + ";");
 	}
 	
 	/**
@@ -373,9 +380,6 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	 * You are a poorly declared array. Go die. <<-- LOL @ Leon
 	 */
 	public void visitDimensions(GNode n) {
-		if (this.dimensions == 0) {
-			for (Object o : (Node)n)
-				this.dimensions++;
-		}
+		this.dimensions = n.size();
 	}
 }

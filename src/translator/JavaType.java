@@ -270,7 +270,7 @@ abstract public class JavaType {
 	public static JavaType getType(String type, int dimensions) {
 		//if we have the type cached, throw it back to him
 		if (!types.containsKey(type)) {
-			System.out.println(type + " " + dimensions);
+			//System.out.println(type + " " + dimensions);
 			//the class isnt here yet, so add it on-demand
 			JavaClass cls = JavaStatic.pkgs.getClass(type);
 			
@@ -321,8 +321,16 @@ abstract public class JavaType {
 	public abstract String getCppName();
 	
 	public String getCppName(boolean array) {
-		if (array)
-			return "java::util::Array<" + this.getCppName() + ">";
+		return this.getCppName(array, true);
+	}
+	
+	public String getCppName(boolean array, boolean asPointer) {
+		if (array) {
+			if (asPointer) {
+				return "ARRAY(" + this.getCppName() + ")";
+			}
+			return "java::util::__Array<" + this.getCppName() + ">";
+		}
 		return this.getCppName();
 	}
 

@@ -212,18 +212,24 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 	 * Prints out the prototype for this class.
 	 */
 	private void printPrototype(CodeBlock b) {
-		b
-			.pln("struct " + this.getCppName(false, false) + ";")
-			.pln("struct " + this.getCppName(false, false) + "_VT;")
-			.pln("typedef __rt::Ptr<" + this.getCppName(false, false) + "> " + this.getCppName(false) + ";")
-			.pln()
-		;
+		SpecialCases.addCppTemplate(this, b);
+		b.pln("struct " + this.getCppName(false, false) + ";");
+		SpecialCases.addCppTemplate(this, b);
+		b.pln("struct " + this.getCppName(false, false) + "_VT;");
+		
+		if (SpecialCases.printTypedef(this))
+			b.pln("typedef __rt::Ptr<" + this.getCppName(false, false) + "> " + this.getCppName(false) + ";");
+		
+		b.pln();
 	}
 	
 	/**
 	 * Gets that header out.
 	 */
 	private void printHeader(CodeBlock b) {
+		if (!SpecialCases.shouldPrintHeader(this))
+			return;
+			
 		//---------------------------------------------------------------------------------------
 		// Print the data layout
 		
@@ -297,7 +303,7 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		block = b.block("struct " + name + "_VT");
 		
 		//emit the "__isa"...that was fun.
-		block.pln(this.getJavaFile().getImport("Class").getCppName() + " __isa;");
+		block.pln(this.getJavaFile().getImport("java.lang.Class").getCppName() + " __isa;");
 		//and the __delete() method
 		block.pln("void (*__delete)(" + this.getCppName(false, false) + "*);");
 		
@@ -355,13 +361,22 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		}
 		
 		String name = this.getCppName(false, false);
+		
+		//add a template for our vTable, if we have one
+		String template = SpecialCases.getCppTemplate(this);
+		b.pln(template);
+		String templateParam = (template.length() > 0 ? "<T>" : "");
+		
 		b
 			//print out the vtable initializer to the Cpp file so that we can use it
-			.pln(name + "_VT " + name + "::__vtable;")
+			.pln(name + "_VT" + templateParam + " " + name + templateParam + "::__vtable;")
 			.pln()
+		;
 		
+		b.pln(template);
+		b
 			//print out the getClass() initializer
-    		.block("java::lang::Class " + name + "::__class()")
+    		.block("java::lang::Class " + name + templateParam + "::__class()")
     			.block("static java::lang::Class k = new java::lang::__Class(", false)
     				.pln("java::lang::asString(\"" + this.getRealJavaName() + "\"),")
     				.pln((this.parent == null ? "__rt::null" : this.parent.getCppName(true, false) + "::__class()") + ",")
@@ -667,6 +682,10 @@ public class JavaClass extends ActivatableVisitor implements Nameable, Typed {
 		String name = "";
 		if (fullName)
 			name += this.getPackageName() + ".";
+		
+		//arrays do some special stuff....
+		if (asPointer && this.getName().equals("java.util.Array"))
+			return "ARRAY_T";
 		
 		return name.replace(".", "::") + (asPointer ? "" : "__") + this.name;
 	}

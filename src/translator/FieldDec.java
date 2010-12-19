@@ -134,9 +134,6 @@ public class FieldDec extends Visitor {
 	 * You are an array. oh joy.
 	 */
 	public void visitDimensions(GNode n) {
-		for (Object o : n) {
-			dimensions++;
-		}
 		dimensions = n.size();
 	}
 

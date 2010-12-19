@@ -49,8 +49,8 @@ namespace __rt {
 		}
 
 		inline T& operator*()  const { return *addr; }
-		inline T* operator->() const { return addr;  }
-		inline T* raw()        const { return addr;  }
+		inline T* raw()        const { return addr; }
+		inline T* operator->() const;
 
 		template<typename U>
 		friend class Ptr;
