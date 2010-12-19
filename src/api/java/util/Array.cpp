@@ -47,7 +47,7 @@ ARRAY(T) __Array<T>::getMulti(int32_t dim, ...) {
 	ARRAY(T)* ret = __data;
 			
 	//check to see that all our dimensions are in bounds
-	for (int32_t i = 0; i < dim; i++) {
+	for (int32_t i = 0; i < dim - 1; i++) {
 		int32_t d = va_arg(args, int32_t);
 		
 		//if we're accessing something beyond our reach
