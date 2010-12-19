@@ -18,7 +18,9 @@ public class ReturnStatement extends JavaStatement{
 	}
 
 	public void print(CodeBlock b) {
-		if (expression != null)
+		if (expression != null) {
+			expression.isStaticAccess(false);
 			b.pln("return " + expression.print() + ";");
+		}
 	}
 }

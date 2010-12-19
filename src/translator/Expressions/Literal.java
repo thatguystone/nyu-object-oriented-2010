@@ -24,7 +24,7 @@ public class Literal extends JavaExpression {
 
 	public String print() {
 		if (this.getType() == JavaType.getType("null"))
-			return "NULL";
+			return "__rt::null";
 		return this.value;
 	}
 }
