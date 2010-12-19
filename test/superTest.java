@@ -7,7 +7,7 @@ class superTest {
 			System.out.println("instanceof");
 		B test1 = new B();
 		A testtt = (true?test1:test);
-		System.out.println(test);
+		//System.out.println(test);
 		B test2 = new B(1,1);
 		int x = true?1:2;
 		test.print();

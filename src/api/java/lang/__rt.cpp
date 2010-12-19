@@ -7,7 +7,7 @@ namespace __rt {
 
 		if (!k->__vptr->isInstance(k, other))
 			throw java::lang::ClassCastException();
-
+			
 		return Target(other);
 	}
 	
