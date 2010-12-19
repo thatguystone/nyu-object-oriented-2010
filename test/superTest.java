@@ -3,6 +3,8 @@ class superTest {
 	public static void main(String[] args) {
 		A test = new B();
 		B testt = (B)test;
+		if (test instanceof B)
+			System.out.println("instanceof");
 		B test1 = new B();
 		A testtt = (true?test1:test);
 		B test2 = new B(1,1);

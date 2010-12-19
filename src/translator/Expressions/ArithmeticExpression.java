@@ -33,7 +33,7 @@ public class ArithmeticExpression extends JavaExpression {
 
 	protected void onInstantiate(GNode n) {
 		this.operator = (String)n.get(1);
-
+		//JavaStatic.dumpNode(n);
 		this.first = (JavaExpression)this.dispatch((GNode)n.get(0));
 		this.second = (JavaExpression)this.dispatch((GNode)n.get(2));
 		//System.out.println(this.first.getType().getName() + " " + this.second.getType().getName());

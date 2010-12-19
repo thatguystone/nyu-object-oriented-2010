@@ -25,8 +25,15 @@ public class CastExpression extends JavaExpression {
 	}
 
 	protected void onInstantiate(GNode n) {
-		this.castTo = (JavaExpression)this.dispatch((GNode)((GNode)(GNode)n.get(0)).get(0));
+		//JavaStatic.dumpNode((GNode)n.get(0));
+		//System.out.println(((GNode)n.get(0)).size());
+		if (((GNode)n.get(1)) != null)
+			this.castTo = (JavaExpression)this.dispatch((GNode)((GNode)n.get(0)).get(0));
+		else
+			this.castTo = (JavaExpression)this.dispatch((GNode)n.get(0));
 		this.casted = (JavaExpression)this.dispatch((GNode)n.get(1));
+		if (this.casted == null)
+			this.casted = (JavaExpression)this.dispatch((GNode)n.get(2));
 		this.setType(this.castTo.getType());
 	}
 

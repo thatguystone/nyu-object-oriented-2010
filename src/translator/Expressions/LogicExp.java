@@ -9,7 +9,7 @@ import xtc.tree.GNode;
 /**
  * An expression with two operands and an operator.
  */
-public class ComparativeExp extends JavaExpression {
+public class LogicExp extends JavaExpression {
 
 	/**
 	 * The operator being used here.
@@ -26,21 +26,24 @@ public class ComparativeExp extends JavaExpression {
 	 */
 	JavaExpression second;
 
-	public ComparativeExp(JavaScope scope, GNode n) {
+	public LogicExp(JavaScope scope, GNode n, String operator) {
 		super(scope, n);
+		this.operator = operator;
 	}
 
 	protected void onInstantiate(GNode n) {
-		//JavaStatic.dumpNode(n);
-		this.operator = (String)n.get(1);
+		JavaStatic.dumpNode(n);;
 		this.first = (JavaExpression)this.dispatch((GNode)n.get(0));
-		this.second = (JavaExpression)this.dispatch((GNode)n.get(2));
+		if (n.size() > 1)
+			this.second = (JavaExpression)this.dispatch((GNode)n.get(1));
 
 		this.setType(JavaType.getType("boolean"));
 	}
 
 	public String print() {
-		return "(" + first.print() + " " + operator + " " + second.print() + ")";
+		if (!this.operator.equals("!"))
+			return "(" + first.print() + " " + operator + " " + second.print() + ")";
+		return "(" + this.operator + first.print() + ")";
 	}
 }
 
