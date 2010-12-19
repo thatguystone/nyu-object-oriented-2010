@@ -17,4 +17,5 @@ public class Class {
 	
 	public native boolean isInstance(Object o);
 	public native Class getSuperclass();
+	public native String toString();
 }
