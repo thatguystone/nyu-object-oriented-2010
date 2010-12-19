@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include <cstring>
 #include <stdlib.h>
+#include <stdio.h>
 #define ARRAY_T __rt::Ptr<java::util::__Array<T> >
 #define ARRAY(t) __rt::Ptr<java::util::__Array<t> >
 
@@ -34,9 +35,9 @@ struct __Array {
 			//start pulling in our dimensions
 			va_list args; 
 			va_start(args, dim);
-			for (int32_t i = 0; i < dim; i++)
+			for (int32_t i = 0; i < dim; i++){
 				dims[i] = va_arg(args, int32_t);
-		
+			}
 			init(dim, dims);
 		}
 	
@@ -50,16 +51,16 @@ struct __Array {
 		__dims = dims;
 	
 		if (__dim == 1) {
-			__arrayData = (T*)malloc(__dims[1] * sizeof(T));
+			__arrayData = (T*)malloc(__dims[0] * sizeof(T));
 			//null out the array
-			std::memset(__arrayData, 0, __dims[1] * sizeof(T));
+			std::memset(__arrayData, 0, __dims[0] * sizeof(T));
 		} else {
-			int32_t* newDims = new int32_t[__dim - 1];
+			int32_t* newDims = new int32_t[__dim];
 			
 			for (int32_t i = 1; i < __dim; i++)
-				newDims[i] = dims[i];
+				newDims[i-1] = dims[i];
 			
-			ARRAY(T)* tmp = new ARRAY(T)[__dims[1]];
+			ARRAY(T)* tmp = new ARRAY(T)[__dims[0]];
 			for (int32_t i = 0; i < __dim; i++)
 				tmp[i] = new __Array<T>(__dim - 1, newDims);
 			
