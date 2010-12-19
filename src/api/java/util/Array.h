@@ -31,53 +31,50 @@ struct __Array {
 	__Array(int32_t dim, ...) :
 		__vptr(&__vtable) {
 			int32_t* dims = new int32_t[dim];
-		
 			//start pulling in our dimensions
 			va_list args; 
 			va_start(args, dim);
 			for (int32_t i = 0; i < dim; i++){
 				dims[i] = va_arg(args, int32_t);
 			}
-			init(dim, dims);
-		}
-	
+			init(dim,dims);
+	}
+	//Extra Constructor
 	__Array(int32_t dim, int32_t* dims) :
 		__vptr(&__vtable) {
-			init(dim, dims);
-		}
-	
-	void init(int32_t dim, int32_t* dims) {
-		__dim = dim;
-		__dims = dims;
-	
-		if (__dim == 1) {
-			__arrayData = (T*)malloc(__dims[0] * sizeof(T));
-			//null out the array
-			std::memset(__arrayData, 0, __dims[0] * sizeof(T));
-		} else {
-			int32_t* newDims = new int32_t[__dim];
-			
-			for (int32_t i = 1; i < __dim; i++)
-				newDims[i-1] = dims[i];
-			
-			ARRAY(T)* tmp = new ARRAY(T)[__dims[0]];
-			for (int32_t i = 0; i < __dim; i++)
-				tmp[i] = new __Array<T>(__dim - 1, newDims);
-			
-			__data = tmp;
-			
-			delete[] newDims;
-		}
+		init(dim,dims);
 	}
-	
-	
+
+	void init(int32_t dim, int32_t* dims){
+                __dim = dim;
+                __dims = dims;
+
+                if (__dim == 1) {
+                        __arrayData = (T*)malloc(__dims[0] * sizeof(T));
+                        //null out the array
+                        std::memset(__arrayData, 0, __dims[0] * sizeof(T));
+                } else {
+                        int32_t* newDims = new int32_t[__dim - 1];
+
+                        for (int32_t i = 1; i < __dim; i++)
+                                newDims[i-1] = dims[i];
+
+//                      ARRAY(T)* tmp = new ARRAY(T)[__dims[0]];
+                        __data=new ARRAY(T)[__dims[0]];
+                        for (int32_t i = 0; i < __dims[0]; i++){
+                                __data[i] = new __Array<T>(__dim - 1, newDims);
+                        }
+//                      __data = tmp;
+
+                        delete[] newDims;
+                }
+	}
+
 	static void __CONSTRUCTOR__Array(ARRAY_T);
 	
 	T& get(int32_t dim, ...);
 	
 	ARRAY(T) getMulti(int32_t dim, ...);
-	
-	//Extra Constructors
 	
 	//Methods
 	static void __delete(__Array* __this) {
