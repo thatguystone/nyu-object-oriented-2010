@@ -50,16 +50,15 @@ struct __Array {
 			init(dim, dims);
 		}
 
-	__Array(__InitializerListTag tag, int32_t size, T arg1, ...) :
+	__Array(__InitializerListTag tag, int32_t size, ...) :
 		__vptr(&__vtable) {
 			__dim = 1;
 			__dims = new int[1];
 			__dims[0] = size;
 			__arrayData = new T[size];
-			__arrayData[0] = arg1;
 			va_list args;
 			va_start(args, size);
-			for (int32_t i = 1; i < size; i++) 
+			for (int32_t i = 0; i < size; i++) 
 				__arrayData[i] = va_arg(args, T);
 		}
 	
