@@ -17,5 +17,14 @@ namespace __rt {
 			throw java::lang::NullPointerException();
 		return addr;
 	}
+	
+	template<typename T>
+	Ptr<T>::operator char*() {
+		if (addr == 0)
+			throw java::lang::NullPointerException();
+		//be sure to give him a constructor-smart-pointer so that he doesn't trash things when
+		//only used for a temporary
+		return const_cast<char*>(addr->__vptr->toString(Ptr<T>(addr, true))->__data.data());
+	}
 }
 

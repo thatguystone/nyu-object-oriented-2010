@@ -2,6 +2,7 @@ package translator.Expressions;
 
 import translator.JavaType;
 import translator.JavaScope;
+import translator.JavaStatic;
 import translator.Statements.JavaStatement;
 import translator.Printer.CodeBlock;
 
@@ -24,9 +25,11 @@ public class UnaryExp extends JavaExpression {
 		super(scope, n);
 	}
 	protected void onInstantiate(GNode n) {
+		JavaStatic.dumpNode(n);
 		this.operand = (JavaExpression)this.dispatch((GNode)n.get(1));
 		this.operator = (String)n.get(0);
-		//this.setType(JavaType.getType(operand.getType());
+		System.out.println(operand.getType().getCppName());
+		this.setType(operand.getType());
 	}
 	public String print() {
 		return "(" +  operator  + operand.print()+")";

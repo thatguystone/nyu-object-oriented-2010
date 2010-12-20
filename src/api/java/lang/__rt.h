@@ -71,11 +71,7 @@ namespace __rt {
 			return addr != (T*)other.addr;
 		}
 		
-		operator char*() {
-			//be sure to give him a constructor-smart-pointer so that he doesn't trash things when
-			//only used for a temporary
-			return const_cast<char*>(addr->__vptr->toString(Ptr<T>(addr, true))->__data.data());
-		}
+		operator char*();
 	};
 	
 	template<typename T>
