@@ -109,10 +109,10 @@ public class JavaPackages {
 		//bitches love main functions
 		main
 			.block("int main(int argc, char** argv)")
-				.pln("ARRAY(java::lang::String) args = new java::util::__Array<java::lang::String>(1, argc);")
+				.pln("ARRAY(java::lang::String) args = new java::util::__Array<java::lang::String>(1, argc - 1);")
 				.pln()
-				.block("for (int i = 0; i < argc; i++)", false)
-					.pln("args->get(1, i) = new java::lang::__String(argv[i]);")
+				.block("for (int i = 1; i < argc; i++)", false)
+					.pln("args->get(1, i - 1) = new java::lang::__String(argv[i]);")
 				.close()
 				.pln()
 				.pln(this.mainMethod.getCppName(true, false) + "(args);")

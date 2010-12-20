@@ -100,10 +100,8 @@ public class ForStatement extends JavaStatement {
 		//------------------------------------------------------------------------------------------------
 		//and do the final printing
 		
-		b
-			.block(line + ")")
-			.attach((CodeBlock)this.dispatch((GNode)this.node.get(1)))
-			.close()
-		;
+		b = b.block(line + ")");
+		this.printBody(b, (GNode)this.node.get(1));
+		b.close();
 	}
 }

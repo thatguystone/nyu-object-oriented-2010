@@ -15,6 +15,8 @@ struct __Array {
 	__Array_VT<T>* __vptr;
 	static java::lang::Class __class();
 	
+	int32_t length;
+	
 	//the number of dimensions
 	int32_t __dim;
 	
@@ -75,6 +77,8 @@ struct __Array {
 			//this is safe for smart pointers and primitives
 			for (int32_t i = 0; i < __dims[0]; i++)
 				__arrayData[i] = 0;
+			
+			length = __dims[0];
 		} else {
 			__arrayData = 0;
 			int32_t* newDims = new int32_t[__dim - 1];

@@ -15,6 +15,9 @@ cases = []
 #and since threads screw with each other's printing, we need to lock print
 printLock = threading.Semaphore()
 
+#a generic set of arguments to pass to stuff just to make sure arguments work properly
+args = ["arg1", "arg2", "arg3"]
+
 #a container for the outputs of the tests
 class runTest(object):
 	pass
@@ -158,7 +161,7 @@ def compileJavaFile(f, test):
 	return (OK, )
 
 def runJavaFile(f, test):
-	proc = subprocess.Popen(["java", f.replace(".java", "")], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+	proc = subprocess.Popen(["java", f.replace(".java", "")] + args, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 	ret = proc.communicate()
 	
 	test.javaRun = ret
@@ -186,7 +189,7 @@ def compileCpp(f, test):
 	return (OK, )
 
 def runCpp(test):
-	proc = subprocess.Popen([TESTDIR + "/../" + str(thread.get_ident()) + ".out"], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+	proc = subprocess.Popen([TESTDIR + "/../" + str(thread.get_ident()) + ".out"] + args, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 	ret = proc.communicate()
 	
 	test.cppRun = ret

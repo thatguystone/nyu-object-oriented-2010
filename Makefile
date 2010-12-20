@@ -4,6 +4,8 @@ include Makebase
 
 default: run
 
+TEST_ARGS="arg1" "arg2" "arg3"
+
 doc:
 	javadoc -d doc \
 		-windowtitle "Translator Docs" \
@@ -26,18 +28,21 @@ cpp_compile:
 	g++ -o $(OUTPUTBINARY) $(OUTPUTFILE)
 
 cpp_run: cpp_compile
-	$(OUTPUTBINARY)
+	$(OUTPUTBINARY) $(TEST_ARGS)
+
+java_run:
+	@javac -sourcepath $(TESTPATH) test/$(file).java
+	java -classpath $(TESTPATH) $(file) $(TEST_ARGS)
 
 cpp: run cpp_run
 
 test: run src
 	$(MAKE) -C test run > /dev/null 2>&1
 	@echo "Running the Java:\n"
-	@javac -sourcepath $(TESTPATH) test/$(file).java
-	java -classpath $(TESTPATH) $(file)
+	$(MAKE) java_run
 	
 	@echo "\n\n\n\nRunning the C++:\n"
-	make cpp_run
+	$(MAKE) cpp_run
 
 clean:
 	$(MAKE) -C test clean
