@@ -67,6 +67,7 @@ struct __Array {
 		__dims = dims;
 		
 		if (__dim == 1) {
+			__data = 0;
 			__arrayData = new T[__dims[0]];
 			
 			//null out the array
@@ -75,6 +76,7 @@ struct __Array {
 			for (int32_t i = 0; i < __dims[0]; i++)
 				__arrayData[i] = 0;
 		} else {
+			__arrayData = 0;
 			int32_t* newDims = new int32_t[__dim - 1];
 			
 			for (int32_t i = 1; i < __dim; i++)
