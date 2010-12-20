@@ -2,9 +2,8 @@ class caseNewArray {
 	public static void main(String[] args) {
 		int i[] = new int[3], m = 2;
 		int[] t = new int[3];
-		
+		caseNewArray[] zz = new caseNewArray[4];
 		i[1] = 100;
-		
 		Object[] o = new Object[1];
 		String[][] o2 = new String[1][2];
 		

@@ -4,6 +4,11 @@
 #define ARRAY_T __rt::Ptr<java::util::__Array<T> >
 #define ARRAY(t) __rt::Ptr<java::util::__Array<t> >
 
+struct __InitializerListTag {
+	static __InitializerListTag tag;
+};
+
+
 template <typename T>
 struct __Array {
 	//Field layout
@@ -43,6 +48,19 @@ struct __Array {
 	__Array(int32_t dim, int32_t* dims) :
 		__vptr(&__vtable) {
 			init(dim, dims);
+		}
+
+	__Array(__InitializerListTag tag, int32_t size, T arg1, ...) :
+		__vptr(&__vtable) {
+			__dim = 1;
+			__dims = new int[1];
+			__dims[0] = size;
+			__arrayData = new T[size];
+			__arrayData[0] = arg1;
+			va_list args;
+			va_start(args, size);
+			for (int32_t i = 1; i < size; i++) 
+				__arrayData[i] = va_arg(args, T);
 		}
 	
 	void init(int32_t dim, int32_t* dims) {
