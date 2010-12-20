@@ -6,10 +6,12 @@ class caseNewArray {
 		i[1] = 100;
 		
 		Object[] o = new Object[1];
-		Object[][] o2 = new Object[1][2];
+		String[][] o2 = new String[1][2];
 		
-		System.out.println(i);
-		System.out.println(o);
-		System.out.println(o2);
+		i.getClass();
+		o.getClass();
+		o2.getClass().getSuperclass();
+		
+		System.out.println("It didn't segfault! That means it worked!");
 	}
 }
