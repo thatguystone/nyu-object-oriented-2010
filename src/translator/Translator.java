@@ -71,9 +71,12 @@ public class Translator extends Tool {
 		
 		CodePrinter.prepare();
 		JavaType.prepare();
+		
+		JavaField.prepare();
 	}
 	
 	public void wrapUp() {
+		JavaField.wrapUp();
 		JavaStatic.pkgs.wrapUp();
 		CodePrinter.wrapUp();
 	}

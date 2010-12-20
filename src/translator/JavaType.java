@@ -43,14 +43,20 @@ abstract public class JavaType {
 		private String defaultValue;
 		
 		/**
+		 * The name of the Object that can represent us.
+		 */
+		private String representingObjectName;
+		
+		/**
 		 * Setup the basic parameters for the primitive type.
 		 */
-		Primitive(String javaTypeName, String cppTypeName, Primitive parent, String defaultValue, int dimensions) {
+		Primitive(String javaTypeName, String cppTypeName, Primitive parent, String defaultValue, int dimensions, String representingObjectName) {
 			super(javaTypeName, 0);
 			this.typeName = javaTypeName;
 			this.cppTypeName = cppTypeName;
 			this.parent = parent;
 			this.defaultValue = defaultValue;
+			this.representingObjectName = representingObjectName;
 		}
 
 		Primitive(JavaType type, int dimensions) {
@@ -59,6 +65,7 @@ abstract public class JavaType {
 			this.cppTypeName = type.getCppName();
 			this.parent = ((Primitive)type).getParent();
 			this.defaultValue = type.getDefaultValue();
+			this.representingObjectName = ((Primitive)type).representingObjectName;
 		}
 		
 		/**
@@ -117,6 +124,12 @@ abstract public class JavaType {
 
 		public void setDimensions(int dimensions) {
 			this.dimensions = dimensions;
+		}
+		
+		public String getRepresentingObjectName() {
+			//someone is trying to access our object...activate it!
+			JavaStatic.pkgs.getClass(this.representingObjectName).activate();
+			return this.representingObjectName;
 		}
 	}
 	
@@ -197,6 +210,10 @@ abstract public class JavaType {
 		public void setDimensions(int dimensions) {
 			this.dimensions = dimensions;
 		}
+		
+		public String getRepresentingObjectName() {
+			return this.getCppName();
+		}
 	}
 
 	/**
@@ -226,17 +243,17 @@ abstract public class JavaType {
 		prepared = true;
 		
 		//and add all our primitives in the order they can be cast to
-		Primitive dbl = new Primitive("double", "double", null, "0.0", 0);
-		Primitive flt = new Primitive("float", "float", dbl, "0.0", 0);
-		Primitive lng = new Primitive("long", "int64_t", flt, "0", 0);
-		Primitive it = new Primitive("int", "int32_t", lng, "0", 0);
-		Primitive chr = new Primitive("char", "char_t", it, "0", 0);
-		Primitive shrt = new Primitive("short", "int16_t", it, "0", 0);
-		Primitive byt = new Primitive("byte", "int8_t", shrt, "0", 0);
+		Primitive dbl = new Primitive("double", "double", null, "0.0", 0, "");
+		Primitive flt = new Primitive("float", "float", dbl, "0.0", 0, "");
+		Primitive lng = new Primitive("long", "int64_t", flt, "0", 0, "");
+		Primitive it = new Primitive("int", "int32_t", lng, "0", 0, "java.lang.Integer");
+		Primitive chr = new Primitive("char", "char_t", it, "0", 0, "");
+		Primitive shrt = new Primitive("short", "int16_t", it, "0", 0, "");
+		Primitive byt = new Primitive("byte", "int8_t", shrt, "0", 0, "");
 		
 		//and those tricky primitives that can't be cast to anything
-		new Primitive("void", "void", null, "NULL", 0);
-		new Primitive("boolean", "bool", null, "false", 0);
+		new Primitive("void", "void", null, "NULL", 0, "");
+		new Primitive("boolean", "bool", null, "false", 0, "");
 		
 		//and get the C++ types that we need
 		JavaStatic.h.pln("#include <stdint.h>");
@@ -351,6 +368,8 @@ abstract public class JavaType {
 	 * The default value that the type has.
 	 */
 	public abstract String getDefaultValue();
+	
+	public abstract String getRepresentingObjectName();
 	
 	/**
 	 * ==================================================================================================

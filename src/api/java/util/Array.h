@@ -4,6 +4,11 @@
 #define ARRAY_T __rt::Ptr<java::util::__Array<T> >
 #define ARRAY(t) __rt::Ptr<java::util::__Array<t> >
 
+struct __InitializerListTag {
+	static __InitializerListTag tag;
+};
+
+
 template <typename T>
 struct __Array {
 	//Field layout
@@ -44,6 +49,19 @@ struct __Array {
 		__vptr(&__vtable) {
 			init(dim, dims);
 		}
+
+	__Array(__InitializerListTag tag, int32_t size, T arg1, ...) :
+		__vptr(&__vtable) {
+			__dim = 1;
+			__dims = new int[1];
+			__dims[0] = size;
+			__arrayData = new T[size];
+			__arrayData[0] = arg1;
+			va_list args;
+			va_start(args, size);
+			for (int32_t i = 1; i < size; i++) 
+				__arrayData[i] = va_arg(args, T);
+		}
 	
 	void init(int32_t dim, int32_t* dims) {
 		__dim = dim;
@@ -53,14 +71,17 @@ struct __Array {
 			__arrayData = new T[__dims[0]];
 			
 			//null out the array
-			std::memset(__arrayData, 0, __dims[0] * sizeof(T));
+			//don't use memset because we don't want to overwrite smart-pointers (making them all 0)
+			//this is safe for smart pointers and primitives
+			for (int32_t i = 0; i < __dims[0]; i++)
+				__arrayData[i] = 0;
 		} else {
 			int32_t* newDims = new int32_t[__dim - 1];
 			
 			for (int32_t i = 1; i < __dim; i++)
 				newDims[i - 1] = dims[i];
 			
-			ARRAY(T)* tmp = new ARRAY(T)[__dims[0]];
+			ARRAY(T)* tmp = new ARRAY(T)[newDims[0]];
 			for (int32_t i = 0; i < __dim; i++)
 				tmp[i] = new __Array<T>(__dim - 1, newDims);
 			

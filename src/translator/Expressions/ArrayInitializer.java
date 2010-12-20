@@ -25,7 +25,6 @@ public class ArrayInitializer extends JavaExpression {
 
 	protected void onInstantiate(GNode n) {
 		expressions = new ArrayList<JavaExpression>();
-		dimensions = "";
 		for (Object o : n) {
 			if (o instanceof GNode) {
 				JavaExpression e = (JavaExpression)this.dispatch((GNode)o);
@@ -33,8 +32,6 @@ public class ArrayInitializer extends JavaExpression {
 				if (e.getType().getName().equals("null"));
 				else {
 					this.setType(JavaType.getType(e.getType().getName(), e.getType().getDimensions() + 1));
-					if (e instanceof ArrayInitializer)
-						dimensions += ((ArrayInitializer)e).getDimensions();
 				}
 			}
 		}
@@ -42,14 +39,10 @@ public class ArrayInitializer extends JavaExpression {
 	}
 
 	public String print() {
-		String ret = "java::util::__Array<" + this.getType().getCppName() + ">::arrayBuilder(" + this.dimensions + ", ";
+		String ret = "new java::util::__Array<" + this.getType().getCppName() + ">(java::util::__InitializerListTag::tag, " + this.dimensions + ", ";
 		for (int i = 0; i < expressions.size(); i++)
 			ret += expressions.get(i).print() + ", ";
 		return ret.substring(0, ret.length() - 2) + ")";
-	}
-
-	public String getDimensions() {
-		return this.dimensions;
 	}
 }
 

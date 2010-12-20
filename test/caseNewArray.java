@@ -4,7 +4,13 @@ class caseNewArray {
 		int[] t = new int[3];
 		caseNewArray[] zz = new caseNewArray[4];
 		i[1] = 100;
+		Object[] o = new Object[1];
+		String[][] o2 = new String[1][2];
 		
-		System.out.println(i[1]);
+		i.getClass();
+		o.getClass();
+		o2.getClass().getSuperclass();
+		
+		System.out.println("It didn't segfault! That means it worked!");
 	}
 }

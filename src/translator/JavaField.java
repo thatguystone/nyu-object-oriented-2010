@@ -2,6 +2,7 @@ package translator;
 
 import translator.Expressions.*;
 import translator.Printer.CodeBlock;
+import translator.Printer.CodePrinter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -63,6 +64,14 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 	protected JavaExpression assignment;
 	
 	/**
+	 * Holds the list of array types that have had their __class() specialized.
+	 */
+	private static HashSet<String> initializedList = new HashSet<String>();
+	
+	private static CodeBlock arraySpecialize = new CodeBlock();
+	private static CodeBlock arraySpecializeBlock;
+	
+	/**
 	 * For variables that should never be printed. (ie. for (int i = .... ) -- the "int i" shouldn't be printed
 	 * to the list of statements (it will be picked up in JavaScope.visitBlock()), so we ignore it here.
 	 */
@@ -121,8 +130,19 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		if (!this.name.equals("args")) {
 			this.type = JavaType.getType(this.type.getName(), this.dimensions);
 		}
-		
+
 		this.needsStaticWrapper = (this.type.getJavaClass() != null);
+		
+		this.specializeArrayType();
+	}
+	
+	public static void prepare() {
+		arraySpecializeBlock = arraySpecialize.block("namespace java").block("namespace util");
+	}
+	
+	public static void wrapUp() {
+		arraySpecializeBlock.closeAll();
+		JavaStatic.cpp.p(CodePrinter.PrintOrder.IMPLEMENTATION, arraySpecialize);
 	}
 	
 	/**
@@ -286,6 +306,47 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		return ret;
 	}
 
+
+	protected void specializeArrayType() {
+		if (this.dimensions == 0)
+			return;
+		
+		if (initializedList.contains(this.getType().getCppName()))
+			return;
+		
+		initializedList.add(this.getType().getCppName());
+		
+		//our parent __class()
+		String parent;
+		
+		//the string representation, in java, of the array type
+		String rep = "["; //f-that, we're only doing this for single-dimensional arrays
+			
+		if (this.getType().isPrimitive()) {
+			JavaClass repCls = JavaStatic.pkgs.getClass(this.getType().getRepresentingObjectName()); 
+			rep += repCls.getName(false).substring(0, 1);
+			parent = repCls.getCppName(true, false);
+		} else {
+			rep += "L" + this.getType().getJavaClass().getParent().getJavaClass().getName() + ";"; 
+			parent = this.getType().getJavaClass().getParent().getCppName(true, false);
+		}
+		
+		parent += "::__class()";
+		
+		arraySpecializeBlock
+			.pln("template <>")
+			.block("java::lang::Class java::util::__Array<" + this.getType().getCppName() + ">::__class()")
+    			.block("static java::lang::Class k = new java::lang::__Class(", false)
+    				.pln("java::lang::asString(\"" + rep + "\"),")
+					.pln(parent + ",")
+					.pln("java::lang::__Class::__class()")
+				.close()
+				.pln(");")
+				.pln("return k;")
+			.close()
+		;
+	}
+	
 	/**
 	 * Prints out a nice version of the field to C++.
 	 *
