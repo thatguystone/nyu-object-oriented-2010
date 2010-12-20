@@ -127,9 +127,7 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 			this.getJavaFile().getImport("java.lang.ArrayIndexOutOfBoundsException");
 		}
 
-		if (!this.name.equals("args")) {
-			this.type = JavaType.getType(this.type.getName(), this.dimensions);
-		}
+		this.type = JavaType.getType(this.type.getName(), this.dimensions);
 
 		this.needsStaticWrapper = (this.type.getJavaClass() != null);
 		

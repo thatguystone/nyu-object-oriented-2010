@@ -251,7 +251,7 @@ public class JavaMethod extends ActivatableVisitor implements Nameable, Typed {
 			return;
 		
 		JavaMethodSignature sig = new JavaMethodSignature();
-		sig.add(this.getJavaFile().getImport("java.lang.String").getType(), this);
+		sig.add(JavaType.getType(this.getJavaFile().getImport("java.lang.String").getType().getName(), 1), this);
 		
 		//if we get here, we might be main -- let's check our signature
 		if (this.sig.equals(sig))

@@ -105,9 +105,17 @@ public class JavaPackages {
 		
 		CodeBlock main = new CodeBlock();
 		
+		//i'm gonna give that bitch a main function
+		//bitches love main functions
 		main
-			.block("int main(int argc, char* argv[])")
-				.pln(this.mainMethod.getCppName(true, false) + "(java::lang::asString(\"\"));")
+			.block("int main(int argc, char** argv)")
+				.pln("ARRAY(java::lang::String) args = new java::util::__Array<java::lang::String>(1, argc);")
+				.pln()
+				.block("for (int i = 0; i < argc; i++)", false)
+					.pln("args->get(1, i) = new java::lang::__String(argv[i]);")
+				.close()
+				.pln()
+				.pln(this.mainMethod.getCppName(true, false) + "(args);")
 			.close()
 		;
 		

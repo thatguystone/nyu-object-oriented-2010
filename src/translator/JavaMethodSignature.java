@@ -92,7 +92,7 @@ public class JavaMethodSignature {
 		String ret = "";
 		
 		for (TypeContainer c : this.sig) {
-			ret += (withTypes ? c.type.getCppName(): "");
+			ret += (withTypes ? c.type.getCppName(c.type.getDimensions() > 0): "");
 			ret += (withVariableNames && withTypes ? " " : ""); //if we need an extra space in between the two guys
 			ret += (withVariableNames ? ((JavaField)c.item).getCppName() : "") + ", ";
 		} 
