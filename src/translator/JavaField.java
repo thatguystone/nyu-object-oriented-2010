@@ -121,12 +121,6 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		if (!this.name.equals("args")) {
 			this.type = JavaType.getType(this.type.getName(), this.dimensions);
 		}
-
-		if (this.getJavaClass().getName().equals("__defaultPkg.caseNewArray")) {
-			System.out.println("from field constructor " + this.getJavaClass().getName() + "." + this.type.getName() + " " + this.name + " " + this.type.getDimensions());
-			//if (this.name.equals("i"))
-				//JavaStatic.dumpNode(n);
-		}
 		
 		this.needsStaticWrapper = (this.type.getJavaClass() != null);
 	}

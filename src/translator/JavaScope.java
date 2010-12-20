@@ -366,6 +366,10 @@ public class JavaScope extends Visitor {
 		return new InstanceOfExpression(this, n);
 	}
 
+	public JavaExpression visitArrayInitializer(GNode n) {
+		return new ArrayInitializer(this, n);
+	}
+
 	/**
 	 * Other Visitors
 	 */
