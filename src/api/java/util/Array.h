@@ -53,14 +53,17 @@ struct __Array {
 			__arrayData = new T[__dims[0]];
 			
 			//null out the array
-			std::memset(__arrayData, 0, __dims[0] * sizeof(T));
+			//don't use memset because we don't want to overwrite smart-pointers (making them all 0)
+			//this is safe for smart pointers and primitives
+			for (int32_t i = 0; i < __dims[0]; i++)
+				__arrayData[i] = 0;
 		} else {
 			int32_t* newDims = new int32_t[__dim - 1];
 			
 			for (int32_t i = 1; i < __dim; i++)
 				newDims[i - 1] = dims[i];
 			
-			ARRAY(T)* tmp = new ARRAY(T)[__dims[0]];
+			ARRAY(T)* tmp = new ARRAY(T)[newDims[0]];
 			for (int32_t i = 0; i < __dim; i++)
 				tmp[i] = new __Array<T>(__dim - 1, newDims);
 			
