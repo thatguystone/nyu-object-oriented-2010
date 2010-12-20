@@ -369,7 +369,8 @@ public class JavaField extends JavaVisibleScope implements Nameable, Typed {
 		
 		//if we have a typedef that needs printing (this is only initialized for class variables)
 		//also make sure we're not dealing with a primitive as our 
-		if (this.typedefName != null && this.getType().getJavaClass() != null)
+		//don't typedef on arrays...we suck at that anyway, and it makes no sense...
+		if (this.typedefName != null && this.getType().getJavaClass() != null && !this.getType().getJavaClass().getName().equals("java.util.Array"))
 			b.pln("typedef " + this.getType().getJavaClass().getCppName(true, false) + " " + this.typedefName + ";");
 		
 		if (this.isStatic())

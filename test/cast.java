@@ -9,6 +9,12 @@ public class cast {
 		} finally {
 			System.out.println("That was fun.");
 		}
+		
+		try {
+			cast_test2 t2 = (cast_test2)new cast_test();
+		} catch (Exception e) {
+			System.out.println("Cast failed.");
+		}
 	}
 }
 

@@ -25,10 +25,8 @@ public class UnaryExp extends JavaExpression {
 		super(scope, n);
 	}
 	protected void onInstantiate(GNode n) {
-		JavaStatic.dumpNode(n);
 		this.operand = (JavaExpression)this.dispatch((GNode)n.get(1));
 		this.operator = (String)n.get(0);
-		System.out.println(operand.getType().getCppName());
 		this.setType(operand.getType());
 	}
 	public String print() {

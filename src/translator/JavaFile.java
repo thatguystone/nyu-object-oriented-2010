@@ -268,7 +268,7 @@ public class JavaFile extends ActivatableVisitor implements Nameable {
 		//lose the first dot
 		pkg = pkg.substring(1);
 		
-		if (n.get(2).toString().equals("*"))
+		if (n.get(2) != null && n.get(2).toString().equals("*"))
 			this.importPackage(pkg);
 		else
 			this.importFile(pkg);
