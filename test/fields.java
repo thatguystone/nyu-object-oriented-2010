@@ -17,13 +17,6 @@ public class fields {
 		
 		fields flds = new fields();
 		flds.instanceStatic();
-		
-		/**
-		//This is not legal Java:
-		//the variable "java" was declared, so we can't access anything in java.* anymore
-		Object java = new Object();
-		Class c = java.lang.Integer.TYPE;
-		//*/
 	}
 }
 

@@ -21,15 +21,29 @@ public class UnaryExp extends JavaExpression {
 	 * the operand.
 	 */
 	JavaExpression operand;
+	
+	
+	boolean order;
+	
 	public UnaryExp(JavaScope scope, GNode n) {
 		super(scope, n);
 	}
 	protected void onInstantiate(GNode n) {
-		this.operand = (JavaExpression)this.dispatch((GNode)n.get(1));
-		this.operator = (String)n.get(0);
+		if (n.get(0) instanceof String) {
+			operator = (String)n.get(0);
+			operand = (JavaExpression)this.dispatch((GNode)n.get(1));
+			order = true;
+		}	
+		else {
+			this.operand = (JavaExpression)this.dispatch((GNode)n.get(0));
+			this.operator = (String)n.get(1);
+			order = false;
+		}
 		this.setType(operand.getType());
 	}
 	public String print() {
-		return "(" +  operator  + operand.print()+")";
+		if (order)
+			return "(" +  operator  + operand.print()+")";
+		return "(" + operand.print() + operator + ")";
 	}
 }

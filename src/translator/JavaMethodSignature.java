@@ -35,6 +35,8 @@ public class JavaMethodSignature {
 	 * @param s The parameter itself -> JavaScope is the parent of it, so this allows it to print.
 	 */
 	public void add(JavaType type, JavaScope s) {
+		if (type == null)
+			throw new NullPointerException();
 		this.sig.add(new TypeContainer(type, s));
 	}
 	

@@ -292,10 +292,6 @@ public class JavaScope extends Visitor {
 		return new ArithmeticExpression(this, n);
 	}
 	
-	public JavaExpression visitPostfixExpression(GNode n) {
-		return new PostfixExp(this, n);
-	}
-	
 	public JavaExpression visitExpressionList(GNode n){
 		return new ExpressionList(this,n);
 	}
@@ -371,6 +367,14 @@ public class JavaScope extends Visitor {
 	}
 	
 	public JavaExpression visitUnaryExpression(GNode n) {
+		return new UnaryExp(this, n);
+	}
+	
+	public JavaExpression visitPrefixExpression(GNode n) {
+		return new UnaryExp(this, n);
+	}
+	
+	public JavaExpression visitPostfixExpression(GNode n) {
 		return new UnaryExp(this, n);
 	}
 
