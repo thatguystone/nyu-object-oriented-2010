@@ -9,5 +9,10 @@ public class arrayList {
 		System.out.println(l.size());
 		
 		System.out.println(l.get(1).getClass().getName());
+		
+		l.remove(1);
+		System.out.println(l.size());
+		l.remove(1);
+		System.out.println(l.size());
 	}
 }
