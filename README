@@ -19,6 +19,8 @@ A good start:
 		Command: ./make cpp file=test2/add
 	5) To run the test suite:
 		Command: ./make testSuite
+	6) To run Grimm's test:
+		Command: ./make test file=xtx/oop/Test
 	
 Notes:
 	* The "make" script is pretty much an alias for "make".  I made a script so that you don't have to source your config file every time you run make...it would make things too difficult.
